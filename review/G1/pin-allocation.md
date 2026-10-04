@@ -1,0 +1,112 @@
+> STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1
+
+# ESP32-S3 pin allocation, expander maps and I2C address map
+
+Source data: `pin-allocation.csv` (single source of truth). Automated check: `python3 review/G1/calc/check_pins.py` → `pin-check-report.txt` (current result: **0 errors, 8 warnings**, all warnings are boot-sensitive pins listed below). It checks the table against datasheet facts typed into the script (pin numbers, reserved pins, strap pull directions, motor-pin rules) - it cannot check that those typed facts are right. Running it with `--module N16R8` shows the three errors that rule out octal-PSRAM modules.
+
+Module facts come from the ESP32-S3-WROOM-1/1U datasheet v1.8 (2023-11-21), fetched 2026-10-04: <https://documentation.espressif.com/esp32-s3-wroom-1_wroom-1u_datasheet_en.pdf>. **The human must re-check every row against the datasheet revision of the modules actually purchased.**
+
+## 1. GPIO budget
+
+| Item | Count |
+|---|---:|
+| GPIOs brought out on WROOM-1 (Table 3-1) | 36 |
+| Lost on octal-PSRAM variants (GPIO35-37) | 3 → only 33 on N16R8/N8R8 |
+| Needed by this design | **36** |
+| Spare on N8R2 | **0** |
+
+Needs: camera DVP 12, SPI 3 + 2 chip selects + 1 interrupt, I2C 2, motors 4, ELRS UART 2, USB 2, debug UART0 2, BOOT 1, expander/alert interrupt 1, LED data 1, buzzer 1, power KILL 1, battery ADC 1. Everything slower is on the I2C expanders (section 3).
+
+If a pin is needed later, the cheapest to free are GPIO1 (VBAT_SENSE backup divider - the INA226 already measures voltage) and GPIO43/44 (debug UART0 - USB Serial/JTAG remains).
+
+## 2. GPIO table
+
+| GPIO | Module pin | Net | Function | Dir | External pull | Boot / conflict notes |
+|---:|---:|---|---|---|---|---|
+| 0 | 27 | BOOT_N | BOOT button | in | 10k up; button to GND | **Strapping**: must be 1 for SPI boot. No large capacitor (Espressif checklist). |
+| 1 | 39 | VBAT_SENSE | Battery divider (backup) | analog | high-value divider from switched VMOT + RC | ADC1_CH0 (ADC2 is shared with Wi-Fi). Switched rail, so no drain or back-powering when off. |
+| 2 | 38 | MOT1_PWM | Motor 1 gate | out | 100k down | |
+| 3 | 15 | EXP_INT_N | Wired-OR INT: 2x TCA6408A + INA226 ALERT | in | 10k up | **Strapping** (JTAG source select) - only read if the eFuse enabling it is burned. Do not burn it. |
+| 4-10, 14 | 4,5,6,7,12,17,18,22 | CAM_D0..D7 | Camera DVP data (D0=4 … D6=10, D7=14) | in | - | esp32-camera routes DVP through the GPIO matrix on ESP32-S3 (any GPIO). |
+| 11 | 19 | SPI_MOSI | SPI2 | out | - | SPI2 IO_MUX pin. Per-device clocks: BMI270 ≤10 MHz, PMW3901 2 MHz with ≥45 us between writes. |
+| 12 | 20 | SPI_SCK | SPI2 | out | - | SPI2 IO_MUX pin. |
+| 13 | 21 | SPI_MISO | SPI2 | in | - | SPI2 IO_MUX pin. |
+| 15 | 8 | CAM_XCLK | Camera clock out | out | - | XTAL_32K_P; no 32 kHz crystal fitted. |
+| 16 | 9 | CAM_PCLK | Pixel clock | in | - | XTAL_32K_N. |
+| 17 | 10 | CAM_VSYNC | | in | - | |
+| 18 | 11 | CAM_HREF | | in | - | |
+| 19 | 13 | USB_DN | USB D- | bidir | - | Fixed. |
+| 20 | 14 | USB_DP | USB D+ | bidir | - | Fixed. |
+| 21 | 23 | MOT2_PWM | Motor 2 gate | out | 100k down | |
+| 35 | 28 | IMU_CS_N | BMI270 CS | out | 10k up | Free only on quad/no-PSRAM modules. Datasheet: default function of module pins 28-30 is "decided by eFuse bit" - **confirm**. |
+| 36 | 29 | FLOW_CS_N | PMW3901 CS | out | 10k up | Same note. |
+| 37 | 30 | IMU_INT1 | BMI270 INT1 | in | - | Same note. |
+| 38 | 31 | MOT3_PWM | Motor 3 gate | out | 100k down | |
+| 39 | 32 | I2C_SDA | Main I2C | bidir | 2.2k up (confirm at G2) | Default JTAG MTCK; JTAG is via USB. |
+| 40 | 33 | I2C_SCL | Main I2C | bidir | 2.2k up | Default JTAG MTDO. |
+| 41 | 34 | CRSF_RX | UART1 RX ← receiver | in | - | Default JTAG MTDI. |
+| 42 | 35 | CRSF_TX | UART1 TX → receiver | out | - | Default JTAG MTMS. |
+| 43 | 37 | U0TXD | Debug UART0 TX | out | - | Fixed; ROM log. |
+| 44 | 36 | U0RXD | Debug UART0 RX | in | - | Fixed. |
+| 45 | 26 | LED_DIN | LED data → SN74AHCT1G125 | out | 10k down | **Strapping**: must be 0 at boot - a 1 selects 1.8 V VDD_SPI and the 3.3 V flash will not boot. External pull-down backs up the weak internal one. |
+| 46 | 16 | BUZZER | Buzzer FET gate | out | 100k down | **Strapping**: must be 0 for download mode with GPIO0=0; ROM log routing. |
+| 47 | 24 | MOT4_PWM | Motor 4 gate | out | 100k down | 3.3 V on N8R2. |
+| 48 | 25 | PWR_KILL_N | LTC2954 KILL (active low) | out | 100k up | Pull-up keeps the board on whether or not firmware runs (intended); firmware pulls low to power off. KILL is ignored for 400-650 ms after turn-on. A hung MCU cannot power itself off - button-only turn-off to be confirmed from the LTC2954 datasheet at G2. |
+| EN | 3 | EN | Reset button + 10k/1 uF RC | - | 10k up, 1 uF | Values from the module's peripheral schematic. |
+
+Why the motors sit on GPIO2/21/38/47: none is a strapping, default-JTAG or eFuse-dependent pin, and each has a 100 kΩ gate pull-down so motors stay off while the chip is in reset or booting. **This must still be confirmed on the bench at G6 with props off** (scope each gate through power-up and reset).
+
+## 3. I2C expander maps (TCA6408A powers up with all pins as high-Z inputs)
+
+**U10 (address 0x20) - outputs**
+
+| Pin | Net | Default via external pull | Notes |
+|---|---|---|---|
+| P0 | TOF_DOWN_XSHUT | pull-down (sensor in reset) | VL53L1X XSHUT must be driven, and high only while AVDD is on. |
+| P1 | TOF_LEFT_XSHUT | pull-down | |
+| P2 | TOF_RIGHT_XSHUT | pull-down | |
+| P3 | TOF_REAR_XSHUT | pull-down | |
+| P4 | TOF_FWD_LPN | pull-down (I2C disabled) | VL53L5CX LPn. |
+| P5 | CAM_PWDN | pull-up (camera powered down) | |
+| P6 | CAM_RESET_N | pull-down (held in reset) | |
+| P7 | FLOW_RESET_N | pull-down (held in reset) | PMW3901 NRESET. |
+
+**U11 (address 0x21) - mostly inputs**
+
+| Pin | Net | Dir | Notes |
+|---|---|---|---|
+| P0 | TOF_FWD_INT_N | in | VL53L5CX interrupt. |
+| P1 | CHG_STAT_N | in | BQ24074 CHG (open-drain). |
+| P2 | PGOOD_N | in | BQ24074 PGOOD - USB present; firmware will not arm while low. |
+| P3 | PWR_BTN_INT_N | in | LTC2954 INT - user asked to power off; firmware lands, then KILL. |
+| P4 | MAG_DRDY | in | QMC5883P data-ready (if the package exposes it - confirm at G2). |
+| P5 | BARO_INT | in | BMP390 INT. |
+| P6 | CAM_PWR_EN | out | ME6211 CE pins (2.8 V and 1.2 V camera rails). Pull-down: camera rails off by default. |
+| P7 | SPARE | - | Test pad. |
+
+Both expanders' INT outputs and INA226 ALERT are open-drain and wired-OR onto EXP_INT_N (GPIO3).
+
+## 4. I2C address map (7-bit), main bus at 400 kHz
+
+| Address | Device | Notes |
+|---|---|---|
+| 0x20 | U10 TCA6408A | ADDR low |
+| 0x21 | U11 TCA6408A | ADDR high |
+| 0x29 → 0x31 | U15 VL53L1X down | All VL53L1X/VL53L5CX power up at **0x29**; firmware releases one XSHUT/LPn at a time and reassigns, every boot. |
+| 0x29 → 0x32 | U16 VL53L1X left | |
+| 0x29 → 0x33 | U17 VL53L1X right | |
+| 0x29 → 0x34 | U18 VL53L1X rear | |
+| 0x29 → 0x35 | U19 VL53L5CX forward | |
+| 0x2C | U14 QMC5883P | Fixed address. |
+| 0x30 | OV2640 SCCB | Fixed; new ToF addresses deliberately skip 0x30. |
+| 0x40 | U9 INA226 | A0 = A1 = GND |
+| 0x76 | U13 BMP390 | SDO to GND (must not float) |
+
+No collisions after reassignment. If OV5640 replaced OV2640, its SCCB address 0x3C would still be free here.
+
+## 5. What the human must verify (G1 items from VERIFY.md section 1)
+
+- Every module pin number and GPIO against the purchased module's datasheet revision.
+- Strapping levels at power-up on GPIO0/3/45/46 with the actual pull resistors and connected devices.
+- eFuse state of GPIO3 (JTAG strap) and the "decided by eFuse" note for module pins 28-30.
+- That no motor gate glitches high during reset/boot (G6 bench test, props off).

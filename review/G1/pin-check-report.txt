@@ -1,0 +1,13 @@
+STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1
+Pin check report for pin-allocation.csv
+INFO  module variant checked: N8R2 (quad/no PSRAM)
+INFO  GPIOs brought out and usable: 36; assigned: 36; spare: 0 []
+WARN  GPIO0 (BOOT_N) strapping: must be 1 for SPI boot (weak pull-up). Pull: 10k pull-up to 3V3; button to GND
+WARN  GPIO3 (EXP_INT_N) strapping: JTAG source select when eFuse enables it; no internal pull. Pull: 10k pull-up to 3V3
+WARN  GPIO39 (I2C_SDA) is default JTAG MTCK; confirm pad state during reset before relying on it
+WARN  GPIO40 (I2C_SCL) is default JTAG MTDO; confirm pad state during reset before relying on it
+WARN  GPIO41 (CRSF_RX) is default JTAG MTDI; confirm pad state during reset before relying on it
+WARN  GPIO42 (CRSF_TX) is default JTAG MTMS; confirm pad state during reset before relying on it
+WARN  GPIO45 (LED_DIN) strapping: VDD_SPI select: must be 0 for 3.3 V flash modules (weak pull-down). Pull: 10k pull-down to GND
+WARN  GPIO46 (BUZZER) strapping: must be 0 for joint download with GPIO0=0; ROM log routing (weak pull-down). Pull: 100k pull-down at gate
+RESULT: 0 error(s), 8 warning(s) for human review
