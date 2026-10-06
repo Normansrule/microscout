@@ -1,0 +1,533 @@
+<!doctype html>
+<!-- STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1 -->
+<!-- Template for docs/index.html. Edit this file, then run: python3 tools/viz/build_site.py -->
+<!-- Page text and data: CC-BY-SA-4.0. Inline script: SPDX-License-Identifier: MIT -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MicroScout Design Explorer</title>
+<meta name="description" content="Interactive view of the MicroScout palm-sized ESP32-S3 camera drone's Gate G1 draft: weight, thrust, flight time, power, cost and pin allocation. Draft, unverified estimates.">
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --raised: #ffffff;
+  --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10);
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #008300; --s7: #4a3aa7;
+  --neutral: #b5b3ab; --critical: #d03b3b; --warning-bg: #fff6e0; --warning-ink: #6b4a00; --good: #006300;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --raised: #222221;
+    --ink: #ffffff; --ink2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300; --s7: #9085e9;
+    --neutral: #5f5e5a; --critical: #e66767; --warning-bg: #2e2510; --warning-ink: #f2d38a; --good: #0ca30c;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --raised: #222221;
+  --ink: #ffffff; --ink2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300; --s7: #9085e9;
+  --neutral: #5f5e5a; --critical: #e66767; --warning-bg: #2e2510; --warning-ink: #f2d38a; --good: #0ca30c;
+}
+* { box-sizing: border-box; }
+html { background: var(--page); }
+body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+a { color: var(--s1); }
+code { font: 0.9em ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+header.top { padding: 28px 0 8px; }
+.eyebrow { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+h1 { font-size: clamp(26px, 4vw, 38px); line-height: 1.15; margin: 0 0 10px; letter-spacing: -0.01em; }
+h2 { font-size: 22px; margin: 0 0 6px; }
+h3 { font-size: 15px; margin: 0 0 8px; }
+.lede { color: var(--ink2); max-width: 760px; margin: 0; }
+.banner { display: flex; gap: 12px; align-items: flex-start; background: var(--warning-bg); color: var(--warning-ink);
+  border-radius: var(--radius); padding: 12px 14px; margin: 18px 0 8px; font-size: 14px; }
+.banner strong { color: inherit; }
+.banner svg { flex: none; margin-top: 2px; }
+nav.toc { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 14px 0 0; font-size: 14px; }
+nav.toc a { color: var(--ink2); text-decoration: none; border-bottom: 1px solid var(--grid); }
+nav.toc a:hover { color: var(--ink); border-color: var(--ink2); }
+section { padding: 34px 0 6px; }
+.sub { color: var(--ink2); margin: 0 0 16px; max-width: 780px; font-size: 14px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; }
+.hero { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 14px; align-items: stretch; }
+@media (max-width: 860px) { .hero { grid-template-columns: 1fr; } }
+.hero img { width: 100%; height: auto; display: block; border-radius: 8px; }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
+.tile .label { font-size: 12.5px; color: var(--ink2); }
+.tile .value { font-size: 28px; font-weight: 650; line-height: 1.2; margin-top: 2px; }
+.tile .note { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.status { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; margin-top: 4px; }
+.status.bad { color: var(--critical); }
+.status.ok { color: var(--good); }
+.controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px 18px; margin-bottom: 14px; }
+.ctl label { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink2); margin-bottom: 4px; }
+.ctl output { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.ctl input[type=range] { width: 100%; accent-color: var(--s1); }
+.ctl .hint { font-size: 11.5px; color: var(--muted); }
+.btnrow { display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 12px; }
+button.chip { font: inherit; font-size: 13px; color: var(--ink2); background: var(--surface); border: 1px solid var(--border);
+  border-radius: 999px; padding: 4px 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+button.chip[aria-pressed="true"] { color: var(--ink); border-color: var(--ink2); }
+button.chip:hover { color: var(--ink); }
+.sw { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex: none; }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart .ttl { font-size: 13.5px; font-weight: 600; margin: 0 0 2px; }
+.chart .cap { font-size: 12px; color: var(--muted); margin: 0 0 8px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--ink2); margin: 2px 0 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.key-line { width: 16px; height: 2px; display: inline-block; border-radius: 1px; }
+.bars { display: grid; grid-template-columns: minmax(130px, 210px) 1fr; gap: 6px 10px; align-items: center; font-size: 13px; }
+.bars .nm { color: var(--ink2); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bars .track { position: relative; height: 18px; }
+.bars .bar { position: absolute; left: 0; top: 3px; height: 12px; border-radius: 0 4px 4px 0; }
+.bars .rng { position: absolute; top: 8px; height: 2px; background: var(--ink2); border-radius: 1px; }
+.bars .val { position: absolute; top: 0; font-size: 12px; color: var(--ink2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bars .row { display: contents; }
+:root { --barscale: 0.86; }
+@media (max-width: 600px) { :root { --barscale: 0.62; } .bars { grid-template-columns: 1fr; gap: 0 10px; } .bars .nm { text-align: left; margin-top: 6px; } }
+.bars .row:hover .nm, .bars .row:focus-within .nm { color: var(--ink); }
+#tip { position: fixed; z-index: 10; pointer-events: none; background: var(--raised); color: var(--ink); border: 1px solid var(--border);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.14); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; max-width: 320px; display: none; }
+#tip .h { font-weight: 650; margin-bottom: 2px; }
+#tip .m { color: var(--ink2); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+th { color: var(--ink2); font-weight: 600; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+details { margin-top: 10px; }
+summary { cursor: pointer; color: var(--ink2); font-size: 13.5px; }
+.scroll { overflow-x: auto; }
+.pinwrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 300px); gap: 14px; align-items: start; }
+@media (max-width: 860px) { .pinwrap { grid-template-columns: 1fr; } }
+#pindetail .k { font-size: 12px; color: var(--muted); margin-top: 8px; }
+#pindetail .v { font-size: 14px; }
+.pin { cursor: pointer; }
+.pin.dim { opacity: 0.18; }
+.pin:focus { outline: none; }
+.pin:focus rect, .pin.sel rect { stroke: var(--ink); stroke-width: 1.5; }
+figure { margin: 0; }
+figure img { width: 100%; height: auto; display: block; border-radius: 8px; border: 1px solid var(--border); }
+figcaption { font-size: 12.5px; color: var(--ink2); margin-top: 6px; }
+.oq { display: grid; gap: 10px; }
+.oq .card { padding: 12px 14px; }
+.oq .id { font-weight: 700; font-size: 13px; color: var(--muted); }
+.oq .rec { font-size: 13px; color: var(--ink2); margin-top: 4px; }
+footer { padding: 36px 0 40px; color: var(--muted); font-size: 12.5px; }
+.themebtn { float: right; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div id="tip" role="tooltip"></div>
+<div class="wrap">
+  <header class="top">
+    <button class="chip themebtn" id="themeBtn" type="button" aria-label="Toggle light or dark theme">◐ Theme</button>
+    <p class="eyebrow">Open-source palm-sized camera drone · Gate G1 draft</p>
+    <h1>MicroScout design explorer</h1>
+    <p class="lede">An ESP32-S3 quadcopter about 95 mm across, where the circuit board is the frame and a printed canopy carries the prop guards. This page shows the architecture-and-parts draft (Gate G1) and lets you change the assumptions to see what moves.</p>
+    <div class="banner" role="note">
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2 1 21h22L12 2zm0 6 .01 0c.55 0 1 .45 1 1v5a1 1 0 1 1-2 0V9c0-.55.44-1 .99-1zM12 16.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5z"/></svg>
+      <div><strong>Draft, unverified.</strong> No hardware has been built, powered or flown. Every number here is a datasheet value, a vendor claim, an estimate or an assumption, and the design is waiting for review at Gate G1. Sources and formulas are in <a href="https://github.com/Normansrule/microscout/blob/main/review/G1/budgets.md">review/G1/budgets.md</a>.</div>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#whatif">What-if calculator</a><a href="#weight">Weight</a><a href="#pins">Pin map</a>
+      <a href="#power">Power &amp; cost</a><a href="#animations">Animations</a><a href="#figures">Figures</a><a href="#open">Open questions</a>
+      <a href="https://github.com/Normansrule/microscout">GitHub repo ↗</a>
+    </nav>
+  </header>
+
+  <section aria-labelledby="h-hero">
+    <h2 id="h-hero" class="sr" style="position:absolute;left:-9999px">Overview</h2>
+    <div class="hero">
+      <div class="card" style="padding:8px"><img src="figures/anim/drone-concept.gif" width="960" height="540"
+        alt="Animated top-view concept sketch: four spinning 55 mm props inside guard rings, a forward multizone distance sensor sweeping, and side and rear distance sensors pulsing. Illustrative only."></div>
+      <div class="tiles" id="tiles"></div>
+    </div>
+  </section>
+
+  <section id="whatif" aria-labelledby="h-whatif">
+    <h2 id="h-whatif">What-if calculator</h2>
+    <p class="sub">The same hover model as <code>budgets.py</code>. Start values are the G1 estimates; move them to see how much margin each assumption buys. Hover time = capacity × HV derate × usable fraction ÷ (motor current + electronics current).</p>
+    <div class="card">
+      <div class="controls" id="controls"></div>
+      <div class="btnrow" id="presets"></div>
+      <div class="grid2">
+        <div class="chart" id="chTW"></div>
+        <div class="chart" id="chFT"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="weight" aria-labelledby="h-weight">
+    <h2 id="h-weight">Weight budget</h2>
+    <p class="sub" id="weightSub"></p>
+    <div class="card">
+      <div class="legend"><span><i class="sw" style="background:var(--s1)"></i>datasheet / vendor value</span><span><i class="sw" style="background:var(--s2)"></i>engineering estimate</span><span><i class="key-line" style="background:var(--ink2)"></i>low–high range</span></div>
+      <div class="bars" id="weightBars"></div>
+      <details><summary>Table view</summary><div class="scroll"><table id="weightTable"></table></div></details>
+    </div>
+  </section>
+
+  <section id="pins" aria-labelledby="h-pins">
+    <h2 id="h-pins">ESP32-S3 pin map</h2>
+    <p class="sub">All 36 GPIOs on the ESP32-S3-WROOM-1-N8R2 module are used. Hover or tab through the pins for details; the chips filter by function. Pin order follows the module (1–14 left, 15–26 bottom, 27–40 right); the drawing is not to scale.</p>
+    <div class="btnrow" id="pinFilters"></div>
+    <div class="pinwrap">
+      <div class="card"><svg id="pinSvg" viewBox="0 0 640 670" role="img" aria-label="ESP32-S3 module pin map"></svg></div>
+      <div class="card" id="pindetail" aria-live="polite"><h3>Pick a pin</h3><p class="sub" style="margin:0">Strapping pins (◆) decide how the chip boots, so the circuits on them were chosen to give the right level at reset.</p></div>
+    </div>
+    <details><summary>Table view of all pins</summary><div class="scroll"><table id="pinTable"></table></div></details>
+  </section>
+
+  <section id="power" aria-labelledby="h-power">
+    <h2 id="h-power">Power and cost</h2>
+    <div class="grid2">
+      <div class="card">
+        <h3>Electronics current, 3.3 V rail</h3>
+        <p class="sub" id="powerSub" style="margin-bottom:8px"></p>
+        <div class="legend"><span><i class="sw" style="background:var(--s1)"></i>average</span><span><i class="sw" style="background:var(--s2)"></i>peak</span></div>
+        <div class="bars" id="powerBars"></div>
+      </div>
+      <div class="card">
+        <h3>Priced parts per drone</h3>
+        <p class="sub" id="costSub" style="margin-bottom:8px"></p>
+        <div class="bars" id="costBars"></div>
+        <details><summary>Table view</summary><div class="scroll"><table id="costTable"></table></div></details>
+      </div>
+    </div>
+  </section>
+
+  <section id="animations" aria-labelledby="h-anim">
+    <h2 id="h-anim">How it boots</h2>
+    <p class="sub">Two short animations of the planned start-up behaviour. They illustrate the draft design; the real behaviour is checked on the bench, props off, at Gate G6.</p>
+    <div class="grid2">
+      <figure class="card" style="padding:8px"><img src="figures/anim/power-on-sequence.gif" width="960" height="540" loading="lazy" alt="Animated timing diagram from button press to ready-to-arm."><figcaption>Power-on sequence: button debounce, rails, strap pins, the KILL blanking window, then sensor bring-up.</figcaption></figure>
+      <figure class="card" style="padding:8px"><img src="figures/anim/tof-addressing.gif" width="960" height="540" loading="lazy" alt="Animation of five distance sensors being woken one at a time and moved from address 0x29 to 0x31 through 0x35."><figcaption>All five distance sensors share address 0x29 at power-up, so firmware wakes and re-addresses them one at a time.</figcaption></figure>
+    </div>
+  </section>
+
+  <section id="figures" aria-labelledby="h-fig">
+    <h2 id="h-fig">Figures</h2>
+    <p class="sub">Generated by <code>tools/viz/figures.py</code> from the same data as this page, in light and dark versions.</p>
+    <div class="grid2" id="figGrid"></div>
+  </section>
+
+  <section id="open" aria-labelledby="h-open">
+    <h2 id="h-open">Open questions at Gate G1</h2>
+    <p class="sub">Decisions the owner makes before the schematic starts. The recommendation is the drafting agent's.</p>
+    <div class="oq" id="oqList"></div>
+  </section>
+
+  <footer>
+    Built by <code>tools/viz/build_site.py</code> from <code>review/G1/calc/budgets.py</code>, <code>bom/drone-bom-g1.csv</code> and <code>review/G1/pin-allocation.csv</code>.
+    Documentation CC-BY-SA-4.0 · hardware CERN-OHL-S-2.0 · software MIT. Status: DRAFT – UNVERIFIED.
+  </footer>
+</div>
+
+<script>
+const G1 = {"weight": [{"name": "Battery 1S 660 mAh", "full": "Battery 1S 660 mAh HV (GNB)", "value": 15.5, "lo": 14.5, "hi": 16.5, "kind": "SOURCED", "basis": "S14 (15.5 g +/-1)"}, {"name": "Motors 4× 8520", "full": "Motors 4x 8520", "value": 20.0, "lo": 18.0, "hi": 22.0, "kind": "SOURCED", "basis": "S15 (4.5-5.5 g each, vendor-dependent)"}, {"name": "Props 4× 55 mm", "full": "Props 4x 55 mm", "value": 2.0, "lo": 1.6, "hi": 4.0, "kind": "ESTIMATE", "basis": "S16 is a 65 mm prop at 0.5 g; 55 mm weight UNCONFIRMED"}, {"name": "PCB (bare 1.0 mm FR-4)", "full": "PCB bare 1.0 mm FR-4 (25.0 cm2) incl. copper", "value": 6.04, "lo": 5.13, "hi": 7.24, "kind": "ESTIMATE", "basis": "area x thickness x density (1.85 g/cm3) + copper 105 um x 60% coverage"}, {"name": "Electronic parts + ESP32", "full": "Electronic components incl. ESP32 module", "value": 7.0, "lo": 5.0, "hi": 10.0, "kind": "ESTIMATE", "basis": "Crazyflie 2.1 (S18): 29 g - 7.1 g battery - 4x~2.95 g motors = ~10 g for PCB+parts+mounts; this board has more parts"}, {"name": "Camera + FPC", "full": "Camera module OV2640 + FPC", "value": 2.0, "lo": 1.0, "hi": 3.0, "kind": "ESTIMATE", "basis": "UNCONFIRMED; weigh chosen module"}, {"name": "ELRS receiver", "full": "ELRS receiver", "value": 0.46, "lo": 0.46, "hi": 2.2, "kind": "SOURCED", "basis": "S17 (Lite 0.46 g; RP1 2.2 g)"}, {"name": "Canopy shell", "full": "Canopy shell (PLA)", "value": 6.79, "lo": 4.76, "hi": 9.51, "kind": "ESTIMATE", "basis": "open box shell 50x64x16 mm, 0.8 mm wall, PLA 1.24 g/cm3"}, {"name": "Prop guards (4 rings)", "full": "Prop guards 4 rings (dia 61 mm)", "value": 3.8, "lo": 2.66, "hi": 5.7, "kind": "ESTIMATE", "basis": "pi x D x 1.0 x 4.0 mm per ring"}, {"name": "Guard struts", "full": "Guard struts", "value": 1.5, "lo": 1.0, "hi": 3.0, "kind": "ESTIMATE", "basis": "8 struts"}, {"name": "Landing feet", "full": "Landing feet", "value": 1.0, "lo": 0.5, "hi": 1.5, "kind": "ESTIMATE", "basis": "4 feet"}, {"name": "Motor holders", "full": "Motor holders (printed)", "value": 2.0, "lo": 1.0, "hi": 3.0, "kind": "ESTIMATE", "basis": "4 clamps"}, {"name": "Battery cradle", "full": "Battery cradle (printed)", "value": 1.5, "lo": 1.0, "hi": 2.5, "kind": "ESTIMATE", "basis": "holds 58x18x7.8 mm pack under the board"}, {"name": "Leads, strap, fasteners", "full": "Battery leads, strap, fasteners, solder", "value": 2.0, "lo": 1.0, "hi": 3.5, "kind": "ESTIMATE", "basis": "allowance"}], "total": {"nominal": 71.59, "lo": 57.61, "hi": 93.66}, "thrust": [{"gf": 28, "tag": "ASSUMPTION"}, {"gf": 33, "tag": "SOURCED S19 (60 mm)"}, {"gf": 36, "tag": "SOURCED S19 (60 mm)"}], "eta": [5.0, 4.0], "model": {"v_nom": 3.7, "cap": 660, "derate": 0.9, "usable": 0.8, "elec_a": 0.7211, "d_mm": 95, "prop_mm": 55}, "rails": {"3V3": {"eff": 0.9, "loads": [{"name": "ESP32-S3 module", "full": "ESP32-S3 module (Wi-Fi TX 802.11b 20.5 dBm peak)", "peak": 355, "avg": 200, "tag": "SOURCED peak / ESTIMATE avg", "src": "S1 peak; average while streaming UNCONFIRMED - measure at G6"}, {"name": "BMI270 IMU", "full": "BMI270 IMU (performance mode, via 1.8 V LDO)", "peak": 0.97, "avg": 0.97, "tag": "SOURCED", "src": "S2"}, {"name": "BMP390 baro", "full": "BMP390 (drone use case)", "peak": 0.57, "avg": 0.57, "tag": "SOURCED", "src": "S3"}, {"name": "QMC5883P mag", "full": "QMC5883P (high-power mode 100 Hz)", "peak": 0.6, "avg": 0.6, "tag": "SOURCED", "src": "S4"}, {"name": "4× VL53L1X ToF", "full": "4x VL53L1X (16 mA avg, 40 mA peak each)", "peak": 160, "avg": 64, "tag": "SOURCED", "src": "S5"}, {"name": "VL53L5CX 8×8 ToF", "full": "VL53L5CX (313 mW at 3.3 V AVDD/IOVDD)", "peak": 94.85, "avg": 94.85, "tag": "SOURCED + CALC", "src": "S6; I = P/V"}, {"name": "PMW3901 flow", "full": "PMW3901 run mode (via 1.8 V LDO)", "peak": 9, "avg": 9, "tag": "SOURCED", "src": "S7"}, {"name": "INA226", "full": "INA226", "peak": 0.33, "avg": 0.33, "tag": "SOURCED", "src": "S8"}, {"name": "OV2640 camera", "full": "OV2640 (140 mW compressed) via 2.8 V/1.2 V LDOs", "peak": 116.67, "avg": 116.67, "tag": "SOURCED + ESTIMATE", "src": "S9; worst case assumes all power on the 1.2 V LDO: I = 140 mW / 1.2 V"}, {"name": "Buzzer", "full": "Buzzer MLT-5020 (intermittent)", "peak": 100, "avg": 0, "tag": "SOURCED", "src": "S11; excluded from average"}]}, "5V": {"eff": 0.85, "loads": [{"name": "4× WS2812B LEDs", "full": "4x WS2812B-2020 at full white", "peak": 192, "avg": 50, "tag": "SOURCED peak basis / ESTIMATE avg", "src": "S10 tests each colour at 16 mA; full-white current not stated -> 3 x 16 mA per LED (CALC). Average assumes dim status lighting (ESTIMATE)"}, {"name": "ELRS receiver", "full": "ELRS receiver", "peak": 100, "avg": 100, "tag": "ESTIMATE", "src": "UNCONFIRMED - no vendor current found; placeholder to replace from receiver spec or bench"}]}}, "cost": [{"ref": "U1", "mpn": "ESP32-S3-WROOM-1-N8R2", "qty": 1, "unit": 4.6784, "line": 4.6784, "fn": "MCU + Wi-Fi/BLE module (8 MB flash; 2 MB quad PSRAM)", "lcsc": "C2913204", "brk": "1+", "url": "https://documentation.espressif.com/esp32-s3-wroom-1_wroom-1u_datasheet_en.pdf"}, {"ref": "U2", "mpn": "BQ24074RGTR", "qty": 1, "unit": 2.5294, "line": 2.5294, "fn": "1S Li-ion charger with power path", "lcsc": "C54313", "brk": "1+", "url": "https://www.ti.com/lit/ds/symlink/bq24074.pdf"}, {"ref": "U3", "mpn": "TPS63802DLAR", "qty": 1, "unit": 0.9773, "line": 0.9773, "fn": "3.3 V buck-boost (electronics)", "lcsc": "C2845237", "brk": "1+", "url": "https://www.ti.com/lit/ds/symlink/tps63802.pdf"}, {"ref": "U4", "mpn": "TPS61023DRLR", "qty": 1, "unit": 0.247, "line": 0.247, "fn": "5 V boost for ELRS receiver + WS2812 LEDs", "lcsc": "C919459", "brk": "5+", "url": "https://www.ti.com/lit/ds/symlink/tps61023.pdf"}, {"ref": "U5", "mpn": "TLV70018DDCR", "qty": 1, "unit": 0.2433, "line": 0.2433, "fn": "1.8 V LDO (IMU core only)", "lcsc": "C79924", "brk": "5+", "url": "https://www.ti.com/lit/ds/symlink/tlv700.pdf"}, {"ref": "U6", "mpn": "ME6211C28M5G-N", "qty": 1, "unit": 0.0663, "line": 0.0663, "fn": "2.8 V LDO camera AVDD", "lcsc": "C53099", "brk": "10+ (MOQ 10)", "url": "https://stm32-base.org/assets/pdf/regulators/ME6211.pdf"}, {"ref": "U7", "mpn": "ME6211C12M5G-N", "qty": 1, "unit": 0.0626, "line": 0.0626, "fn": "1.2 V LDO camera DVDD (OV2640 core)", "lcsc": "C236672", "brk": "10+ (MOQ 10)", "url": "https://stm32-base.org/assets/pdf/regulators/ME6211.pdf"}, {"ref": "U8", "mpn": "LTC2954CTS8-1#TRMPBF", "qty": 1, "unit": 6.2249, "line": 6.2249, "fn": "Pushbutton on/off controller", "lcsc": "C580652", "brk": "1+", "url": "https://www.analog.com/media/en/technical-documentation/data-sheets/2954fb.pdf"}, {"ref": "U9", "mpn": "INA226AIDGSR", "qty": 1, "unit": 0.7621, "line": 0.7621, "fn": "Battery voltage/current monitor", "lcsc": "C49851", "brk": "1+", "url": "https://www.ti.com/lit/ds/symlink/ina226.pdf"}, {"ref": "U10-U11", "mpn": "TCA6408ARGTR", "qty": 2, "unit": 0.6651, "line": 1.3302, "fn": "I2C GPIO expander (XSHUT/LPn/resets/status)", "lcsc": "C181499", "brk": "10+", "url": "https://www.ti.com/lit/ds/symlink/tca6408a.pdf"}, {"ref": "U12", "mpn": "BMI270", "qty": 1, "unit": 2.8743, "line": 2.8743, "fn": "6-axis IMU (SPI)", "lcsc": "C2836813", "brk": "1+", "url": "https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmi270-ds000.pdf"}, {"ref": "U14", "mpn": "QMC5883P", "qty": 1, "unit": 1.5538, "line": 1.5538, "fn": "Magnetometer", "lcsc": "C2847467", "brk": "1+", "url": "https://www.qstcorp.com/upload/pdf/202512/2C939E5AA0704285BC3BE71132B8629B.pdf"}, {"ref": "U15-U18", "mpn": "VL53L1CXV0FY/1", "qty": 4, "unit": 4.39, "line": 17.56, "fn": "ToF ranging (down; left; right; rear)", "lcsc": "C190004", "brk": "10+", "url": "https://www.st.com/resource/en/datasheet/vl53l1x.pdf"}, {"ref": "U19", "mpn": "VL53L5CXV0GC/1", "qty": 1, "unit": 7.2383, "line": 7.2383, "fn": "Forward multizone ToF 8x8", "lcsc": "C3178303", "brk": "1+", "url": "https://www.st.com/resource/en/datasheet/vl53l5cx.pdf"}, {"ref": "U20", "mpn": "PMW3901MB-TXQT", "qty": 1, "unit": 4.6204, "line": 4.6204, "fn": "Optical flow sensor", "lcsc": "C43496881", "brk": "1+", "url": "https://wiki.bitcraze.io/_media/projects:crazyflie2:expansionboards:pot0189-pmw3901mb-txqt-ds-r1.00-200317_20170331160807_public.pdf"}, {"ref": "U21", "mpn": "SN74AHCT1G125DBVR", "qty": 1, "unit": 0.1009, "line": 0.1009, "fn": "3.3 V -> 5 V single buffer for LED data", "lcsc": "C7484", "brk": "5+", "url": "https://www.ti.com/lit/ds/symlink/sn74ahct1g125.pdf"}, {"ref": "U22", "mpn": "USBLC6-2SC6", "qty": 1, "unit": 0.1784, "line": 0.1784, "fn": "USB ESD protection", "lcsc": "C7519", "brk": "5+", "url": "https://www.st.com/resource/en/datasheet/usblc6-2.pdf"}, {"ref": "Q1", "mpn": "DMP2008UFG-7", "qty": 1, "unit": 1.1801, "line": 1.1801, "fn": "Reverse-battery P-MOSFET", "lcsc": "C461052", "brk": "10+", "url": "https://www.diodes.com/datasheet/download/DMP2008UFG.pdf"}, {"ref": "Q2", "mpn": "DMP2008UFG-7", "qty": 1, "unit": 1.1801, "line": 1.1801, "fn": "Motor-rail high-side P-MOSFET switch", "lcsc": "C461052", "brk": "10+", "url": "https://www.diodes.com/datasheet/download/DMP2008UFG.pdf"}, {"ref": "Q3-Q8", "mpn": "AO3400A", "qty": 6, "unit": 0.0898, "line": 0.5388, "fn": "N-MOSFET: Q3 Q2-gate driver; Q4-Q7 motors; Q8 buzzer", "lcsc": "C20917", "brk": "5+", "url": "https://www.aosmd.com/res/datasheets/AO3400A.pdf"}, {"ref": "D1-D5", "mpn": "B5819W SL", "qty": 5, "unit": 0.0283, "line": 0.1415, "fn": "Schottky flyback (4 motors + buzzer)", "lcsc": "C8598", "brk": "20+ (MOQ 20)", "url": "https://jlcpcb.com/partdetail/9093-B5819WSL/C8598"}, {"ref": "F1", "mpn": "0451015.MRL", "qty": 1, "unit": 0.2472, "line": 0.2472, "fn": "Battery fuse 15 A very fast", "lcsc": "C44480", "brk": "5+", "url": "https://lcsc.com/product-detail/Surface-Mount-Fuses_Littelfuse_0451015-MRL_15A-65V_C44480.html"}, {"ref": "J1", "mpn": "TYPE-C-31-M-12", "qty": 1, "unit": 0.1727, "line": 0.1727, "fn": "USB-C receptacle 16-pin", "lcsc": "C165948", "brk": "5+", "url": "https://jlcpcb.com/partdetail/Korean_HropartsElec-TYPE_C_31_M12/C165948"}, {"ref": "J3", "mpn": "FPC-05F-24PH20", "qty": 1, "unit": 0.1053, "line": 0.1053, "fn": "Camera FPC connector 24-pin 0.5 mm", "lcsc": "C2856805", "brk": "5+", "url": "https://www.lcsc.com/product-detail/C2856805.html"}, {"ref": "BZ1", "mpn": "MLT-5020", "qty": 1, "unit": 0.4435, "line": 0.4435, "fn": "Magnetic buzzer (passive; 4 kHz)", "lcsc": "C94598", "brk": "1+", "url": "https://jlcpcb.com/partdetail/Jiangsu_HuanengElec-MLT5020/C94598"}, {"ref": "LED1-LED4", "mpn": "WS2812B-2020", "qty": 4, "unit": 0.092, "line": 0.368, "fn": "RGB LED (addressable)", "lcsc": "C965555", "brk": "5+", "url": "https://www.mouser.com/pdfDocs/WS2812B-2020_V10_EN_181106150240761.pdf"}, {"ref": "M1-M4", "mpn": "8520 coreless (vendor TBD)", "qty": 4, "unit": 1.1225, "line": 4.49, "fn": "Brushed coreless motor 8520 (1.0 mm shaft) 2 CW + 2 CCW", "lcsc": "", "brk": "4-pack 4.49", "url": "https://speedyfpv.com/products/usaq-8520-coreless-brushed-motor-set-53-000rpm-with-2cw-2ccw-65mm-propellers"}, {"ref": "RX1", "mpn": "ELRS Lite (flat antenna)", "qty": 1, "unit": 8.99, "line": 8.99, "fn": "ExpressLRS 2.4 GHz receiver (CRSF)", "lcsc": "", "brk": "1", "url": "https://betafpv.com/collections/rx/products/elrs-lite-receiver"}], "pins": [{"gpio": 0, "pin": 27, "net": "BOOT_N", "fn": "BOOT button (strapping)", "dir": "in", "pull": "10k pull-up to 3V3; button to GND", "notes": "Strapping pin: must read 1 for SPI boot. Internal weak pull-up. Datasheet checklist: no large capacitor on GPIO0.", "group": 5, "strap": true}, {"gpio": 1, "pin": 39, "net": "VBAT_SENSE", "fn": "Battery voltage divider (backup to INA226)", "dir": "analog in", "pull": "high-value divider from switched VMOT + RC filter", "notes": "ADC1_CH0 (ADC2 is shared with Wi-Fi). Divider taken from the switched motor rail so it neither drains the battery nor back-powers the ESP32 when the board is off. Cheapest pin to free if needed.", "group": 5, "strap": false}, {"gpio": 2, "pin": 38, "net": "MOT1_PWM", "fn": "Motor 1 low-side MOSFET gate", "dir": "out", "pull": "100k pull-down at gate", "notes": "Not a strapping pin. Pull-down keeps motor off during reset/boot.", "group": 3, "strap": false}, {"gpio": 3, "pin": 15, "net": "EXP_INT_N", "fn": "Wired-OR interrupt from 2x TCA6408A + INA226 ALERT (all open-drain)", "dir": "in", "pull": "10k pull-up to 3V3", "notes": "Strapping pin (JTAG source select) - only read if the related eFuse is burned. Floating by default; here pulled high. Do NOT burn STRAP_JTAG_SEL eFuse. UNCONFIRMED: human to confirm eFuse state of purchased modules.", "group": 5, "strap": true}, {"gpio": 4, "pin": 4, "net": "CAM_D0", "fn": "Camera DVP data 0 (OV2640 Y2)", "dir": "in", "pull": "none", "notes": "esp32-camera routes DVP pins through the GPIO matrix on ESP32-S3 (any GPIO allowed).", "group": 0, "strap": false}, {"gpio": 5, "pin": 5, "net": "CAM_D1", "fn": "Camera DVP data 1 (Y3)", "dir": "in", "pull": "none", "notes": "", "group": 0, "strap": false}, {"gpio": 6, "pin": 6, "net": "CAM_D2", "fn": "Camera DVP data 2 (Y4)", "dir": "in", "pull": "none", "notes": "", "group": 0, "strap": false}, {"gpio": 7, "pin": 7, "net": "CAM_D3", "fn": "Camera DVP data 3 (Y5)", "dir": "in", "pull": "none", "notes": "", "group": 0, "strap": false}, {"gpio": 8, "pin": 12, "net": "CAM_D4", "fn": "Camera DVP data 4 (Y6)", "dir": "in", "pull": "none", "notes": "", "group": 0, "strap": false}, {"gpio": 9, "pin": 17, "net": "CAM_D5", "fn": "Camera DVP data 5 (Y7)", "dir": "in", "pull": "none", "notes": "", "group": 0, "strap": false}, {"gpio": 10, "pin": 18, "net": "CAM_D6", "fn": "Camera DVP data 6 (Y8)", "dir": "in", "pull": "none", "notes": "GPIO10 is the SPI2 IO_MUX CS0 pin; not needed because CS lines go through the GPIO matrix.", "group": 0, "strap": false}, {"gpio": 11, "pin": 19, "net": "SPI_MOSI", "fn": "SPI2 MOSI (IMU + optical flow)", "dir": "out", "pull": "none", "notes": "SPI2 IO_MUX pin. Per-device clocks: BMI270 <=10 MHz; PMW3901 2 MHz with >=45 us between writes.", "group": 1, "strap": false}, {"gpio": 12, "pin": 20, "net": "SPI_SCK", "fn": "SPI2 SCLK", "dir": "out", "pull": "none", "notes": "SPI2 IO_MUX pin.", "group": 1, "strap": false}, {"gpio": 13, "pin": 21, "net": "SPI_MISO", "fn": "SPI2 MISO", "dir": "in", "pull": "none", "notes": "SPI2 IO_MUX pin.", "group": 1, "strap": false}, {"gpio": 14, "pin": 22, "net": "CAM_D7", "fn": "Camera DVP data 7 (Y9)", "dir": "in", "pull": "none", "notes": "GPIO14 is SPI2 QUADWP IO_MUX pin; unused for SPI here.", "group": 0, "strap": false}, {"gpio": 15, "pin": 8, "net": "CAM_XCLK", "fn": "Camera master clock output (LCD_CAM CAM_CLK)", "dir": "out", "pull": "none", "notes": "XTAL_32K_P pin - no 32 kHz crystal fitted.", "group": 0, "strap": false}, {"gpio": 16, "pin": 9, "net": "CAM_PCLK", "fn": "Camera pixel clock", "dir": "in", "pull": "none", "notes": "XTAL_32K_N pin - no 32 kHz crystal fitted.", "group": 0, "strap": false}, {"gpio": 17, "pin": 10, "net": "CAM_VSYNC", "fn": "Camera VSYNC", "dir": "in", "pull": "none", "notes": "", "group": 0, "strap": false}, {"gpio": 18, "pin": 11, "net": "CAM_HREF", "fn": "Camera HREF", "dir": "in", "pull": "none", "notes": "", "group": 0, "strap": false}, {"gpio": 19, "pin": 13, "net": "USB_DN", "fn": "USB D- (native USB Serial/JTAG)", "dir": "bidir", "pull": "none", "notes": "Fixed USB pin. Reconfiguring disables USB-JTAG.", "group": 4, "strap": false}, {"gpio": 20, "pin": 14, "net": "USB_DP", "fn": "USB D+", "dir": "bidir", "pull": "none", "notes": "Fixed USB pin.", "group": 4, "strap": false}, {"gpio": 21, "pin": 23, "net": "MOT2_PWM", "fn": "Motor 2 gate", "dir": "out", "pull": "100k pull-down at gate", "notes": "", "group": 3, "strap": false}, {"gpio": 35, "pin": 28, "net": "IMU_CS_N", "fn": "BMI270 chip select", "dir": "out", "pull": "10k pull-up to 3V3", "notes": "Usable only because N8R2 has QUAD PSRAM. On octal modules (R8/R16V) GPIO35-37 are taken by PSRAM. Datasheet: default function of module pins 28-30 decided by eFuse - human to confirm.", "group": 1, "strap": false}, {"gpio": 36, "pin": 29, "net": "FLOW_CS_N", "fn": "PMW3901 chip select", "dir": "out", "pull": "10k pull-up to 3V3", "notes": "Same GPIO35-37 note.", "group": 1, "strap": false}, {"gpio": 37, "pin": 30, "net": "IMU_INT1", "fn": "BMI270 INT1 (data-ready)", "dir": "in", "pull": "none", "notes": "Same GPIO35-37 note.", "group": 1, "strap": false}, {"gpio": 38, "pin": 31, "net": "MOT3_PWM", "fn": "Motor 3 gate", "dir": "out", "pull": "100k pull-down at gate", "notes": "", "group": 3, "strap": false}, {"gpio": 39, "pin": 32, "net": "I2C_SDA", "fn": "Main I2C bus SDA (sensors + camera SCCB) at 400 kHz", "dir": "bidir", "pull": "2.2k pull-up to 3V3 (value to confirm at G2 from bus capacitance)", "notes": "Default JTAG MTCK pin; JTAG is via USB so the pad is free.", "group": 2, "strap": false}, {"gpio": 40, "pin": 33, "net": "I2C_SCL", "fn": "Main I2C bus SCL", "dir": "bidir", "pull": "2.2k pull-up to 3V3", "notes": "Default JTAG MTDO pin.", "group": 2, "strap": false}, {"gpio": 41, "pin": 34, "net": "CRSF_RX", "fn": "UART1 RX <- ELRS receiver TX (CRSF 420000 baud)", "dir": "in", "pull": "none", "notes": "Default JTAG MTDI pin. UNCONFIRMED: receiver UART logic level is 3.3 V when powered from 5 V.", "group": 4, "strap": false}, {"gpio": 42, "pin": 35, "net": "CRSF_TX", "fn": "UART1 TX -> ELRS receiver RX", "dir": "out", "pull": "none", "notes": "Default JTAG MTMS pin.", "group": 4, "strap": false}, {"gpio": 43, "pin": 37, "net": "U0TXD", "fn": "UART0 TX to debug header (ROM log)", "dir": "out", "pull": "none", "notes": "Fixed UART0 pin.", "group": 4, "strap": false}, {"gpio": 44, "pin": 36, "net": "U0RXD", "fn": "UART0 RX from debug header", "dir": "in", "pull": "none", "notes": "Fixed UART0 pin.", "group": 4, "strap": false}, {"gpio": 45, "pin": 26, "net": "LED_DIN", "fn": "WS2812B-2020 data via SN74AHCT1G125 (3.3V->5V)", "dir": "out", "pull": "10k pull-down to GND", "notes": "Strapping pin: must be 0 at boot (1 would select 1.8 V VDD_SPI and the 3.3 V flash would not boot). External pull-down added on top of the weak internal one. Buffer input has no pull.", "group": 5, "strap": true}, {"gpio": 46, "pin": 16, "net": "BUZZER", "fn": "Buzzer N-MOSFET gate", "dir": "out", "pull": "100k pull-down at gate", "notes": "Strapping pin: must be 0 at boot for joint download mode with GPIO0=0; also controls ROM log routing. Internal weak pull-down; external pull-down agrees.", "group": 5, "strap": true}, {"gpio": 47, "pin": 24, "net": "MOT4_PWM", "fn": "Motor 4 gate", "dir": "out", "pull": "100k pull-down at gate", "notes": "3.3 V on N8R2 (1.8 V only on N16R16VA).", "group": 3, "strap": false}, {"gpio": 48, "pin": 25, "net": "PWR_KILL_N", "fn": "LTC2954-1 KILL input (active low)", "dir": "out", "pull": "100k pull-up to 3V3", "notes": "Pull-up holds the board on whether or not firmware runs (intended); firmware pulls low to power off. LTC2954 ignores KILL for 400-650 ms after turn-on. A hung MCU cannot power itself off - button-off behaviour without KILL to be confirmed from the LTC2954 datasheet at G2.", "group": 5, "strap": false}], "groups": ["Camera DVP", "SPI sensors", "I²C bus", "Motor gates", "USB / UART / ELRS", "Control & status", "Power / reset"], "oq": [{"id": "OQ-1", "q": "<strong>Toolchain location.</strong> KiCad 9 PPA is blocked in this workspace (Ubuntu archive has KiCad 7.0.11); ESP-IDF and Freerouting downloads need GitHub repo access granted to the session.", "rec": "Grant access to <code>espressif/esp-idf</code> and <code>freerouting/freerouting</code> when M3/M7 come; for KiCad, either accept 7.0.11 here (you can open the files in 9, but files saved in 9 won't open in 7) or tell me another route."}, {"id": "OQ-2", "q": "<strong>Battery connector.</strong> JST-PH is rated 2 A/contact; estimate is ~4.6-5.6 A hover, ~8-11 A full throttle.", "rec": "Pads for a BT2.0 pigtail (vendor claim 9 A, no formal datasheet), or keep PH2.0 knowingly over-rated."}, {"id": "OQ-3", "q": "<strong>Thrust margin.</strong> T/W ≈ 1.6-2.0 at 71.6 g nominal using the only (secondhand, 60 mm prop) thrust figure; worst-case weight 94 g gives ~1.2-1.5.", "rec": "Set a 65 g design target; consider making side/rear VL53L1X optional; measure one motor + 55 mm prop on a scale before G3 if you can."}, {"id": "OQ-4", "q": "<strong>Optical flow.</strong> Bare PMW3901 needs an LN03-ZSZ lens with no confirmed source.", "rec": "If you can confirm a lens source, keep it on board; otherwise use a Bitcraze Flow deck v2 ($55) on a header."}, {"id": "OQ-5", "q": "<strong>Cost.</strong> Priced lines alone ≈ $69/drone vs ~$75 target, before PCB, assembly, passives, battery, barometer, camera.", "rec": "Pick levers: side/rear ToF as do-not-populate (−$13.17), cheaper power controller (MAX16150, price unconfirmed), accept a higher target."}, {"id": "OQ-6", "q": "<strong>Barometer stock.</strong> BMP390, DPS310 and SPL06-001 all out of stock at LCSC on 2026-10-04.", "rec": "Keep BMP390 footprint; source via JLCPCB global sourcing or consign/hand-place; re-check stock at G4."}, {"id": "OQ-7", "q": "<s><strong>GitHub.</strong> Which account, and private until G8?</s> <strong>Closed 2026-10-05:</strong> published as <code>Normansrule/microscout</code>, public at the owner's request (D-002).", "rec": "-"}, {"id": "OQ-8", "q": "<strong>ESP-IDF version.</strong> Brief says v5.4; esp-drone targets <code>release/v5.0</code>.", "rec": "Decide at M7 after a test build; flagged now because porting is a schedule risk."}, {"id": "OQ-9", "q": "<strong>5 V rail.</strong> Added for the ELRS receiver (5 V spec) and WS2812B-2020 (VDD ≥ 3.7 V).", "rec": "Accept."}]};
+const $ = (s, el = document) => el.querySelector(s);
+const NS = "http://www.w3.org/2000/svg";
+const fmt = (v, d = 1) => Number(v).toFixed(d);
+const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const GROUP_VARS = ["--s1", "--s2", "--s3", "--s4", "--s5", "--s6", "--neutral"];
+
+/* ---------- theme toggle (per-viewer convenience only) ---------- */
+(function () {
+  let saved = null;
+  try { saved = localStorage.getItem("ms-theme"); } catch (e) {}
+  if (saved) document.documentElement.dataset.theme = saved;
+  $("#themeBtn").addEventListener("click", () => {
+    const dark = document.documentElement.dataset.theme
+      ? document.documentElement.dataset.theme === "dark"
+      : matchMedia("(prefers-color-scheme: dark)").matches;
+    const next = dark ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem("ms-theme", next); } catch (e) {}
+    redrawAll();
+  });
+})();
+
+/* ---------- tooltip ---------- */
+const tip = $("#tip");
+function showTip(html, x, y) {
+  tip.innerHTML = html; tip.style.display = "block";
+  const r = tip.getBoundingClientRect();
+  let left = x + 14, top = y + 14;
+  if (left + r.width > innerWidth - 8) left = x - r.width - 14;
+  if (top + r.height > innerHeight - 8) top = y - r.height - 14;
+  tip.style.left = left + "px"; tip.style.top = top + "px";
+}
+const hideTip = () => { tip.style.display = "none"; };
+function bindTip(el, htmlFn) {
+  el.addEventListener("mousemove", (e) => showTip(htmlFn(), e.clientX, e.clientY));
+  el.addEventListener("mouseleave", hideTip);
+  el.addEventListener("focus", () => { const r = el.getBoundingClientRect(); showTip(htmlFn(), r.right, r.top); });
+  el.addEventListener("blur", hideTip);
+}
+
+/* ---------- model ---------- */
+const M = G1.model;
+const state = { thrust: 33, eta: 4.5, weight: G1.total.nominal, cap: M.cap, elec: M.elec_a };
+const hoverCurrent = (W, s) => W / s.eta / M.v_nom + s.elec;
+const flight = (W, s) => s.cap / 1000 * M.derate * M.usable / hoverCurrent(W, s) * 60;
+const tw = (W, s) => 4 * s.thrust / W;
+
+/* ---------- tiles ---------- */
+function drawTiles() {
+  const t = G1.total, s = state;
+  const cost = G1.cost.reduce((a, c) => a + c.line, 0);
+  const twv = tw(s.weight, s);
+  const tiles = [
+    ["Takeoff weight", `${fmt(s.weight)} g`, `G1 estimate ${fmt(t.nominal)} g · range ${fmt(t.lo, 0)}–${fmt(t.hi, 0)} g`, s.weight <= 80 ? ["ok", "under 80 g limit"] : ["bad", "over 80 g limit"]],
+    ["Thrust-to-weight", fmt(twv, 2), `${s.thrust} gf per motor`, twv >= 2 ? ["ok", "≥ 2 rule of thumb"] : ["bad", "below 2 – thin margin"]],
+    ["Hover time", `${fmt(flight(s.weight, s))} min`, `η ${fmt(s.eta)} g/W · ${s.cap} mAh`, null],
+    ["Priced parts", `$${fmt(cost, 2)}`, "per drone, before PCB, assembly, battery, camera", cost < 75 ? ["bad", "$75 target at risk"] : ["bad", "over $75 target"]],
+  ];
+  $("#tiles").innerHTML = tiles.map(([l, v, n, st]) => `<div class="tile"><div class="label">${l}</div><div class="value">${v}</div><div class="note">${n}</div>${st ? `<div class="status ${st[0]}">${st[0] === "ok" ? "✓" : "▲"} ${st[1]}</div>` : ""}</div>`).join("");
+}
+
+/* ---------- controls ---------- */
+const CTL = [
+  ["weight", "Takeoff weight", 50, 100, 0.5, "g", "G1 estimate " + fmt(G1.total.nominal) + " g"],
+  ["thrust", "Thrust per motor", 20, 45, 1, "gf", "Only data found: 33–36 gf with 60 mm props"],
+  ["eta", "Hover efficiency η", 3, 6, 0.1, "g/W", "Generic 8520 test: 4–5 g/W"],
+  ["cap", "Battery capacity", 500, 900, 10, "mAh", "Selected pack: 660 mAh"],
+  ["elec", "Electronics current", 0.3, 1.2, 0.01, "A", "G1 estimate " + fmt(M.elec_a, 2) + " A at the battery"],
+];
+function buildControls() {
+  $("#controls").innerHTML = CTL.map(([k, l, mn, mx, st, u, h]) =>
+    `<div class="ctl"><label for="c-${k}">${l} <output id="o-${k}"></output></label><input id="c-${k}" type="range" min="${mn}" max="${mx}" step="${st}" value="${state[k]}"><div class="hint">${h}</div></div>`).join("");
+  CTL.forEach(([k, , , , st, u]) => {
+    const inp = $("#c-" + k), out = $("#o-" + k);
+    const upd = () => { state[k] = +inp.value; out.textContent = `${fmt(state[k], st < 1 ? (st < 0.1 ? 2 : 1) : 0)} ${u}`; redrawModel(); };
+    inp.addEventListener("input", upd);
+    out.textContent = `${fmt(state[k], st < 1 ? (st < 0.1 ? 2 : 1) : 0)} ${u}`;
+  });
+  const presets = [
+    ["G1 nominal", { weight: G1.total.nominal, thrust: 33, eta: 4.5, cap: M.cap, elec: M.elec_a }],
+    ["Pessimistic", { weight: G1.total.hi, thrust: 28, eta: 4, cap: M.cap, elec: M.elec_a }],
+    ["Optimistic", { weight: G1.total.lo, thrust: 36, eta: 5, cap: M.cap, elec: M.elec_a }],
+    ["65 g target (OQ-3)", { weight: 65, thrust: 33, eta: 4.5, cap: M.cap, elec: M.elec_a }],
+  ];
+  $("#presets").innerHTML = presets.map(([n], i) => `<button class="chip" type="button" data-i="${i}">${n}</button>`).join("");
+  $("#presets").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
+    Object.assign(state, presets[+b.dataset.i][1]);
+    CTL.forEach(([k]) => { $("#c-" + k).value = state[k]; $("#c-" + k).dispatchEvent(new Event("input")); });
+  }));
+}
+
+/* ---------- small line chart ---------- */
+function lineChart(el, cfg) {
+  const W = 520, H = 280, m = { l: 44, r: 16, t: 10, b: 36 };
+  const x = (v) => m.l + (v - cfg.x0) / (cfg.x1 - cfg.x0) * (W - m.l - m.r);
+  const y = (v) => H - m.b - (v - cfg.y0) / (cfg.y1 - cfg.y0) * (H - m.t - m.b);
+  let s = `<p class="ttl">${cfg.title}</p><p class="cap">${cfg.caption}</p>`;
+  if (cfg.legend) s += `<div class="legend">${cfg.legend.map(([c, l, dash]) => `<span><i class="key-line" style="background:${dash ? "none;border-top:2px dashed " + c : c}"></i>${l}</span>`).join("")}</div>`;
+  s += `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${cfg.title}">`;
+  cfg.yt.forEach((v) => { s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${m.l - 8}" y="${y(v) + 4}" text-anchor="end" font-size="11" fill="var(--muted)" style="font-variant-numeric:tabular-nums">${v}</text>`; });
+  cfg.xt.forEach((v) => { s += `<text x="${x(v)}" y="${H - m.b + 18}" text-anchor="middle" font-size="11" fill="var(--muted)">${v}</text>`; });
+  s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 4}" text-anchor="middle" font-size="11.5" fill="var(--ink2)">${cfg.xlabel}</text>`;
+  s += `<line x1="${m.l}" x2="${W - m.r}" y1="${H - m.b}" y2="${H - m.b}" stroke="var(--axis)"/>`;
+  (cfg.bands || []).forEach((b) => { s += `<rect x="${x(b[0])}" y="${m.t}" width="${x(b[1]) - x(b[0])}" height="${H - m.t - m.b}" fill="var(--grid)" opacity="0.5"/><text x="${x(b[0]) + 4}" y="${m.t + 12}" font-size="10.5" fill="var(--ink2)">${b[2]}</text>`; });
+  (cfg.vlines || []).forEach((v) => { s += `<line x1="${x(v[0])}" x2="${x(v[0])}" y1="${m.t}" y2="${H - m.b}" stroke="${v[1]}" stroke-width="1.3"/><text x="${x(v[0]) + 4}" y="${H - m.b - 6}" font-size="10.5" fill="var(--ink2)">${v[2]}</text>`; });
+  (cfg.hlines || []).forEach((v) => { s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v[0])}" y2="${y(v[0])}" stroke="var(--muted)" stroke-dasharray="5 4"/><text x="${m.l + 4}" y="${y(v[0]) - 5}" font-size="10.5" fill="var(--ink2)">${v[1]}</text>`; });
+  cfg.series.forEach((se) => {
+    const pts = [];
+    for (let v = cfg.x0; v <= cfg.x1 + 1e-9; v += (cfg.x1 - cfg.x0) / 100) pts.push([x(v), y(Math.max(cfg.y0, Math.min(cfg.y1, se.f(v))))]);
+    s += `<path d="M${pts.map((p) => p.map((n) => n.toFixed(1)).join(",")).join("L")}" fill="none" stroke="${se.c}" stroke-width="${se.w || 2}" stroke-linejoin="round" stroke-linecap="round" ${se.dash ? 'stroke-dasharray="3 4"' : ""} opacity="${se.o || 1}"/>`;
+  });
+  const mk = cfg.marker;
+  s += `<circle cx="${x(mk.x)}" cy="${y(mk.y)}" r="5" fill="${mk.c}" stroke="var(--surface)" stroke-width="2"/>`;
+  s += `<text x="${x(mk.x) - 9}" y="${y(mk.y) - 9}" text-anchor="end" font-size="12" font-weight="600" fill="var(--ink)" paint-order="stroke" stroke="var(--surface)" stroke-width="4">${mk.label}</text>`;
+  s += `<g class="xh" style="display:none"><line y1="${m.t}" y2="${H - m.b}" stroke="var(--ink2)" stroke-width="1"/><circle r="4.5" fill="${mk.c}" stroke="var(--surface)" stroke-width="2"/></g>`;
+  s += `<rect class="hit" x="${m.l}" y="${m.t}" width="${W - m.l - m.r}" height="${H - m.t - m.b}" fill="transparent"/></svg>`;
+  el.innerHTML = s;
+  const svg = el.querySelector("svg"), xh = svg.querySelector(".xh"), hit = svg.querySelector(".hit");
+  hit.addEventListener("mousemove", (e) => {
+    const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY;
+    const q = p.matrixTransform(svg.getScreenCTM().inverse());
+    const v = cfg.x0 + (q.x - m.l) / (W - m.l - m.r) * (cfg.x1 - cfg.x0);
+    const yv = cfg.series[0].f(v);
+    xh.style.display = ""; xh.querySelector("line").setAttribute("x1", q.x); xh.querySelector("line").setAttribute("x2", q.x);
+    const c = xh.querySelector("circle"); c.setAttribute("cx", q.x); c.setAttribute("cy", y(Math.max(cfg.y0, Math.min(cfg.y1, yv))));
+    showTip(cfg.tip(v, yv), e.clientX, e.clientY);
+  });
+  hit.addEventListener("mouseleave", () => { xh.style.display = "none"; hideTip(); });
+}
+
+function redrawModel() {
+  const s = state, t = G1.total;
+  lineChart($("#chTW"), {
+    title: "Thrust-to-weight vs takeoff weight", caption: `T/W = 4 × ${s.thrust} gf ÷ weight. Faint lines: the G1 scenarios (28, 33, 36 gf).`,
+    x0: 50, x1: 100, y0: 1, y1: 3.4, xt: [50, 60, 70, 80, 90, 100], yt: [1, 1.5, 2, 2.5, 3], xlabel: "takeoff weight (g)",
+    bands: [[t.lo, t.hi, "G1 weight range"]], vlines: [[80, "var(--critical)", "80 g limit"]], hlines: [[2, "T/W = 2 rule of thumb"]],
+    legend: [["var(--s1)", "your settings"], ["var(--muted)", "G1 scenarios", true]],
+    series: [{ f: (w) => tw(w, s), c: "var(--s1)" }, ...G1.thrust.map((th) => ({ f: (w) => 4 * th.gf / w, c: "var(--muted)", w: 1.2, dash: true, o: 0.8 }))],
+    marker: { x: s.weight, y: tw(s.weight, s), c: "var(--s1)", label: fmt(tw(s.weight, s), 2) },
+    tip: (w, v) => `<div class="h">${fmt(w)} g</div><div class="m">T/W ${fmt(v, 2)} · hover at ${fmt(100 / v, 0)}% of max thrust</div>`,
+  });
+  lineChart($("#chFT"), {
+    title: "Hover time vs takeoff weight", caption: `${s.cap} mAh × ${Math.round(M.derate * 100)}% × ${Math.round(M.usable * 100)}% ÷ (W/η/${M.v_nom} V + ${fmt(s.elec, 2)} A)`,
+    x0: 50, x1: 100, y0: 0, y1: 12, xt: [50, 60, 70, 80, 90, 100], yt: [0, 2, 4, 6, 8, 10, 12], xlabel: "takeoff weight (g)",
+    bands: [[t.lo, t.hi, "G1 weight range"]], vlines: [[80, "var(--critical)", "80 g limit"]],
+    series: [{ f: (w) => flight(w, s), c: "var(--s1)" }],
+    marker: { x: s.weight, y: flight(s.weight, s), c: "var(--s1)", label: `${fmt(flight(s.weight, s))} min` },
+    tip: (w, v) => `<div class="h">${fmt(w)} g</div><div class="m">${fmt(v)} min · ${fmt(hoverCurrent(w, s), 2)} A from the battery</div>`,
+  });
+  drawTiles();
+}
+
+/* ---------- bar lists ---------- */
+function bars(el, rows, max, opts = {}) {
+  el.innerHTML = "";
+  rows.forEach((r) => {
+    const row = document.createElement("div"); row.className = "row";
+    const nm = document.createElement("div"); nm.className = "nm"; nm.textContent = r.name;
+    const tr = document.createElement("div"); tr.className = "track"; tr.tabIndex = 0;
+    tr.setAttribute("aria-label", r.aria || `${r.name}: ${r.label}`);
+    const pct = (v) => `calc(${(v / max) * 100}% * var(--barscale))`;
+    tr.innerHTML = (r.peak != null ? `<div class="bar" style="width:${pct(r.peak)};background:var(--s2)"></div>` : "") +
+      `<div class="bar" style="width:${pct(r.value)};background:${r.color}"></div>` +
+      (r.lo != null ? `<div class="rng" style="left:${pct(r.lo)};width:calc(${pct(r.hi)} - ${pct(r.lo)})"></div>` : "") +
+      `<div class="val" style="left:calc(${pct(Math.max(r.value, r.hi || 0, r.peak || 0))} + 6px)">${r.label}</div>`;
+    bindTip(tr, () => r.tip);
+    row.append(nm, tr); el.append(row);
+  });
+}
+
+function drawWeight() {
+  const t = G1.total;
+  $("#weightSub").innerHTML = `Nominal <strong>${fmt(t.nominal)} g</strong>, range ${fmt(t.lo)}–${fmt(t.hi)} g, against an 80 g limit. Hover a bar for where the number came from.`;
+  const rows = [...G1.weight].sort((a, b) => b.value - a.value).map((w) => ({
+    name: w.name, value: w.value, lo: w.lo, hi: w.hi, label: `${fmt(w.value)} g`,
+    color: w.kind === "SOURCED" ? "var(--s1)" : "var(--s2)",
+    tip: `<div class="h">${w.name}: ${fmt(w.value)} g</div><div class="m">range ${fmt(w.lo)}–${fmt(w.hi)} g · ${w.kind}</div><div class="m">${w.basis}</div>`,
+  }));
+  bars($("#weightBars"), rows, 24);
+  $("#weightTable").innerHTML = `<tr><th>Item</th><th class="num">Nominal (g)</th><th class="num">Range (g)</th><th>Tag</th><th>Basis</th></tr>` +
+    G1.weight.map((w) => `<tr><td>${w.name}</td><td class="num">${fmt(w.value)}</td><td class="num">${fmt(w.lo)}–${fmt(w.hi)}</td><td>${w.kind}</td><td>${w.basis}</td></tr>`).join("") +
+    `<tr><th>Total</th><th class="num">${fmt(t.nominal)}</th><th class="num">${fmt(t.lo)}–${fmt(t.hi)}</th><th></th><th></th></tr>`;
+}
+
+function drawPowerCost() {
+  const r33 = G1.rails["3V3"].loads;
+  const pk = r33.reduce((a, l) => a + l.peak, 0), av = r33.reduce((a, l) => a + l.avg, 0);
+  $("#powerSub").textContent = `${fmt(av, 0)} mA average, ${fmt(pk, 0)} mA peak against a 2 A regulator rating. ESP32 average is a placeholder until the G6 bench test.`;
+  bars($("#powerBars"), [...r33].sort((a, b) => b.peak - a.peak).map((l) => ({
+    name: l.name, value: l.avg, peak: l.peak, color: "var(--s1)", label: `${fmt(l.avg, l.avg < 10 ? 1 : 0)} / ${fmt(l.peak, l.peak < 10 ? 1 : 0)} mA`,
+    tip: `<div class="h">${l.full}</div><div class="m">average ${fmt(l.avg, 1)} mA · peak ${fmt(l.peak, 1)} mA</div><div class="m">${l.tag} · ${l.src}</div>`,
+  })), 360);
+  const cost = [...G1.cost].sort((a, b) => b.line - a.line);
+  const total = cost.reduce((a, c) => a + c.line, 0);
+  $("#costSub").innerHTML = `<strong>$${fmt(total, 2)}</strong> for the parts priced so far, against a ~$75 target. LCSC prices seen 2026-10-04; they change daily.`;
+  bars($("#costBars"), cost.slice(0, 12).map((c) => ({
+    name: `${c.ref} ${c.mpn}`, value: c.line, color: "var(--s1)", label: `$${fmt(c.line, 2)}`,
+    tip: `<div class="h">${c.mpn}</div><div class="m">${c.fn}</div><div class="m">${c.qty} × $${fmt(c.unit, 4)} (${c.brk || "listing"})${c.lcsc ? " · LCSC " + c.lcsc : ""}</div>`,
+  })).concat([{ name: `${cost.length - 12} smaller lines`, value: cost.slice(12).reduce((a, c) => a + c.line, 0), color: "var(--neutral)",
+    label: `$${fmt(cost.slice(12).reduce((a, c) => a + c.line, 0), 2)}`, tip: `<div class="h">${cost.length - 12} lines under $1.20 each</div><div class="m">See the table view</div>` }]), 18);
+  $("#costTable").innerHTML = `<tr><th>Ref</th><th>Part</th><th class="num">Qty</th><th class="num">Unit $</th><th class="num">Line $</th><th>LCSC</th></tr>` +
+    cost.map((c) => `<tr><td>${c.ref}</td><td>${c.mpn}</td><td class="num">${c.qty}</td><td class="num">${fmt(c.unit, 4)}</td><td class="num">${fmt(c.line, 2)}</td><td>${c.lcsc}</td></tr>`).join("") +
+    `<tr><th colspan="4">Subtotal of priced lines</th><th class="num">${fmt(total, 2)}</th><th></th></tr>`;
+}
+
+/* ---------- pin map ---------- */
+const pinFilter = new Set(G1.groups.map((_, i) => i));
+let selectedPin = null;
+function pinModel() {
+  const byPin = {};
+  G1.pins.forEach((p) => { byPin[p.pin] = p; });
+  const list = [];
+  for (let n = 1; n <= 40; n++) {
+    if (n === 1 || n === 40) list.push({ pin: n, name: "GND", net: "GND", group: 6, fn: "Ground" });
+    else if (n === 2) list.push({ pin: n, name: "3V3", net: "3V3", group: 6, fn: "3.3 V supply (≥ 0.5 A per datasheet)" });
+    else if (n === 3) list.push({ pin: n, name: "EN", net: "EN", group: 6, fn: "Chip enable / reset: 10 kΩ pull-up + 1 µF + RESET button" });
+    else { const p = byPin[n]; list.push({ ...p, name: "IO" + p.gpio }); }
+  }
+  return list;
+}
+function drawPins() {
+  const svg = $("#pinSvg"); svg.innerHTML = "";
+  const W = 640, mx = 230, my = 40, mw = 180, mh = 470, pitch = 26;
+  const add = (tag, attrs, parent = svg) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; };
+  add("rect", { x: mx, y: my, width: mw, height: mh, rx: 10, fill: "var(--page)", stroke: "var(--axis)", "stroke-width": 1.5 });
+  add("rect", { x: mx + 8, y: my + 8, width: mw - 16, height: 92, rx: 6, fill: "none", stroke: "var(--muted)", "stroke-dasharray": "4 4" });
+  const t1 = add("text", { x: mx + mw / 2, y: my + 52, "text-anchor": "middle", "font-size": 12, fill: "var(--ink2)" }); t1.textContent = "PCB antenna";
+  const t2 = add("text", { x: mx + mw / 2, y: my + 68, "text-anchor": "middle", "font-size": 11, fill: "var(--muted)" }); t2.textContent = "at the board edge";
+  add("rect", { x: mx + mw / 2 - 35, y: my + 250, width: 70, height: 70, rx: 4, fill: "var(--neutral)", opacity: 0.6 });
+  const t3 = add("text", { x: mx + mw / 2, y: my + 290, "text-anchor": "middle", "font-size": 11, fill: "var(--ink)" }); t3.textContent = "41 GND pad";
+  const pins = pinModel();
+  pins.forEach((p) => {
+    let x, y, side;
+    if (p.pin <= 14) { side = "L"; x = mx - 16; y = my + 118 + (p.pin - 1) * pitch; }
+    else if (p.pin <= 26) { side = "B"; x = mx + 12 + (p.pin - 15) * 14.2; y = mh + my - 2; }
+    else { side = "R"; x = mx + mw - 6; y = my + 118 + (40 - p.pin) * pitch; }
+    const g = add("g", { class: "pin", tabindex: 0, role: "button", "aria-label": `Pin ${p.pin} ${p.name} ${p.net}` });
+    const col = `var(${GROUP_VARS[p.group]})`;
+    if (side === "B") add("rect", { x: x - 5, y: y, width: 10, height: 20, rx: 2, fill: col }, g);
+    else add("rect", { x, y: y - 8, width: 22, height: 16, rx: 2, fill: col }, g);
+    const lab = add("text", { "font-size": 11.5, fill: "var(--ink)", "font-family": "ui-monospace, Menlo, Consolas, monospace" }, g);
+    const label = `${p.pin} ${p.name}${p.name === p.net ? "" : " " + p.net}${p.strap ? " ◆" : ""}`;
+    if (side === "L") { lab.setAttribute("x", x - 6); lab.setAttribute("y", y + 4); lab.setAttribute("text-anchor", "end"); lab.textContent = label; }
+    else if (side === "R") { lab.setAttribute("x", x + 28); lab.setAttribute("y", y + 4); lab.textContent = label; }
+    else { lab.setAttribute("transform", `translate(${x - 3.5},${y + 26}) rotate(90)`); lab.setAttribute("font-size", 10); lab.textContent = `${p.pin} ${p.net}${p.strap ? " ◆" : ""}`; }
+    if (!pinFilter.has(p.group)) g.classList.add("dim");
+    if (selectedPin === p.pin) g.classList.add("sel");
+    const html = () => `<div class="h">Pin ${p.pin} · ${p.name} · ${p.net}${p.strap ? " ◆ strapping" : ""}</div><div class="m">${p.fn}</div>${p.pull ? `<div class="m">Pull: ${p.pull}</div>` : ""}`;
+    bindTip(g, html);
+    const pick = () => { selectedPin = p.pin; showPin(p); drawPins(); const el = svg.querySelector(`[aria-label^="Pin ${p.pin} "]`); if (el) el.focus(); };
+    g.addEventListener("click", pick);
+    g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+  });
+  svg.setAttribute("viewBox", `0 0 ${W} 670`);
+}
+function showPin(p) {
+  const grp = G1.groups[p.group];
+  $("#pindetail").innerHTML = `<h3>Pin ${p.pin} · ${p.name}</h3>
+    <div class="k">Net</div><div class="v"><code>${p.net}</code></div>
+    <div class="k">Group</div><div class="v"><i class="sw" style="background:var(${GROUP_VARS[p.group]})"></i> ${grp}</div>
+    <div class="k">Function</div><div class="v">${p.fn || ""}</div>
+    ${p.dir ? `<div class="k">Direction</div><div class="v">${p.dir}</div>` : ""}
+    ${p.pull ? `<div class="k">External pull</div><div class="v">${p.pull}</div>` : ""}
+    ${p.notes ? `<div class="k">Boot / conflict notes</div><div class="v">${p.notes}</div>` : ""}
+    ${p.strap ? `<div class="status bad">◆ strapping pin – check the boot level</div>` : ""}`;
+}
+function buildPinFilters() {
+  const el = $("#pinFilters");
+  el.innerHTML = G1.groups.map((g, i) => `<button class="chip" type="button" aria-pressed="true" data-i="${i}"><i class="sw" style="background:var(${GROUP_VARS[i]})"></i>${g}</button>`).join("");
+  el.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
+    const i = +b.dataset.i;
+    if (pinFilter.size === G1.groups.length) { pinFilter.clear(); pinFilter.add(i); }
+    else if (pinFilter.has(i)) { pinFilter.delete(i); if (!pinFilter.size) G1.groups.forEach((_, j) => pinFilter.add(j)); }
+    else pinFilter.add(i);
+    el.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", pinFilter.has(+x.dataset.i)));
+    drawPins();
+  }));
+  $("#pinTable").innerHTML = `<tr><th class="num">GPIO</th><th class="num">Pin</th><th>Net</th><th>Function</th><th>Pull</th><th>Notes</th></tr>` +
+    [...G1.pins].sort((a, b) => a.gpio - b.gpio).map((p) => `<tr><td class="num">${p.gpio}</td><td class="num">${p.pin}</td><td><code>${p.net}</code>${p.strap ? " ◆" : ""}</td><td>${p.fn}</td><td>${p.pull}</td><td>${p.notes}</td></tr>`).join("");
+}
+
+/* ---------- figures + open questions ---------- */
+function buildFigures() {
+  const figs = [["thrust-to-weight", "Thrust-to-weight across the weight range"], ["flight-time", "Hover time estimate"],
+    ["weight-budget", "Weight budget by item"], ["power-budget", "Electronics current per load"],
+    ["cost-breakdown", "Priced parts per drone"], ["prop-clearance", "Why 55 mm props"], ["esp32-pinout", "ESP32-S3 pin allocation"]];
+  $("#figGrid").innerHTML = figs.map(([f, c]) => `<figure class="card" style="padding:8px"><a href="figures/${f}-light.svg"><picture><source srcset="figures/${f}-dark.svg" media="(prefers-color-scheme: dark)"><img src="figures/${f}-light.svg" alt="${c}" loading="lazy"></picture></a><figcaption>${c}</figcaption></figure>`).join("");
+  $("#oqList").innerHTML = G1.oq.map((q) => `<div class="card"><span class="id">${q.id}</span> ${q.q}<div class="rec">Recommendation: ${q.rec}</div></div>`).join("");
+}
+
+function redrawAll() { redrawModel(); drawWeight(); drawPowerCost(); drawPins(); }
+buildControls(); buildPinFilters(); buildFigures(); redrawAll();
+</script>
+</body>
+</html>

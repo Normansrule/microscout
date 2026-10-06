@@ -51,12 +51,16 @@ Pin table (`review/G1/pin-allocation.md`, `.csv`, `pin-check-report.txt`)
 - [ ] Motor gates on GPIO2/21/38/47 with pull-downs accepted.
 - [ ] Expander maps and the I2C address plan (ToF reassignment avoiding 0x30) accepted.
 
+Visuals (`docs/figures/`, explorer at normansrule.github.io/microscout, D-027)
+- [ ] Charts match `budgets.md`, the BOM and the pin table.
+- [ ] Animations and the concept sketch do not overstate what is known (they are illustrations, not renders or measurements).
+
 Licences (`review/G1/license-plan.md`)
 - [ ] Licence per directory accepted; third-party items to audit noted.
 
 Open questions (`review/G1/README.md`) - reply with a decision for each
 - [ ] OQ-1 toolchain  - [ ] OQ-2 battery connector  - [ ] OQ-3 thrust margin  - [ ] OQ-4 optical flow  - [ ] OQ-5 cost
-- [ ] OQ-6 barometer stock  - [ ] OQ-7 GitHub repo  - [ ] OQ-8 ESP-IDF version  - [ ] OQ-9 5 V rail
+- [ ] OQ-6 barometer stock  - [ ] OQ-7 GitHub repo (owner decided 2026-10-05: public, Normansrule - tick to confirm)  - [ ] OQ-8 ESP-IDF version  - [ ] OQ-9 5 V rail
 
 ## G2 - Schematic (package: `review/G2/`) - NOT STARTED
 - [ ] PDF of all sheets (`kicad-cli sch export pdf`) reviewed

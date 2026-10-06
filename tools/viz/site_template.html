@@ -1,0 +1,533 @@
+<!doctype html>
+<!-- STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1 -->
+<!-- Template for docs/index.html. Edit this file, then run: python3 tools/viz/build_site.py -->
+<!-- Page text and data: CC-BY-SA-4.0. Inline script: SPDX-License-Identifier: MIT -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MicroScout Design Explorer</title>
+<meta name="description" content="Interactive view of the MicroScout palm-sized ESP32-S3 camera drone's Gate G1 draft: weight, thrust, flight time, power, cost and pin allocation. Draft, unverified estimates.">
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --raised: #ffffff;
+  --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10);
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #008300; --s7: #4a3aa7;
+  --neutral: #b5b3ab; --critical: #d03b3b; --warning-bg: #fff6e0; --warning-ink: #6b4a00; --good: #006300;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --raised: #222221;
+    --ink: #ffffff; --ink2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300; --s7: #9085e9;
+    --neutral: #5f5e5a; --critical: #e66767; --warning-bg: #2e2510; --warning-ink: #f2d38a; --good: #0ca30c;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --raised: #222221;
+  --ink: #ffffff; --ink2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300; --s7: #9085e9;
+  --neutral: #5f5e5a; --critical: #e66767; --warning-bg: #2e2510; --warning-ink: #f2d38a; --good: #0ca30c;
+}
+* { box-sizing: border-box; }
+html { background: var(--page); }
+body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+a { color: var(--s1); }
+code { font: 0.9em ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+header.top { padding: 28px 0 8px; }
+.eyebrow { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+h1 { font-size: clamp(26px, 4vw, 38px); line-height: 1.15; margin: 0 0 10px; letter-spacing: -0.01em; }
+h2 { font-size: 22px; margin: 0 0 6px; }
+h3 { font-size: 15px; margin: 0 0 8px; }
+.lede { color: var(--ink2); max-width: 760px; margin: 0; }
+.banner { display: flex; gap: 12px; align-items: flex-start; background: var(--warning-bg); color: var(--warning-ink);
+  border-radius: var(--radius); padding: 12px 14px; margin: 18px 0 8px; font-size: 14px; }
+.banner strong { color: inherit; }
+.banner svg { flex: none; margin-top: 2px; }
+nav.toc { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 14px 0 0; font-size: 14px; }
+nav.toc a { color: var(--ink2); text-decoration: none; border-bottom: 1px solid var(--grid); }
+nav.toc a:hover { color: var(--ink); border-color: var(--ink2); }
+section { padding: 34px 0 6px; }
+.sub { color: var(--ink2); margin: 0 0 16px; max-width: 780px; font-size: 14px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; }
+.hero { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 14px; align-items: stretch; }
+@media (max-width: 860px) { .hero { grid-template-columns: 1fr; } }
+.hero img { width: 100%; height: auto; display: block; border-radius: 8px; }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
+.tile .label { font-size: 12.5px; color: var(--ink2); }
+.tile .value { font-size: 28px; font-weight: 650; line-height: 1.2; margin-top: 2px; }
+.tile .note { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.status { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; margin-top: 4px; }
+.status.bad { color: var(--critical); }
+.status.ok { color: var(--good); }
+.controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px 18px; margin-bottom: 14px; }
+.ctl label { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink2); margin-bottom: 4px; }
+.ctl output { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.ctl input[type=range] { width: 100%; accent-color: var(--s1); }
+.ctl .hint { font-size: 11.5px; color: var(--muted); }
+.btnrow { display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 12px; }
+button.chip { font: inherit; font-size: 13px; color: var(--ink2); background: var(--surface); border: 1px solid var(--border);
+  border-radius: 999px; padding: 4px 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+button.chip[aria-pressed="true"] { color: var(--ink); border-color: var(--ink2); }
+button.chip:hover { color: var(--ink); }
+.sw { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex: none; }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart .ttl { font-size: 13.5px; font-weight: 600; margin: 0 0 2px; }
+.chart .cap { font-size: 12px; color: var(--muted); margin: 0 0 8px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--ink2); margin: 2px 0 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.key-line { width: 16px; height: 2px; display: inline-block; border-radius: 1px; }
+.bars { display: grid; grid-template-columns: minmax(130px, 210px) 1fr; gap: 6px 10px; align-items: center; font-size: 13px; }
+.bars .nm { color: var(--ink2); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bars .track { position: relative; height: 18px; }
+.bars .bar { position: absolute; left: 0; top: 3px; height: 12px; border-radius: 0 4px 4px 0; }
+.bars .rng { position: absolute; top: 8px; height: 2px; background: var(--ink2); border-radius: 1px; }
+.bars .val { position: absolute; top: 0; font-size: 12px; color: var(--ink2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bars .row { display: contents; }
+:root { --barscale: 0.86; }
+@media (max-width: 600px) { :root { --barscale: 0.62; } .bars { grid-template-columns: 1fr; gap: 0 10px; } .bars .nm { text-align: left; margin-top: 6px; } }
+.bars .row:hover .nm, .bars .row:focus-within .nm { color: var(--ink); }
+#tip { position: fixed; z-index: 10; pointer-events: none; background: var(--raised); color: var(--ink); border: 1px solid var(--border);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.14); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; max-width: 320px; display: none; }
+#tip .h { font-weight: 650; margin-bottom: 2px; }
+#tip .m { color: var(--ink2); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+th { color: var(--ink2); font-weight: 600; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+details { margin-top: 10px; }
+summary { cursor: pointer; color: var(--ink2); font-size: 13.5px; }
+.scroll { overflow-x: auto; }
+.pinwrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 300px); gap: 14px; align-items: start; }
+@media (max-width: 860px) { .pinwrap { grid-template-columns: 1fr; } }
+#pindetail .k { font-size: 12px; color: var(--muted); margin-top: 8px; }
+#pindetail .v { font-size: 14px; }
+.pin { cursor: pointer; }
+.pin.dim { opacity: 0.18; }
+.pin:focus { outline: none; }
+.pin:focus rect, .pin.sel rect { stroke: var(--ink); stroke-width: 1.5; }
+figure { margin: 0; }
+figure img { width: 100%; height: auto; display: block; border-radius: 8px; border: 1px solid var(--border); }
+figcaption { font-size: 12.5px; color: var(--ink2); margin-top: 6px; }
+.oq { display: grid; gap: 10px; }
+.oq .card { padding: 12px 14px; }
+.oq .id { font-weight: 700; font-size: 13px; color: var(--muted); }
+.oq .rec { font-size: 13px; color: var(--ink2); margin-top: 4px; }
+footer { padding: 36px 0 40px; color: var(--muted); font-size: 12.5px; }
+.themebtn { float: right; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div id="tip" role="tooltip"></div>
+<div class="wrap">
+  <header class="top">
+    <button class="chip themebtn" id="themeBtn" type="button" aria-label="Toggle light or dark theme">◐ Theme</button>
+    <p class="eyebrow">Open-source palm-sized camera drone · Gate G1 draft</p>
+    <h1>MicroScout design explorer</h1>
+    <p class="lede">An ESP32-S3 quadcopter about 95 mm across, where the circuit board is the frame and a printed canopy carries the prop guards. This page shows the architecture-and-parts draft (Gate G1) and lets you change the assumptions to see what moves.</p>
+    <div class="banner" role="note">
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2 1 21h22L12 2zm0 6 .01 0c.55 0 1 .45 1 1v5a1 1 0 1 1-2 0V9c0-.55.44-1 .99-1zM12 16.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5z"/></svg>
+      <div><strong>Draft, unverified.</strong> No hardware has been built, powered or flown. Every number here is a datasheet value, a vendor claim, an estimate or an assumption, and the design is waiting for review at Gate G1. Sources and formulas are in <a href="https://github.com/Normansrule/microscout/blob/main/review/G1/budgets.md">review/G1/budgets.md</a>.</div>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#whatif">What-if calculator</a><a href="#weight">Weight</a><a href="#pins">Pin map</a>
+      <a href="#power">Power &amp; cost</a><a href="#animations">Animations</a><a href="#figures">Figures</a><a href="#open">Open questions</a>
+      <a href="https://github.com/Normansrule/microscout">GitHub repo ↗</a>
+    </nav>
+  </header>
+
+  <section aria-labelledby="h-hero">
+    <h2 id="h-hero" class="sr" style="position:absolute;left:-9999px">Overview</h2>
+    <div class="hero">
+      <div class="card" style="padding:8px"><img src="figures/anim/drone-concept.gif" width="960" height="540"
+        alt="Animated top-view concept sketch: four spinning 55 mm props inside guard rings, a forward multizone distance sensor sweeping, and side and rear distance sensors pulsing. Illustrative only."></div>
+      <div class="tiles" id="tiles"></div>
+    </div>
+  </section>
+
+  <section id="whatif" aria-labelledby="h-whatif">
+    <h2 id="h-whatif">What-if calculator</h2>
+    <p class="sub">The same hover model as <code>budgets.py</code>. Start values are the G1 estimates; move them to see how much margin each assumption buys. Hover time = capacity × HV derate × usable fraction ÷ (motor current + electronics current).</p>
+    <div class="card">
+      <div class="controls" id="controls"></div>
+      <div class="btnrow" id="presets"></div>
+      <div class="grid2">
+        <div class="chart" id="chTW"></div>
+        <div class="chart" id="chFT"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="weight" aria-labelledby="h-weight">
+    <h2 id="h-weight">Weight budget</h2>
+    <p class="sub" id="weightSub"></p>
+    <div class="card">
+      <div class="legend"><span><i class="sw" style="background:var(--s1)"></i>datasheet / vendor value</span><span><i class="sw" style="background:var(--s2)"></i>engineering estimate</span><span><i class="key-line" style="background:var(--ink2)"></i>low–high range</span></div>
+      <div class="bars" id="weightBars"></div>
+      <details><summary>Table view</summary><div class="scroll"><table id="weightTable"></table></div></details>
+    </div>
+  </section>
+
+  <section id="pins" aria-labelledby="h-pins">
+    <h2 id="h-pins">ESP32-S3 pin map</h2>
+    <p class="sub">All 36 GPIOs on the ESP32-S3-WROOM-1-N8R2 module are used. Hover or tab through the pins for details; the chips filter by function. Pin order follows the module (1–14 left, 15–26 bottom, 27–40 right); the drawing is not to scale.</p>
+    <div class="btnrow" id="pinFilters"></div>
+    <div class="pinwrap">
+      <div class="card"><svg id="pinSvg" viewBox="0 0 640 670" role="img" aria-label="ESP32-S3 module pin map"></svg></div>
+      <div class="card" id="pindetail" aria-live="polite"><h3>Pick a pin</h3><p class="sub" style="margin:0">Strapping pins (◆) decide how the chip boots, so the circuits on them were chosen to give the right level at reset.</p></div>
+    </div>
+    <details><summary>Table view of all pins</summary><div class="scroll"><table id="pinTable"></table></div></details>
+  </section>
+
+  <section id="power" aria-labelledby="h-power">
+    <h2 id="h-power">Power and cost</h2>
+    <div class="grid2">
+      <div class="card">
+        <h3>Electronics current, 3.3 V rail</h3>
+        <p class="sub" id="powerSub" style="margin-bottom:8px"></p>
+        <div class="legend"><span><i class="sw" style="background:var(--s1)"></i>average</span><span><i class="sw" style="background:var(--s2)"></i>peak</span></div>
+        <div class="bars" id="powerBars"></div>
+      </div>
+      <div class="card">
+        <h3>Priced parts per drone</h3>
+        <p class="sub" id="costSub" style="margin-bottom:8px"></p>
+        <div class="bars" id="costBars"></div>
+        <details><summary>Table view</summary><div class="scroll"><table id="costTable"></table></div></details>
+      </div>
+    </div>
+  </section>
+
+  <section id="animations" aria-labelledby="h-anim">
+    <h2 id="h-anim">How it boots</h2>
+    <p class="sub">Two short animations of the planned start-up behaviour. They illustrate the draft design; the real behaviour is checked on the bench, props off, at Gate G6.</p>
+    <div class="grid2">
+      <figure class="card" style="padding:8px"><img src="figures/anim/power-on-sequence.gif" width="960" height="540" loading="lazy" alt="Animated timing diagram from button press to ready-to-arm."><figcaption>Power-on sequence: button debounce, rails, strap pins, the KILL blanking window, then sensor bring-up.</figcaption></figure>
+      <figure class="card" style="padding:8px"><img src="figures/anim/tof-addressing.gif" width="960" height="540" loading="lazy" alt="Animation of five distance sensors being woken one at a time and moved from address 0x29 to 0x31 through 0x35."><figcaption>All five distance sensors share address 0x29 at power-up, so firmware wakes and re-addresses them one at a time.</figcaption></figure>
+    </div>
+  </section>
+
+  <section id="figures" aria-labelledby="h-fig">
+    <h2 id="h-fig">Figures</h2>
+    <p class="sub">Generated by <code>tools/viz/figures.py</code> from the same data as this page, in light and dark versions.</p>
+    <div class="grid2" id="figGrid"></div>
+  </section>
+
+  <section id="open" aria-labelledby="h-open">
+    <h2 id="h-open">Open questions at Gate G1</h2>
+    <p class="sub">Decisions the owner makes before the schematic starts. The recommendation is the drafting agent's.</p>
+    <div class="oq" id="oqList"></div>
+  </section>
+
+  <footer>
+    Built by <code>tools/viz/build_site.py</code> from <code>review/G1/calc/budgets.py</code>, <code>bom/drone-bom-g1.csv</code> and <code>review/G1/pin-allocation.csv</code>.
+    Documentation CC-BY-SA-4.0 · hardware CERN-OHL-S-2.0 · software MIT. Status: DRAFT – UNVERIFIED.
+  </footer>
+</div>
+
+<script>
+const G1 = /*__G1_DATA__*/null;
+const $ = (s, el = document) => el.querySelector(s);
+const NS = "http://www.w3.org/2000/svg";
+const fmt = (v, d = 1) => Number(v).toFixed(d);
+const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const GROUP_VARS = ["--s1", "--s2", "--s3", "--s4", "--s5", "--s6", "--neutral"];
+
+/* ---------- theme toggle (per-viewer convenience only) ---------- */
+(function () {
+  let saved = null;
+  try { saved = localStorage.getItem("ms-theme"); } catch (e) {}
+  if (saved) document.documentElement.dataset.theme = saved;
+  $("#themeBtn").addEventListener("click", () => {
+    const dark = document.documentElement.dataset.theme
+      ? document.documentElement.dataset.theme === "dark"
+      : matchMedia("(prefers-color-scheme: dark)").matches;
+    const next = dark ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem("ms-theme", next); } catch (e) {}
+    redrawAll();
+  });
+})();
+
+/* ---------- tooltip ---------- */
+const tip = $("#tip");
+function showTip(html, x, y) {
+  tip.innerHTML = html; tip.style.display = "block";
+  const r = tip.getBoundingClientRect();
+  let left = x + 14, top = y + 14;
+  if (left + r.width > innerWidth - 8) left = x - r.width - 14;
+  if (top + r.height > innerHeight - 8) top = y - r.height - 14;
+  tip.style.left = left + "px"; tip.style.top = top + "px";
+}
+const hideTip = () => { tip.style.display = "none"; };
+function bindTip(el, htmlFn) {
+  el.addEventListener("mousemove", (e) => showTip(htmlFn(), e.clientX, e.clientY));
+  el.addEventListener("mouseleave", hideTip);
+  el.addEventListener("focus", () => { const r = el.getBoundingClientRect(); showTip(htmlFn(), r.right, r.top); });
+  el.addEventListener("blur", hideTip);
+}
+
+/* ---------- model ---------- */
+const M = G1.model;
+const state = { thrust: 33, eta: 4.5, weight: G1.total.nominal, cap: M.cap, elec: M.elec_a };
+const hoverCurrent = (W, s) => W / s.eta / M.v_nom + s.elec;
+const flight = (W, s) => s.cap / 1000 * M.derate * M.usable / hoverCurrent(W, s) * 60;
+const tw = (W, s) => 4 * s.thrust / W;
+
+/* ---------- tiles ---------- */
+function drawTiles() {
+  const t = G1.total, s = state;
+  const cost = G1.cost.reduce((a, c) => a + c.line, 0);
+  const twv = tw(s.weight, s);
+  const tiles = [
+    ["Takeoff weight", `${fmt(s.weight)} g`, `G1 estimate ${fmt(t.nominal)} g · range ${fmt(t.lo, 0)}–${fmt(t.hi, 0)} g`, s.weight <= 80 ? ["ok", "under 80 g limit"] : ["bad", "over 80 g limit"]],
+    ["Thrust-to-weight", fmt(twv, 2), `${s.thrust} gf per motor`, twv >= 2 ? ["ok", "≥ 2 rule of thumb"] : ["bad", "below 2 – thin margin"]],
+    ["Hover time", `${fmt(flight(s.weight, s))} min`, `η ${fmt(s.eta)} g/W · ${s.cap} mAh`, null],
+    ["Priced parts", `$${fmt(cost, 2)}`, "per drone, before PCB, assembly, battery, camera", cost < 75 ? ["bad", "$75 target at risk"] : ["bad", "over $75 target"]],
+  ];
+  $("#tiles").innerHTML = tiles.map(([l, v, n, st]) => `<div class="tile"><div class="label">${l}</div><div class="value">${v}</div><div class="note">${n}</div>${st ? `<div class="status ${st[0]}">${st[0] === "ok" ? "✓" : "▲"} ${st[1]}</div>` : ""}</div>`).join("");
+}
+
+/* ---------- controls ---------- */
+const CTL = [
+  ["weight", "Takeoff weight", 50, 100, 0.5, "g", "G1 estimate " + fmt(G1.total.nominal) + " g"],
+  ["thrust", "Thrust per motor", 20, 45, 1, "gf", "Only data found: 33–36 gf with 60 mm props"],
+  ["eta", "Hover efficiency η", 3, 6, 0.1, "g/W", "Generic 8520 test: 4–5 g/W"],
+  ["cap", "Battery capacity", 500, 900, 10, "mAh", "Selected pack: 660 mAh"],
+  ["elec", "Electronics current", 0.3, 1.2, 0.01, "A", "G1 estimate " + fmt(M.elec_a, 2) + " A at the battery"],
+];
+function buildControls() {
+  $("#controls").innerHTML = CTL.map(([k, l, mn, mx, st, u, h]) =>
+    `<div class="ctl"><label for="c-${k}">${l} <output id="o-${k}"></output></label><input id="c-${k}" type="range" min="${mn}" max="${mx}" step="${st}" value="${state[k]}"><div class="hint">${h}</div></div>`).join("");
+  CTL.forEach(([k, , , , st, u]) => {
+    const inp = $("#c-" + k), out = $("#o-" + k);
+    const upd = () => { state[k] = +inp.value; out.textContent = `${fmt(state[k], st < 1 ? (st < 0.1 ? 2 : 1) : 0)} ${u}`; redrawModel(); };
+    inp.addEventListener("input", upd);
+    out.textContent = `${fmt(state[k], st < 1 ? (st < 0.1 ? 2 : 1) : 0)} ${u}`;
+  });
+  const presets = [
+    ["G1 nominal", { weight: G1.total.nominal, thrust: 33, eta: 4.5, cap: M.cap, elec: M.elec_a }],
+    ["Pessimistic", { weight: G1.total.hi, thrust: 28, eta: 4, cap: M.cap, elec: M.elec_a }],
+    ["Optimistic", { weight: G1.total.lo, thrust: 36, eta: 5, cap: M.cap, elec: M.elec_a }],
+    ["65 g target (OQ-3)", { weight: 65, thrust: 33, eta: 4.5, cap: M.cap, elec: M.elec_a }],
+  ];
+  $("#presets").innerHTML = presets.map(([n], i) => `<button class="chip" type="button" data-i="${i}">${n}</button>`).join("");
+  $("#presets").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
+    Object.assign(state, presets[+b.dataset.i][1]);
+    CTL.forEach(([k]) => { $("#c-" + k).value = state[k]; $("#c-" + k).dispatchEvent(new Event("input")); });
+  }));
+}
+
+/* ---------- small line chart ---------- */
+function lineChart(el, cfg) {
+  const W = 520, H = 280, m = { l: 44, r: 16, t: 10, b: 36 };
+  const x = (v) => m.l + (v - cfg.x0) / (cfg.x1 - cfg.x0) * (W - m.l - m.r);
+  const y = (v) => H - m.b - (v - cfg.y0) / (cfg.y1 - cfg.y0) * (H - m.t - m.b);
+  let s = `<p class="ttl">${cfg.title}</p><p class="cap">${cfg.caption}</p>`;
+  if (cfg.legend) s += `<div class="legend">${cfg.legend.map(([c, l, dash]) => `<span><i class="key-line" style="background:${dash ? "none;border-top:2px dashed " + c : c}"></i>${l}</span>`).join("")}</div>`;
+  s += `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${cfg.title}">`;
+  cfg.yt.forEach((v) => { s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${m.l - 8}" y="${y(v) + 4}" text-anchor="end" font-size="11" fill="var(--muted)" style="font-variant-numeric:tabular-nums">${v}</text>`; });
+  cfg.xt.forEach((v) => { s += `<text x="${x(v)}" y="${H - m.b + 18}" text-anchor="middle" font-size="11" fill="var(--muted)">${v}</text>`; });
+  s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 4}" text-anchor="middle" font-size="11.5" fill="var(--ink2)">${cfg.xlabel}</text>`;
+  s += `<line x1="${m.l}" x2="${W - m.r}" y1="${H - m.b}" y2="${H - m.b}" stroke="var(--axis)"/>`;
+  (cfg.bands || []).forEach((b) => { s += `<rect x="${x(b[0])}" y="${m.t}" width="${x(b[1]) - x(b[0])}" height="${H - m.t - m.b}" fill="var(--grid)" opacity="0.5"/><text x="${x(b[0]) + 4}" y="${m.t + 12}" font-size="10.5" fill="var(--ink2)">${b[2]}</text>`; });
+  (cfg.vlines || []).forEach((v) => { s += `<line x1="${x(v[0])}" x2="${x(v[0])}" y1="${m.t}" y2="${H - m.b}" stroke="${v[1]}" stroke-width="1.3"/><text x="${x(v[0]) + 4}" y="${H - m.b - 6}" font-size="10.5" fill="var(--ink2)">${v[2]}</text>`; });
+  (cfg.hlines || []).forEach((v) => { s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v[0])}" y2="${y(v[0])}" stroke="var(--muted)" stroke-dasharray="5 4"/><text x="${m.l + 4}" y="${y(v[0]) - 5}" font-size="10.5" fill="var(--ink2)">${v[1]}</text>`; });
+  cfg.series.forEach((se) => {
+    const pts = [];
+    for (let v = cfg.x0; v <= cfg.x1 + 1e-9; v += (cfg.x1 - cfg.x0) / 100) pts.push([x(v), y(Math.max(cfg.y0, Math.min(cfg.y1, se.f(v))))]);
+    s += `<path d="M${pts.map((p) => p.map((n) => n.toFixed(1)).join(",")).join("L")}" fill="none" stroke="${se.c}" stroke-width="${se.w || 2}" stroke-linejoin="round" stroke-linecap="round" ${se.dash ? 'stroke-dasharray="3 4"' : ""} opacity="${se.o || 1}"/>`;
+  });
+  const mk = cfg.marker;
+  s += `<circle cx="${x(mk.x)}" cy="${y(mk.y)}" r="5" fill="${mk.c}" stroke="var(--surface)" stroke-width="2"/>`;
+  s += `<text x="${x(mk.x) - 9}" y="${y(mk.y) - 9}" text-anchor="end" font-size="12" font-weight="600" fill="var(--ink)" paint-order="stroke" stroke="var(--surface)" stroke-width="4">${mk.label}</text>`;
+  s += `<g class="xh" style="display:none"><line y1="${m.t}" y2="${H - m.b}" stroke="var(--ink2)" stroke-width="1"/><circle r="4.5" fill="${mk.c}" stroke="var(--surface)" stroke-width="2"/></g>`;
+  s += `<rect class="hit" x="${m.l}" y="${m.t}" width="${W - m.l - m.r}" height="${H - m.t - m.b}" fill="transparent"/></svg>`;
+  el.innerHTML = s;
+  const svg = el.querySelector("svg"), xh = svg.querySelector(".xh"), hit = svg.querySelector(".hit");
+  hit.addEventListener("mousemove", (e) => {
+    const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY;
+    const q = p.matrixTransform(svg.getScreenCTM().inverse());
+    const v = cfg.x0 + (q.x - m.l) / (W - m.l - m.r) * (cfg.x1 - cfg.x0);
+    const yv = cfg.series[0].f(v);
+    xh.style.display = ""; xh.querySelector("line").setAttribute("x1", q.x); xh.querySelector("line").setAttribute("x2", q.x);
+    const c = xh.querySelector("circle"); c.setAttribute("cx", q.x); c.setAttribute("cy", y(Math.max(cfg.y0, Math.min(cfg.y1, yv))));
+    showTip(cfg.tip(v, yv), e.clientX, e.clientY);
+  });
+  hit.addEventListener("mouseleave", () => { xh.style.display = "none"; hideTip(); });
+}
+
+function redrawModel() {
+  const s = state, t = G1.total;
+  lineChart($("#chTW"), {
+    title: "Thrust-to-weight vs takeoff weight", caption: `T/W = 4 × ${s.thrust} gf ÷ weight. Faint lines: the G1 scenarios (28, 33, 36 gf).`,
+    x0: 50, x1: 100, y0: 1, y1: 3.4, xt: [50, 60, 70, 80, 90, 100], yt: [1, 1.5, 2, 2.5, 3], xlabel: "takeoff weight (g)",
+    bands: [[t.lo, t.hi, "G1 weight range"]], vlines: [[80, "var(--critical)", "80 g limit"]], hlines: [[2, "T/W = 2 rule of thumb"]],
+    legend: [["var(--s1)", "your settings"], ["var(--muted)", "G1 scenarios", true]],
+    series: [{ f: (w) => tw(w, s), c: "var(--s1)" }, ...G1.thrust.map((th) => ({ f: (w) => 4 * th.gf / w, c: "var(--muted)", w: 1.2, dash: true, o: 0.8 }))],
+    marker: { x: s.weight, y: tw(s.weight, s), c: "var(--s1)", label: fmt(tw(s.weight, s), 2) },
+    tip: (w, v) => `<div class="h">${fmt(w)} g</div><div class="m">T/W ${fmt(v, 2)} · hover at ${fmt(100 / v, 0)}% of max thrust</div>`,
+  });
+  lineChart($("#chFT"), {
+    title: "Hover time vs takeoff weight", caption: `${s.cap} mAh × ${Math.round(M.derate * 100)}% × ${Math.round(M.usable * 100)}% ÷ (W/η/${M.v_nom} V + ${fmt(s.elec, 2)} A)`,
+    x0: 50, x1: 100, y0: 0, y1: 12, xt: [50, 60, 70, 80, 90, 100], yt: [0, 2, 4, 6, 8, 10, 12], xlabel: "takeoff weight (g)",
+    bands: [[t.lo, t.hi, "G1 weight range"]], vlines: [[80, "var(--critical)", "80 g limit"]],
+    series: [{ f: (w) => flight(w, s), c: "var(--s1)" }],
+    marker: { x: s.weight, y: flight(s.weight, s), c: "var(--s1)", label: `${fmt(flight(s.weight, s))} min` },
+    tip: (w, v) => `<div class="h">${fmt(w)} g</div><div class="m">${fmt(v)} min · ${fmt(hoverCurrent(w, s), 2)} A from the battery</div>`,
+  });
+  drawTiles();
+}
+
+/* ---------- bar lists ---------- */
+function bars(el, rows, max, opts = {}) {
+  el.innerHTML = "";
+  rows.forEach((r) => {
+    const row = document.createElement("div"); row.className = "row";
+    const nm = document.createElement("div"); nm.className = "nm"; nm.textContent = r.name;
+    const tr = document.createElement("div"); tr.className = "track"; tr.tabIndex = 0;
+    tr.setAttribute("aria-label", r.aria || `${r.name}: ${r.label}`);
+    const pct = (v) => `calc(${(v / max) * 100}% * var(--barscale))`;
+    tr.innerHTML = (r.peak != null ? `<div class="bar" style="width:${pct(r.peak)};background:var(--s2)"></div>` : "") +
+      `<div class="bar" style="width:${pct(r.value)};background:${r.color}"></div>` +
+      (r.lo != null ? `<div class="rng" style="left:${pct(r.lo)};width:calc(${pct(r.hi)} - ${pct(r.lo)})"></div>` : "") +
+      `<div class="val" style="left:calc(${pct(Math.max(r.value, r.hi || 0, r.peak || 0))} + 6px)">${r.label}</div>`;
+    bindTip(tr, () => r.tip);
+    row.append(nm, tr); el.append(row);
+  });
+}
+
+function drawWeight() {
+  const t = G1.total;
+  $("#weightSub").innerHTML = `Nominal <strong>${fmt(t.nominal)} g</strong>, range ${fmt(t.lo)}–${fmt(t.hi)} g, against an 80 g limit. Hover a bar for where the number came from.`;
+  const rows = [...G1.weight].sort((a, b) => b.value - a.value).map((w) => ({
+    name: w.name, value: w.value, lo: w.lo, hi: w.hi, label: `${fmt(w.value)} g`,
+    color: w.kind === "SOURCED" ? "var(--s1)" : "var(--s2)",
+    tip: `<div class="h">${w.name}: ${fmt(w.value)} g</div><div class="m">range ${fmt(w.lo)}–${fmt(w.hi)} g · ${w.kind}</div><div class="m">${w.basis}</div>`,
+  }));
+  bars($("#weightBars"), rows, 24);
+  $("#weightTable").innerHTML = `<tr><th>Item</th><th class="num">Nominal (g)</th><th class="num">Range (g)</th><th>Tag</th><th>Basis</th></tr>` +
+    G1.weight.map((w) => `<tr><td>${w.name}</td><td class="num">${fmt(w.value)}</td><td class="num">${fmt(w.lo)}–${fmt(w.hi)}</td><td>${w.kind}</td><td>${w.basis}</td></tr>`).join("") +
+    `<tr><th>Total</th><th class="num">${fmt(t.nominal)}</th><th class="num">${fmt(t.lo)}–${fmt(t.hi)}</th><th></th><th></th></tr>`;
+}
+
+function drawPowerCost() {
+  const r33 = G1.rails["3V3"].loads;
+  const pk = r33.reduce((a, l) => a + l.peak, 0), av = r33.reduce((a, l) => a + l.avg, 0);
+  $("#powerSub").textContent = `${fmt(av, 0)} mA average, ${fmt(pk, 0)} mA peak against a 2 A regulator rating. ESP32 average is a placeholder until the G6 bench test.`;
+  bars($("#powerBars"), [...r33].sort((a, b) => b.peak - a.peak).map((l) => ({
+    name: l.name, value: l.avg, peak: l.peak, color: "var(--s1)", label: `${fmt(l.avg, l.avg < 10 ? 1 : 0)} / ${fmt(l.peak, l.peak < 10 ? 1 : 0)} mA`,
+    tip: `<div class="h">${l.full}</div><div class="m">average ${fmt(l.avg, 1)} mA · peak ${fmt(l.peak, 1)} mA</div><div class="m">${l.tag} · ${l.src}</div>`,
+  })), 360);
+  const cost = [...G1.cost].sort((a, b) => b.line - a.line);
+  const total = cost.reduce((a, c) => a + c.line, 0);
+  $("#costSub").innerHTML = `<strong>$${fmt(total, 2)}</strong> for the parts priced so far, against a ~$75 target. LCSC prices seen 2026-10-04; they change daily.`;
+  bars($("#costBars"), cost.slice(0, 12).map((c) => ({
+    name: `${c.ref} ${c.mpn}`, value: c.line, color: "var(--s1)", label: `$${fmt(c.line, 2)}`,
+    tip: `<div class="h">${c.mpn}</div><div class="m">${c.fn}</div><div class="m">${c.qty} × $${fmt(c.unit, 4)} (${c.brk || "listing"})${c.lcsc ? " · LCSC " + c.lcsc : ""}</div>`,
+  })).concat([{ name: `${cost.length - 12} smaller lines`, value: cost.slice(12).reduce((a, c) => a + c.line, 0), color: "var(--neutral)",
+    label: `$${fmt(cost.slice(12).reduce((a, c) => a + c.line, 0), 2)}`, tip: `<div class="h">${cost.length - 12} lines under $1.20 each</div><div class="m">See the table view</div>` }]), 18);
+  $("#costTable").innerHTML = `<tr><th>Ref</th><th>Part</th><th class="num">Qty</th><th class="num">Unit $</th><th class="num">Line $</th><th>LCSC</th></tr>` +
+    cost.map((c) => `<tr><td>${c.ref}</td><td>${c.mpn}</td><td class="num">${c.qty}</td><td class="num">${fmt(c.unit, 4)}</td><td class="num">${fmt(c.line, 2)}</td><td>${c.lcsc}</td></tr>`).join("") +
+    `<tr><th colspan="4">Subtotal of priced lines</th><th class="num">${fmt(total, 2)}</th><th></th></tr>`;
+}
+
+/* ---------- pin map ---------- */
+const pinFilter = new Set(G1.groups.map((_, i) => i));
+let selectedPin = null;
+function pinModel() {
+  const byPin = {};
+  G1.pins.forEach((p) => { byPin[p.pin] = p; });
+  const list = [];
+  for (let n = 1; n <= 40; n++) {
+    if (n === 1 || n === 40) list.push({ pin: n, name: "GND", net: "GND", group: 6, fn: "Ground" });
+    else if (n === 2) list.push({ pin: n, name: "3V3", net: "3V3", group: 6, fn: "3.3 V supply (≥ 0.5 A per datasheet)" });
+    else if (n === 3) list.push({ pin: n, name: "EN", net: "EN", group: 6, fn: "Chip enable / reset: 10 kΩ pull-up + 1 µF + RESET button" });
+    else { const p = byPin[n]; list.push({ ...p, name: "IO" + p.gpio }); }
+  }
+  return list;
+}
+function drawPins() {
+  const svg = $("#pinSvg"); svg.innerHTML = "";
+  const W = 640, mx = 230, my = 40, mw = 180, mh = 470, pitch = 26;
+  const add = (tag, attrs, parent = svg) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; };
+  add("rect", { x: mx, y: my, width: mw, height: mh, rx: 10, fill: "var(--page)", stroke: "var(--axis)", "stroke-width": 1.5 });
+  add("rect", { x: mx + 8, y: my + 8, width: mw - 16, height: 92, rx: 6, fill: "none", stroke: "var(--muted)", "stroke-dasharray": "4 4" });
+  const t1 = add("text", { x: mx + mw / 2, y: my + 52, "text-anchor": "middle", "font-size": 12, fill: "var(--ink2)" }); t1.textContent = "PCB antenna";
+  const t2 = add("text", { x: mx + mw / 2, y: my + 68, "text-anchor": "middle", "font-size": 11, fill: "var(--muted)" }); t2.textContent = "at the board edge";
+  add("rect", { x: mx + mw / 2 - 35, y: my + 250, width: 70, height: 70, rx: 4, fill: "var(--neutral)", opacity: 0.6 });
+  const t3 = add("text", { x: mx + mw / 2, y: my + 290, "text-anchor": "middle", "font-size": 11, fill: "var(--ink)" }); t3.textContent = "41 GND pad";
+  const pins = pinModel();
+  pins.forEach((p) => {
+    let x, y, side;
+    if (p.pin <= 14) { side = "L"; x = mx - 16; y = my + 118 + (p.pin - 1) * pitch; }
+    else if (p.pin <= 26) { side = "B"; x = mx + 12 + (p.pin - 15) * 14.2; y = mh + my - 2; }
+    else { side = "R"; x = mx + mw - 6; y = my + 118 + (40 - p.pin) * pitch; }
+    const g = add("g", { class: "pin", tabindex: 0, role: "button", "aria-label": `Pin ${p.pin} ${p.name} ${p.net}` });
+    const col = `var(${GROUP_VARS[p.group]})`;
+    if (side === "B") add("rect", { x: x - 5, y: y, width: 10, height: 20, rx: 2, fill: col }, g);
+    else add("rect", { x, y: y - 8, width: 22, height: 16, rx: 2, fill: col }, g);
+    const lab = add("text", { "font-size": 11.5, fill: "var(--ink)", "font-family": "ui-monospace, Menlo, Consolas, monospace" }, g);
+    const label = `${p.pin} ${p.name}${p.name === p.net ? "" : " " + p.net}${p.strap ? " ◆" : ""}`;
+    if (side === "L") { lab.setAttribute("x", x - 6); lab.setAttribute("y", y + 4); lab.setAttribute("text-anchor", "end"); lab.textContent = label; }
+    else if (side === "R") { lab.setAttribute("x", x + 28); lab.setAttribute("y", y + 4); lab.textContent = label; }
+    else { lab.setAttribute("transform", `translate(${x - 3.5},${y + 26}) rotate(90)`); lab.setAttribute("font-size", 10); lab.textContent = `${p.pin} ${p.net}${p.strap ? " ◆" : ""}`; }
+    if (!pinFilter.has(p.group)) g.classList.add("dim");
+    if (selectedPin === p.pin) g.classList.add("sel");
+    const html = () => `<div class="h">Pin ${p.pin} · ${p.name} · ${p.net}${p.strap ? " ◆ strapping" : ""}</div><div class="m">${p.fn}</div>${p.pull ? `<div class="m">Pull: ${p.pull}</div>` : ""}`;
+    bindTip(g, html);
+    const pick = () => { selectedPin = p.pin; showPin(p); drawPins(); const el = svg.querySelector(`[aria-label^="Pin ${p.pin} "]`); if (el) el.focus(); };
+    g.addEventListener("click", pick);
+    g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+  });
+  svg.setAttribute("viewBox", `0 0 ${W} 670`);
+}
+function showPin(p) {
+  const grp = G1.groups[p.group];
+  $("#pindetail").innerHTML = `<h3>Pin ${p.pin} · ${p.name}</h3>
+    <div class="k">Net</div><div class="v"><code>${p.net}</code></div>
+    <div class="k">Group</div><div class="v"><i class="sw" style="background:var(${GROUP_VARS[p.group]})"></i> ${grp}</div>
+    <div class="k">Function</div><div class="v">${p.fn || ""}</div>
+    ${p.dir ? `<div class="k">Direction</div><div class="v">${p.dir}</div>` : ""}
+    ${p.pull ? `<div class="k">External pull</div><div class="v">${p.pull}</div>` : ""}
+    ${p.notes ? `<div class="k">Boot / conflict notes</div><div class="v">${p.notes}</div>` : ""}
+    ${p.strap ? `<div class="status bad">◆ strapping pin – check the boot level</div>` : ""}`;
+}
+function buildPinFilters() {
+  const el = $("#pinFilters");
+  el.innerHTML = G1.groups.map((g, i) => `<button class="chip" type="button" aria-pressed="true" data-i="${i}"><i class="sw" style="background:var(${GROUP_VARS[i]})"></i>${g}</button>`).join("");
+  el.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
+    const i = +b.dataset.i;
+    if (pinFilter.size === G1.groups.length) { pinFilter.clear(); pinFilter.add(i); }
+    else if (pinFilter.has(i)) { pinFilter.delete(i); if (!pinFilter.size) G1.groups.forEach((_, j) => pinFilter.add(j)); }
+    else pinFilter.add(i);
+    el.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", pinFilter.has(+x.dataset.i)));
+    drawPins();
+  }));
+  $("#pinTable").innerHTML = `<tr><th class="num">GPIO</th><th class="num">Pin</th><th>Net</th><th>Function</th><th>Pull</th><th>Notes</th></tr>` +
+    [...G1.pins].sort((a, b) => a.gpio - b.gpio).map((p) => `<tr><td class="num">${p.gpio}</td><td class="num">${p.pin}</td><td><code>${p.net}</code>${p.strap ? " ◆" : ""}</td><td>${p.fn}</td><td>${p.pull}</td><td>${p.notes}</td></tr>`).join("");
+}
+
+/* ---------- figures + open questions ---------- */
+function buildFigures() {
+  const figs = [["thrust-to-weight", "Thrust-to-weight across the weight range"], ["flight-time", "Hover time estimate"],
+    ["weight-budget", "Weight budget by item"], ["power-budget", "Electronics current per load"],
+    ["cost-breakdown", "Priced parts per drone"], ["prop-clearance", "Why 55 mm props"], ["esp32-pinout", "ESP32-S3 pin allocation"]];
+  $("#figGrid").innerHTML = figs.map(([f, c]) => `<figure class="card" style="padding:8px"><a href="figures/${f}-light.svg"><picture><source srcset="figures/${f}-dark.svg" media="(prefers-color-scheme: dark)"><img src="figures/${f}-light.svg" alt="${c}" loading="lazy"></picture></a><figcaption>${c}</figcaption></figure>`).join("");
+  $("#oqList").innerHTML = G1.oq.map((q) => `<div class="card"><span class="id">${q.id}</span> ${q.q}<div class="rec">Recommendation: ${q.rec}</div></div>`).join("");
+}
+
+function redrawAll() { redrawModel(); drawWeight(); drawPowerCost(); drawPins(); }
+buildControls(); buildPinFilters(); buildFigures(); redrawAll();
+</script>
+</body>
+</html>

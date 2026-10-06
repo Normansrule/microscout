@@ -1,0 +1,5 @@
+# STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1
+# Python packages for tools/viz (figures, animations, explorer page)
+matplotlib>=3.8
+numpy>=1.26
+pillow>=10.0

@@ -91,6 +91,35 @@ PLA_DENSITY = V(1.24, "g/cm3", "ASSUMPTION", "typical PLA; check filament spec")
 CANOPY = dict(w=50, l=64, h=16, wall=0.8)           # mm; length set by the 58 mm battery + margin (ESTIMATE)
 GUARD = dict(clear=3.0, ring_t=1.0, ring_h=4.0)     # mm: radial clearance, wall, height (ESTIMATE)
 
+# --------------------------------------------------------------------------
+# Electrical load tables (name, peak mA, average mA, tag, source)
+RAIL33 = [
+    # name, I_peak_mA, I_avg_mA, kind, source
+    ("ESP32-S3 module (Wi-Fi TX 802.11b 20.5 dBm peak)", 355, 200, "SOURCED peak / ESTIMATE avg", "S1 peak; average while streaming UNCONFIRMED - measure at G6"),
+    ("BMI270 IMU (performance mode, via 1.8 V LDO)", 0.97, 0.97, "SOURCED", "S2"),
+    ("BMP390 (drone use case)", 0.57, 0.57, "SOURCED", "S3"),
+    ("QMC5883P (high-power mode 100 Hz)", 0.6, 0.6, "SOURCED", "S4"),
+    ("4x VL53L1X (16 mA avg, 40 mA peak each)", 160, 64, "SOURCED", "S5"),
+    ("VL53L5CX (313 mW at 3.3 V AVDD/IOVDD)", 313 / 3.3, 313 / 3.3, "SOURCED + CALC", "S6; I = P/V"),
+    ("PMW3901 run mode (via 1.8 V LDO)", 9, 9, "SOURCED", "S7"),
+    ("INA226", 0.33, 0.33, "SOURCED", "S8"),
+    ("OV2640 (140 mW compressed) via 2.8 V/1.2 V LDOs", 140 / 1.2, 140 / 1.2, "SOURCED + ESTIMATE", "S9; worst case assumes all power on the 1.2 V LDO: I = 140 mW / 1.2 V"),
+    ("Buzzer MLT-5020 (intermittent)", 100, 0, "SOURCED", "S11; excluded from average"),
+]
+
+LED_MAX_MA = 4 * 3 * 16
+RAIL5 = [
+    ("4x WS2812B-2020 at full white", LED_MAX_MA, 50, "SOURCED peak basis / ESTIMATE avg",
+     "S10 tests each colour at 16 mA; full-white current not stated -> 3 x 16 mA per LED (CALC). Average assumes dim status lighting (ESTIMATE)"),
+    ("ELRS receiver", 100, 100, "ESTIMATE", "UNCONFIRMED - no vendor current found; placeholder to replace from receiver spec or bench"),
+]
+
+EFF33 = V(0.90, "-", "ESTIMATE", "S12 Fig 10-5 read ~88-92% at V_IN 3.6 V, 300-500 mA")
+EFF5 = V(0.85, "-", "ESTIMATE", "S13 Fig 6-1 read ~80-90% at 0.2-0.5 A")
+THRUST_SCENARIOS = ((28, "ASSUMPTION"), (33, "SOURCED S19 (60 mm)"), (36, "SOURCED S19 (60 mm)"))
+ETA_GW = (5.0, 4.0)   # g/W hover efficiency bracket (S20, ESTIMATE)
+I_MOTOR_FULL_A = (1.6, 2.27)   # per-motor full-throttle current (S21)
+
 
 def pcb_mass():
     area_cm2 = (PCB_CORE_MM[0] * PCB_CORE_MM[1] + 4 * ARM_MM[0] * ARM_MM[1]) / 100.0
@@ -137,6 +166,37 @@ def weight_table():
     return items
 
 
+# --------------------------------------------------------------------------
+# Helpers shared with tools/viz (figures, animations, explorer data)
+def rail_totals(rail):
+    """(peak mA, average mA) of a load table."""
+    return sum(r[1] for r in rail), sum(r[2] for r in rail)
+
+
+def electronics_battery_current_a():
+    """Average electronics current drawn from the battery at V_NOM (A)."""
+    _, av33 = rail_totals(RAIL33)
+    _, av5 = rail_totals(RAIL5)
+    p = 3.3 * av33 / 1000 / EFF33.value + 5.0 * av5 / 1000 / EFF5.value
+    return p / V_NOM.value
+
+
+def hover_total_current_a(weight_g, eta_gw):
+    """Hover current from the battery (A): motors W/eta/V_nom + electronics."""
+    return weight_g / eta_gw / V_NOM.value + electronics_battery_current_a()
+
+
+def flight_time_min(weight_g, eta_gw, cap_mah=None):
+    """Hover flight time (min): C x HV derate x usable / I_total."""
+    cap = CAP_MAH.value if cap_mah is None else cap_mah
+    return cap / 1000 * HV_DERATE.value * USABLE_FRAC.value / hover_total_current_a(weight_g, eta_gw) * 60
+
+
+def weight_totals():
+    items = weight_table()
+    return (sum(v.value for _, v in items), sum(v.rng()[0] for _, v in items), sum(v.rng()[1] for _, v in items))
+
+
 def main():
     L = []
     w = L.append
@@ -176,7 +236,7 @@ def main():
     w("")
     w("| T per motor (gf) | Tag | T/W at nominal {:.1f} g | T/W at worst {:.1f} g | T/W at 80 g |".format(tot, thi))
     w("|---:|---|---:|---:|---:|")
-    for t, tag in ((28, "ASSUMPTION"), (33, "SOURCED S19 (60 mm)"), (36, "SOURCED S19 (60 mm)")):
+    for t, tag in THRUST_SCENARIOS:
         w(f"| {t} | {tag} | {4*t/tot:.2f} | {4*t/thi:.2f} | {4*t/80:.2f} |")
     w("")
     w(f"Reading: T/W is {4*28/tot:.1f}-{4*36/tot:.1f} at nominal weight and drops to {4*28/thi:.1f} at worst-case weight. Below ~2 leaves thin margin for altitude-hold and gust rejection "
@@ -188,23 +248,10 @@ def main():
     w("")
     w("### 3a. 3.3 V rail (TPS63802 output)")
     w("")
-    rail33 = [
-        # name, I_peak_mA, I_avg_mA, kind, source
-        ("ESP32-S3 module (Wi-Fi TX 802.11b 20.5 dBm peak)", 355, 200, "SOURCED peak / ESTIMATE avg", "S1 peak; average while streaming UNCONFIRMED - measure at G6"),
-        ("BMI270 IMU (performance mode, via 1.8 V LDO)", 0.97, 0.97, "SOURCED", "S2"),
-        ("BMP390 (drone use case)", 0.57, 0.57, "SOURCED", "S3"),
-        ("QMC5883P (high-power mode 100 Hz)", 0.6, 0.6, "SOURCED", "S4"),
-        ("4x VL53L1X (16 mA avg, 40 mA peak each)", 160, 64, "SOURCED", "S5"),
-        ("VL53L5CX (313 mW at 3.3 V AVDD/IOVDD)", 313 / 3.3, 313 / 3.3, "SOURCED + CALC", "S6; I = P/V"),
-        ("PMW3901 run mode (via 1.8 V LDO)", 9, 9, "SOURCED", "S7"),
-        ("INA226", 0.33, 0.33, "SOURCED", "S8"),
-        ("OV2640 (140 mW compressed) via 2.8 V/1.2 V LDOs", 140 / 1.2, 140 / 1.2, "SOURCED + ESTIMATE", "S9; worst case assumes all power on the 1.2 V LDO: I = 140 mW / 1.2 V"),
-        ("Buzzer MLT-5020 (intermittent)", 100, 0, "SOURCED", "S11; excluded from average"),
-    ]
     w("| Load | Peak (mA) | Average (mA) | Tag | Source / method |")
     w("|---|---:|---:|---|---|")
     pk = av = 0.0
-    for n, p, a, k, s in rail33:
+    for n, p, a, k, s in RAIL33:
         pk += p
         av += a
         w(f"| {n} | {p:.1f} | {a:.1f} | {k} | {s} |")
@@ -212,7 +259,7 @@ def main():
     w("")
     w(f"TPS63802 rating: 2 A for V_IN >= 2.3 V at V_OUT 3.3 V (S12) -> margin over peak = 2000 / {pk:.0f} = {2000/pk:.1f}x. "
       "The ESP32-S3 datasheet also requires a supply able to deliver >= 500 mA to the module.")
-    eff33 = V(0.90, "-", "ESTIMATE", "S12 Fig 10-5 read ~88-92% at V_IN 3.6 V, 300-500 mA")
+    eff33 = EFF33
     p33_batt = 3.3 * av / 1000 / eff33.value
     w("")
     w(f"Battery-side power for 3.3 V average: P = 3.3 V x {av:.0f} mA / eta({eff33.value:.2f}) = **{p33_batt:.2f} W** "
@@ -220,21 +267,15 @@ def main():
     w("")
     w("### 3b. 5 V rail (TPS61023 output)")
     w("")
-    led_max = 4 * 3 * 16
-    rail5 = [
-        ("4x WS2812B-2020 at full white", led_max, 50, "SOURCED peak basis / ESTIMATE avg",
-         "S10 tests each colour at 16 mA; full-white current not stated -> 3 x 16 mA per LED (CALC). Average assumes dim status lighting (ESTIMATE)"),
-        ("ELRS receiver", 100, 100, "ESTIMATE", "UNCONFIRMED - no vendor current found; placeholder to replace from receiver spec or bench"),
-    ]
     w("| Load | Peak (mA) | Average (mA) | Tag | Source / method |")
     w("|---|---:|---:|---|---|")
     pk5 = av5 = 0.0
-    for n, p, a, k, s in rail5:
+    for n, p, a, k, s in RAIL5:
         pk5 += p
         av5 += a
         w(f"| {n} | {p:.0f} | {a:.0f} | {k} | {s} |")
     w(f"| **Total 5 V** | **{pk5:.0f}** | **{av5:.0f}** | CALC | sum |")
-    eff5 = V(0.85, "-", "ESTIMATE", "S13 Fig 6-1 read ~80-90% at 0.2-0.5 A")
+    eff5 = EFF5
     p5_batt = 5.0 * av5 / 1000 / eff5.value
     w("")
     w(f"Battery-side: P = 5 V x {av5:.0f} mA / {eff5.value:.2f} = **{p5_batt:.2f} W** -> **{p5_batt/V_NOM.value*1000:.0f} mA** at {V_NOM.value} V. "
@@ -254,7 +295,7 @@ def main():
     elec_a = (p33_batt + p5_batt) / V_NOM.value
     flight = {}
     for W in (tot, thi, 80.0):
-        for eta in (5.0, 4.0):
+        for eta in ETA_GW:
             P = W / eta
             Im = P / V_NOM.value
             It = Im + elec_a
@@ -267,7 +308,7 @@ def main():
     w("")
     w("### 3d. Peak battery current (sizing connector, fuse, traces, FETs)")
     w("")
-    i_full_lo, i_full_hi = 1.6, 2.27
+    i_full_lo, i_full_hi = I_MOTOR_FULL_A
     peak_lo = 4 * i_full_lo + pk / 1000 / eff33.value * 3.3 / 3.0 + pk5 / 1000 * 5 / (0.85 * 3.0)
     peak_hi = 4 * i_full_hi + pk / 1000 / eff33.value * 3.3 / 3.0 + pk5 / 1000 * 5 / (0.85 * 3.0)
     w(f"Per-motor full-throttle current 1.6-2.27 A (vendor/maker figures, S21). Electronics peak referred to a 3.0 V battery. "

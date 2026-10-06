@@ -4,7 +4,7 @@
 
 | Milestone | Gate | State | Notes |
 |---|---|---|---|
-| Setup (brief sections 10-11) | - | Partly done | System packages + Python environment installed; KiCad 9, ESP-IDF, Freerouting deferred (D-001, OQ-1). Repo committed locally; not pushed (D-002, OQ-7). |
+| Setup (brief sections 10-11) | - | Partly done | System packages + Python environment installed; KiCad 9, ESP-IDF, Freerouting deferred (D-001, OQ-1). Repo public at github.com/Normansrule/microscout (D-002). |
 | M1 Requirements, block diagram, parts, budgets, pin table | G1 | **Drafted - awaiting `APPROVED G1`** | Package in `review/G1/`. 9 open questions. |
 | M2 Drone schematic | G2 | Not started | Blocked on G1 approval and OQ-1. |
 | M3 Drone PCB | G3 | Not started | |
@@ -20,3 +20,4 @@
 ## Log
 
 - 2026-10-04 - Scaffolded repository; drafted M1 / G1 package; stopped at G1.
+- 2026-10-05 - Owner pushed the repo to GitHub (Normansrule/microscout). Added generated figures, animations and a GitHub Pages design explorer for the G1 data (D-027); repo made public at the owner's request (D-002). Still stopped at G1.

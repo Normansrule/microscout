@@ -6,6 +6,10 @@ An open-source, palm-sized (~95 mm motor-to-motor), sensor-rich camera quadcopte
 
 > **Project state: Gate G1 (architecture and parts) - drafted, awaiting owner review.** No hardware exists yet. Nothing in this repository has been built, powered, tested or flown. Do not treat any file as a working or safe design.
 
+<p align="center"><img src="docs/figures/anim/drone-concept.gif" width="760" alt="Animated top-view concept sketch of MicroScout: four 55 mm props spinning inside guard rings, a forward 8x8 distance sensor sweeping, and left, right and rear distance sensors pulsing. Illustrative only - no CAD exists yet."></p>
+
+**[Open the interactive design explorer →](https://normansrule.github.io/microscout/)** Change the takeoff weight, motor thrust, hover efficiency and battery, and watch thrust-to-weight and hover time respond; browse the ESP32-S3 pin map pin by pin.
+
 ## Known limitations and required verification
 
 This project is drafted with an AI agent and verified by a human at eight gates (see `VERIFY.md`). The agent cannot produce or confirm:
@@ -38,6 +42,28 @@ Known risks found at G1 (details in `review/G1/README.md`): thrust-to-weight is 
 | Power | 1S 660 mAh, BQ24074 USB-C charger, TPS63802 3.3 V, TPS61023 5 V, LTC2954 soft power, reverse-battery FET, 15 A fuse |
 | Control links | ExpressLRS receiver (CRSF), Wi-Fi UDP, BLE, Python SDK |
 
+## Visual overview
+
+Every chart below is generated from the G1 data by `tools/viz/` (see [tools/viz/README.md](tools/viz/README.md)) and shows draft estimates, not measurements.
+
+### The headline risk: thrust margin
+
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/thrust-to-weight-dark.svg"><img src="docs/figures/thrust-to-weight-light.svg" alt="Thrust-to-weight against takeoff weight for 28, 33 and 36 gf per motor; it falls below 2 across most of the estimated weight range."></picture>
+
+| | |
+|---|---|
+| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/weight-budget-dark.svg"><img src="docs/figures/weight-budget-light.svg" alt="Weight budget per item, nominal 71.6 g against an 80 g limit"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/flight-time-dark.svg"><img src="docs/figures/flight-time-light.svg" alt="Estimated hover time against takeoff weight, 5.1 to 6.2 minutes at the nominal weight"></picture> |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/power-budget-dark.svg"><img src="docs/figures/power-budget-light.svg" alt="Average and peak current per electronic load on the 3.3 V and 5 V rails"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/cost-breakdown-dark.svg"><img src="docs/figures/cost-breakdown-light.svg" alt="Priced parts per drone, 69 dollars before PCB, assembly, battery and camera"></picture> |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/prop-clearance-dark.svg"><img src="docs/figures/prop-clearance-light.svg" alt="Top view comparing 55 mm and 65 mm props at 95 mm motor-to-motor; 65 mm guard rings overlap"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/esp32-pinout-dark.svg"><img src="docs/figures/esp32-pinout-light.svg" alt="ESP32-S3-WROOM-1 module pin map coloured by function; all 36 GPIOs are assigned"></picture> |
+
+### How it is meant to boot
+
+| Power-on sequence | ToF sensor re-addressing |
+|---|---|
+| <img src="docs/figures/anim/power-on-sequence.gif" alt="Animated timing diagram from button press to ready-to-arm: debounce, rails, strap sampling, KILL blanking window, sensor bring-up."> | <img src="docs/figures/anim/tof-addressing.gif" alt="Animation of five distance sensors woken one at a time and moved from address 0x29 to 0x31-0x35."> |
+
+These animations illustrate the planned behaviour of the draft design. Only the labelled times come from datasheets or calculation; real behaviour is checked on the bench, props off, at Gate G6.
+
 ## Repository layout
 
 | Path | Contents | Licence |
@@ -47,7 +73,8 @@ Known risks found at G1 (details in `review/G1/README.md`): thrust-to-weight is 
 | `firmware/` | Drone and remote firmware (esp-drone based) | GPL-3.0 |
 | `software/` | Python SDK, simulator, notebooks | MIT |
 | `bom/` | Bills of materials | CERN-OHL-S-2.0 |
-| `docs/` | Guides, safety/legal draft, `decisions.md` | CC-BY-SA-4.0 |
+| `docs/` | Guides, `decisions.md`, figures and animations, the GitHub Pages explorer (`index.html`) | CC-BY-SA-4.0 (explorer script MIT) |
+| `tools/viz/` | Scripts that regenerate every figure, animation and the explorer | MIT |
 | `review/G1`…`G8` | Gate review packages | CC-BY-SA-4.0 |
 | `VERIFY.md`, `PROGRESS.md`, `LICENSES.md` | Gate checklists, progress, licence summary | CC-BY-SA-4.0 |
 
