@@ -1,0 +1,29 @@
+<!doctype html>
+<!-- STATUS: DRAFT - UNVERIFIED - requires human review at Gate G5 (concept renders) -->
+<!-- SPDX-License-Identifier: MIT -->
+<html><head><meta charset="utf-8"><title>MicroScout render</title>
+<style>html,body{margin:0;background:#fff}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"/tools/viz/render3d/node_modules/three/build/three.module.js","three/addons/":"/tools/viz/render3d/node_modules/three/examples/jsm/"}}</script>
+</head><body><canvas id="c"></canvas>
+<script type="module">
+import { createViewer } from "/docs/viewer/scene.js";
+const q = new URLSearchParams(location.search);
+const W = +(q.get("w") || 1600), H = +(q.get("h") || 1000);
+const canvas = document.getElementById("c");
+canvas.style.width = W + "px"; canvas.style.height = H + "px";
+const v = await createViewer(canvas, { glbUrl: "/mechanical/concept/out/microscout_concept.glb", pixelRatio: 1,
+  background: q.get("bg") || "#eef0f2", fov: 28 });
+v.resize(W, H);
+window.v = v;
+window.renderView = async (o) => {
+  v.setExplode(o.explode || 0);
+  v.spinProps(o.prop || 0);
+  if (o.pose) v.setPoseNED(o.pose.p, o.pose.q, 1000, o.origin || [0, 0, 0]);
+  if (o.camPos) { v.camera.position.set(...o.camPos); v.camera.up.set(0, 1, 0); v.camera.lookAt(...o.camLook); }
+  else v.frame(o.view || "hero", o.dist);
+  v.render();
+  await new Promise(r => requestAnimationFrame(r));
+  return true;
+};
+window.ready = true;
+</script></body></html>

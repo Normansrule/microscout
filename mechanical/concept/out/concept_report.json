@@ -1,0 +1,33 @@
+{
+  "units": "mm, g",
+  "note": "CONCEPT - envelopes are APPROXIMATE; masses only for the printed parts",
+  "parts": {
+    "frame_pa11": {
+      "volume_mm3": 11307.1,
+      "density": 1.05,
+      "mass_g": 11.87
+    },
+    "canopy_tpu": {
+      "volume_mm3": 1584.1,
+      "density": 1.2,
+      "mass_g": 1.9
+    },
+    "battery_strap": {
+      "volume_mm3": 524.8,
+      "density": 1.2,
+      "mass_g": 0.63
+    }
+  },
+  "frame_cad_vs_hand_estimate": {
+    "cad_mass_g": 11.87,
+    "hand_estimate_g": 9.36,
+    "note": "budgets.py uses the CAD mass once this report exists"
+  },
+  "frame_bbox_mm": [
+    127.2,
+    127.2,
+    11.0
+  ],
+  "interference_mm3": "none found between boards, props and frame",
+  "prop_tip_clearance_mm": 1.0
+}

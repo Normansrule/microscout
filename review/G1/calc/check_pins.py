@@ -57,6 +57,10 @@ def main():
     for r in rows:
         g = int(r["gpio"])
         net = r["net"].strip()
+        if net.upper() == "SPARE":      # listed for completeness; counted as free
+            if g not in MODULE_PIN or int(r["module_pin"]) != MODULE_PIN[g]:
+                errors.append(f"spare GPIO{g}: module pin {r['module_pin']} does not match the datasheet")
+            continue
         if g in seen_gpio:
             errors.append(f"GPIO{g} assigned twice ({seen_gpio[g]} and {net})")
         seen_gpio[g] = net
@@ -90,7 +94,7 @@ def main():
             if g in STRAPPING or g in JTAG_DEFAULT or g in OCTAL_PSRAM_RESERVED:
                 errors.append(f"motor gate {net} on boot-sensitive GPIO{g}")
             if "pull-down" not in r["external_pull"].lower():
-                errors.append(f"motor gate {net} has no pull-down")
+                errors.append(f"motor output {net} has no pull-down")
         if "analog" in r["direction"].lower() and g not in ADC1:
             errors.append(f"{net} on GPIO{g} is analog but not an ADC1 pin")
 

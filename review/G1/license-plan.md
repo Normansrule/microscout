@@ -1,4 +1,4 @@
-> STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1
+> STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1 (rev B)
 
 # License plan
 
@@ -19,6 +19,10 @@ Draft guidance only - not legal advice. License compatibility of reused code and
 | esp-drone (Espressif) | GPL-3.0 | `firmware/drone/` (M7) | Same as firmware licence. |
 | esp32-camera (Espressif) | Apache-2.0 (UNCONFIRMED - check the repo LICENSE at M7) | ESP-IDF component | Apache-2.0 is generally considered compatible with GPL-3.0 - confirm. |
 | ESP-IDF | Apache-2.0 (UNCONFIRMED - check at M7) | build dependency | - |
+| AM32 ESC firmware | GPL-3.0 (repo page) | flashed to the ESC board MCUs (D-029) | Separate firmware image; ships under its own licence. |
+| OpenESC 30x30 (reference design only) | CERN-OHL-S-2.0 (AllSpice mirror page) | not copied | If any of its design is reused, the ESC board stays CERN-OHL-S-2.0 - compatible. |
+| three.js | MIT (package LICENSE file, v0.169.0) | loaded from a CDN by `docs/index.html`; npm copy used only for local renders (not committed) | Permissive. |
+| esp-fc (if chosen, OQ-8) | UNCONFIRMED | `firmware/` | Must be GPL-3.0-compatible to combine with esp-drone or GPL code. |
 | ST VL53L1X / VL53L5CX ULD drivers | UNCONFIRMED (ST licence terms vary by package) | `firmware/` | **Must be checked before import** - some ST packages are BSD-3-Clause, others proprietary. |
 | Bosch BMI270 / BMP3 Sensor APIs | UNCONFIRMED (believed BSD-3-Clause - check) | `firmware/` | Check before import. |
 | KiCad standard libraries | CC-BY-SA-4.0 with a design exception (UNCONFIRMED - check kicad.org) | `hardware/` | Check the exception wording covers fabricated designs. |

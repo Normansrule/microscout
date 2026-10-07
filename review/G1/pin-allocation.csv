@@ -1,10 +1,10 @@
-# STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1
+# STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1 (rev B)
 # ESP32-S3-WROOM-1-N8R2 GPIO allocation. Module pin numbers from Espressif ESP32-S3-WROOM-1 datasheet v1.8 Table 3-1.
 # Lines starting with # are comments. Validate with: python3 review/G1/calc/check_pins.py
 gpio,module_pin,net,function,direction,external_pull,boot_or_conflict_notes
 0,27,BOOT_N,BOOT button (strapping),in,10k pull-up to 3V3; button to GND,Strapping pin: must read 1 for SPI boot. Internal weak pull-up. Datasheet checklist: no large capacitor on GPIO0.
-1,39,VBAT_SENSE,Battery voltage divider (backup to INA226),analog in,high-value divider from switched VMOT + RC filter,ADC1_CH0 (ADC2 is shared with Wi-Fi). Divider taken from the switched motor rail so it neither drains the battery nor back-powers the ESP32 when the board is off. Cheapest pin to free if needed.
-2,38,MOT1_PWM,Motor 1 low-side MOSFET gate,out,100k pull-down at gate,Not a strapping pin. Pull-down keeps motor off during reset/boot.
+1,39,SPARE,Not connected - spare GPIO (ADC1_CH0); test pad suggested,-,none,Rev A's VBAT backup divider removed in rev B (D-021): the INA226 reads battery voltage.
+2,38,MOT1_DSHOT,ESC channel 1 DShot (bidirectional; RMT),bidir,100k pull-down,Not a strapping pin. Pull-down holds the line low during reset/boot (no pulses = motor stopped). G2 CHECK: bidirectional DShot idles HIGH once running - confirm AM32 accepts a low line at boot and the 100k does not load the ESC's pull-up.
 3,15,EXP_INT_N,Wired-OR interrupt from 2x TCA6408A + INA226 ALERT (all open-drain),in,10k pull-up to 3V3,Strapping pin (JTAG source select) - only read if the related eFuse is burned. Floating by default; here pulled high. Do NOT burn STRAP_JTAG_SEL eFuse. UNCONFIRMED: human to confirm eFuse state of purchased modules.
 4,4,CAM_D0,Camera DVP data 0 (OV2640 Y2),in,none,esp32-camera routes DVP pins through the GPIO matrix on ESP32-S3 (any GPIO allowed).
 5,5,CAM_D1,Camera DVP data 1 (Y3),in,none,
@@ -13,7 +13,7 @@ gpio,module_pin,net,function,direction,external_pull,boot_or_conflict_notes
 8,12,CAM_D4,Camera DVP data 4 (Y6),in,none,
 9,17,CAM_D5,Camera DVP data 5 (Y7),in,none,
 10,18,CAM_D6,Camera DVP data 6 (Y8),in,none,GPIO10 is the SPI2 IO_MUX CS0 pin; not needed because CS lines go through the GPIO matrix.
-11,19,SPI_MOSI,SPI2 MOSI (IMU + optical flow),out,none,SPI2 IO_MUX pin. Per-device clocks: BMI270 <=10 MHz; PMW3901 2 MHz with >=45 us between writes.
+11,19,SPI_MOSI,SPI2 MOSI (IMU + optical flow),out,none,SPI2 IO_MUX pin. Per-device clocks: ICM-42688-P <=24 MHz (run ~10 MHz); PMW3901 2 MHz with >=45 us between writes. G2 CHECK: 8 kHz IMU reads share SPI2 with the slow flow sensor - bus time budget and priority to be worked out.
 12,20,SPI_SCK,SPI2 SCLK,out,none,SPI2 IO_MUX pin.
 13,21,SPI_MISO,SPI2 MISO,in,none,SPI2 IO_MUX pin.
 14,22,CAM_D7,Camera DVP data 7 (Y9),in,none,GPIO14 is SPI2 QUADWP IO_MUX pin; unused for SPI here.
@@ -23,18 +23,18 @@ gpio,module_pin,net,function,direction,external_pull,boot_or_conflict_notes
 18,11,CAM_HREF,Camera HREF,in,none,
 19,13,USB_DN,USB D- (native USB Serial/JTAG),bidir,none,Fixed USB pin. Reconfiguring disables USB-JTAG.
 20,14,USB_DP,USB D+,bidir,none,Fixed USB pin.
-21,23,MOT2_PWM,Motor 2 gate,out,100k pull-down at gate,
-35,28,IMU_CS_N,BMI270 chip select,out,10k pull-up to 3V3,Usable only because N8R2 has QUAD PSRAM. On octal modules (R8/R16V) GPIO35-37 are taken by PSRAM. Datasheet: default function of module pins 28-30 decided by eFuse - human to confirm.
+21,23,MOT2_DSHOT,ESC channel 2 DShot (bidirectional; RMT),bidir,100k pull-down,
+35,28,IMU_CS_N,ICM-42688-P chip select,out,10k pull-up to 3V3,Usable only because N8R2 has QUAD PSRAM. On octal modules (R8/R16V) GPIO35-37 are taken by PSRAM. Datasheet: default function of module pins 28-30 decided by eFuse - human to confirm.
 36,29,FLOW_CS_N,PMW3901 chip select,out,10k pull-up to 3V3,Same GPIO35-37 note.
-37,30,IMU_INT1,BMI270 INT1 (data-ready),in,none,Same GPIO35-37 note.
-38,31,MOT3_PWM,Motor 3 gate,out,100k pull-down at gate,
+37,30,IMU_INT1,ICM-42688-P INT1 (data-ready),in,none,Same GPIO35-37 note.
+38,31,MOT3_DSHOT,ESC channel 3 DShot (bidirectional; RMT),bidir,100k pull-down,
 39,32,I2C_SDA,Main I2C bus SDA (sensors + camera SCCB) at 400 kHz,bidir,2.2k pull-up to 3V3 (value to confirm at G2 from bus capacitance),Default JTAG MTCK pin; JTAG is via USB so the pad is free.
 40,33,I2C_SCL,Main I2C bus SCL,bidir,2.2k pull-up to 3V3,Default JTAG MTDO pin.
 41,34,CRSF_RX,UART1 RX <- ELRS receiver TX (CRSF 420000 baud),in,none,Default JTAG MTDI pin. UNCONFIRMED: receiver UART logic level is 3.3 V when powered from 5 V.
 42,35,CRSF_TX,UART1 TX -> ELRS receiver RX,out,none,Default JTAG MTMS pin.
 43,37,U0TXD,UART0 TX to debug header (ROM log),out,none,Fixed UART0 pin.
 44,36,U0RXD,UART0 RX from debug header,in,none,Fixed UART0 pin.
-45,26,LED_DIN,WS2812B-2020 data via SN74AHCT1G125 (3.3V->5V),out,10k pull-down to GND,Strapping pin: must be 0 at boot (1 would select 1.8 V VDD_SPI and the 3.3 V flash would not boot). External pull-down added on top of the weak internal one. Buffer input has no pull.
+45,26,LED_DIN,WS2812B-2020 data via SN74AHCT1G125 (3.3V->5V); driven by SPI3 MOSI (D-042),out,10k pull-down to GND,Strapping pin: must be 0 at boot (1 would select 1.8 V VDD_SPI and the 3.3 V flash would not boot). External pull-down added on top of the weak internal one. Buffer input has no pull.
 46,16,BUZZER,Buzzer N-MOSFET gate,out,100k pull-down at gate,Strapping pin: must be 0 at boot for joint download mode with GPIO0=0; also controls ROM log routing. Internal weak pull-down; external pull-down agrees.
-47,24,MOT4_PWM,Motor 4 gate,out,100k pull-down at gate,3.3 V on N8R2 (1.8 V only on N16R16VA).
+47,24,MOT4_DSHOT,ESC channel 4 DShot (bidirectional; RMT),bidir,100k pull-down,3.3 V on N8R2 (1.8 V only on N16R16VA).
 48,25,PWR_KILL_N,LTC2954-1 KILL input (active low),out,100k pull-up to 3V3,Pull-up holds the board on whether or not firmware runs (intended); firmware pulls low to power off. LTC2954 ignores KILL for 400-650 ms after turn-on. A hung MCU cannot power itself off - button-off behaviour without KILL to be confirmed from the LTC2954 datasheet at G2.

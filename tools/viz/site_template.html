@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1 -->
+<!-- STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1 (rev B) -->
 <!-- Template for docs/index.html. Edit this file, then run: python3 tools/viz/build_site.py -->
 <!-- Page text and data: CC-BY-SA-4.0. Inline script: SPDX-License-Identifier: MIT -->
 <html lang="en">
@@ -7,7 +7,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MicroScout Design Explorer</title>
-<meta name="description" content="Interactive view of the MicroScout palm-sized ESP32-S3 camera drone's Gate G1 draft: weight, thrust, flight time, power, cost and pin allocation. Draft, unverified estimates.">
+<meta name="description" content="Interactive view of the MicroScout ESP32-S3 micro drone (Gate G1 rev B draft): 3D concept, simulated flights, thrust, hover time, power, cost and pin allocation. Draft, unverified estimates.">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 <style>
 :root {
   color-scheme: light;
@@ -125,6 +126,13 @@ figcaption { font-size: 12.5px; color: var(--ink2); margin-top: 6px; }
 .oq .rec { font-size: 13px; color: var(--ink2); margin-top: 4px; }
 footer { padding: 36px 0 40px; color: var(--muted); font-size: 12.5px; }
 .themebtn { float: right; margin-top: 4px; }
+.vwrap { position: relative; border-radius: 8px; overflow: hidden; background: var(--page); aspect-ratio: 16 / 9; }
+.vwrap canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+.v3dinfo { position: absolute; left: 12px; bottom: 10px; font-size: 12.5px; color: var(--ink2); background: color-mix(in srgb, var(--surface) 85%, transparent); padding: 4px 8px; border-radius: 6px; font-variant-numeric: tabular-nums; }
+.vctl { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin: 0 0 10px; font-size: 13px; color: var(--ink2); }
+.vctl input[type=range] { accent-color: var(--s1); width: 140px; }
+pre.code { background: var(--page); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; margin: 8px 0 0; }
+.renders { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin-top: 12px; }
 </style>
 </head>
 <body>
@@ -132,15 +140,15 @@ footer { padding: 36px 0 40px; color: var(--muted); font-size: 12.5px; }
 <div class="wrap">
   <header class="top">
     <button class="chip themebtn" id="themeBtn" type="button" aria-label="Toggle light or dark theme">◐ Theme</button>
-    <p class="eyebrow">Open-source palm-sized camera drone · Gate G1 draft</p>
+    <p class="eyebrow">Open-source micro drone · Gate G1 rev B draft</p>
     <h1>MicroScout design explorer</h1>
-    <p class="lede">An ESP32-S3 quadcopter about 95 mm across, where the circuit board is the frame and a printed canopy carries the prop guards. This page shows the architecture-and-parts draft (Gate G1) and lets you change the assumptions to see what moves.</p>
+    <p class="lede">A 95 mm, 2S brushless ESP32-S3 quadcopter designed to be quick, to flip and to survive crashes: a one-piece ducted nylon frame is meant to protect soft-mounted electronics, and a Python SDK flies it - in a simulator today, on the drone later. This page shows the Gate G1 rev B draft and lets you change the assumptions.</p>
     <div class="banner" role="note">
       <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2 1 21h22L12 2zm0 6 .01 0c.55 0 1 .45 1 1v5a1 1 0 1 1-2 0V9c0-.55.44-1 .99-1zM12 16.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5z"/></svg>
       <div><strong>Draft, unverified.</strong> No hardware has been built, powered or flown. Every number here is a datasheet value, a vendor claim, an estimate or an assumption, and the design is waiting for review at Gate G1. Sources and formulas are in <a href="https://github.com/Normansrule/microscout/blob/main/review/G1/budgets.md">review/G1/budgets.md</a>.</div>
     </div>
     <nav class="toc" aria-label="Sections">
-      <a href="#whatif">What-if calculator</a><a href="#weight">Weight</a><a href="#pins">Pin map</a>
+      <a href="#model3d">3D concept</a><a href="#use">Fly &amp; program</a><a href="#whatif">What-if calculator</a><a href="#weight">Weight</a><a href="#pins">Pin map</a>
       <a href="#power">Power &amp; cost</a><a href="#animations">Animations</a><a href="#figures">Figures</a><a href="#open">Open questions</a>
       <a href="https://github.com/Normansrule/microscout">GitHub repo ↗</a>
     </nav>
@@ -149,9 +157,62 @@ footer { padding: 36px 0 40px; color: var(--muted); font-size: 12.5px; }
   <section aria-labelledby="h-hero">
     <h2 id="h-hero" class="sr" style="position:absolute;left:-9999px">Overview</h2>
     <div class="hero">
-      <div class="card" style="padding:8px"><img src="figures/anim/drone-concept.gif" width="960" height="540"
-        alt="Animated top-view concept sketch: four spinning 55 mm props inside guard rings, a forward multizone distance sensor sweeping, and side and rear distance sensors pulsing. Illustrative only."></div>
+      <div class="card" style="padding:8px"><img src="figures/renders/turntable.gif" width="800" height="500"
+        alt="Turntable render of the MicroScout rev B concept: four ducted 2-inch props, an orange TPU canopy and the battery strapped on top. Concept model, not a finished design."></div>
       <div class="tiles" id="tiles"></div>
+    </div>
+  </section>
+
+
+  <section id="model3d" aria-labelledby="h-3d">
+    <h2 id="h-3d">3D concept</h2>
+    <p class="sub">Drag to orbit, scroll or pinch to zoom. The frame and canopy are parametric CAD; motors, props, battery, boards and sensors are simplified envelopes. The flights are replayed from the SDK simulator with estimated parameters - not real flight data.</p>
+    <div class="card">
+      <div class="vctl">
+        <span class="btnrow" style="margin:0" id="viewBtns">
+          <button class="chip" type="button" data-view="hero">3/4 view</button><button class="chip" type="button" data-view="top">Top</button>
+          <button class="chip" type="button" data-view="low">Front</button><button class="chip" type="button" data-view="under">Underside</button>
+        </span>
+        <label>Explode <input id="explode" type="range" min="0" max="1" step="0.01" value="0"></label>
+        <span class="btnrow" style="margin:0">
+          <button class="chip" type="button" id="playFlip">▶ Simulated back flip</button>
+          <button class="chip" type="button" id="playDemo">▶ Simulated demo flight</button>
+          <button class="chip" type="button" id="stopPlay">■ Stop</button>
+        </span>
+      </div>
+      <div class="vwrap"><canvas id="v3d" aria-label="Interactive 3D concept model of MicroScout"></canvas><div class="v3dinfo" id="v3dinfo">loading model…</div></div>
+    </div>
+    <div class="renders">
+      <figure class="card" style="padding:6px"><a href="figures/renders/hero.png"><img src="figures/renders/hero-small.png" alt="Concept render, three-quarter view" loading="lazy"></a><figcaption>Concept render</figcaption></figure>
+      <figure class="card" style="padding:6px"><a href="figures/renders/exploded.png"><img src="figures/renders/exploded-small.png" alt="Exploded concept render" loading="lazy"></a><figcaption>Exploded: canopy, FC, ESC, frame, battery</figcaption></figure>
+      <figure class="card" style="padding:6px"><a href="figures/renders/front.png"><img src="figures/renders/front-small.png" alt="Front concept render" loading="lazy"></a><figcaption>Camera and 8×8 ToF face forward</figcaption></figure>
+      <figure class="card" style="padding:6px"><a href="figures/renders/sim-backflip.gif"><img src="figures/renders/sim-backflip.gif" alt="Simulated back flip rendered on the concept model" loading="lazy"></a><figcaption>Simulated back flip (2.5× slower)</figcaption></figure>
+    </div>
+  </section>
+
+  <section id="use" aria-labelledby="h-use">
+    <h2 id="h-use">Fly it, or program it</h2>
+    <div class="grid2">
+      <div class="card">
+        <h3>As a pilot</h3>
+        <p class="sub" style="margin-bottom:6px">Any ExpressLRS radio, or a phone on the drone's Wi-Fi (app planned for M8).</p>
+        <table><tr><th>Mode</th><th>Sticks mean</th><th>It helps by</th></tr>
+          <tr><td>Beginner</td><td>speed</td><td>holding height and position, stopping before walls</td></tr>
+          <tr><td>Sport</td><td>tilt angle</td><td>levelling itself, holding height</td></tr>
+          <tr><td>Acro</td><td>rotation rate (1000 °/s)</td><td>staying out of your way - flips, rolls</td></tr></table>
+        <p class="sub" style="margin:8px 0 0">One-button flips in any mode above 1 m. Kill switch, link-loss landing, low-battery landing and a 3 m ceiling are built in. <a href="https://github.com/Normansrule/microscout/blob/main/docs/guide/fly.md">Flying guide →</a></p>
+      </div>
+      <div class="card">
+        <h3>As a programmer</h3>
+        <pre class="code">pip install -e software/microscout_sdk
+import microscout
+with microscout.connect("sim") as drone:
+    drone.takeoff(1.0)
+    drone.move(forward=1.0)
+    drone.flip("back")
+    drone.land()</pre>
+        <p class="sub" style="margin:8px 0 0">Same API for the simulator now and the drone later. Drop down to rates, attitude or velocity setpoints and run your own PID, LQR or MPC at 100 Hz. <a href="https://github.com/Normansrule/microscout/blob/main/docs/guide/program.md">Programming guide →</a></p>
+      </div>
     </div>
   </section>
 
@@ -180,7 +241,7 @@ footer { padding: 36px 0 40px; color: var(--muted); font-size: 12.5px; }
 
   <section id="pins" aria-labelledby="h-pins">
     <h2 id="h-pins">ESP32-S3 pin map</h2>
-    <p class="sub">All 36 GPIOs on the ESP32-S3-WROOM-1-N8R2 module are used. Hover or tab through the pins for details; the chips filter by function. Pin order follows the module (1–14 left, 15–26 bottom, 27–40 right); the drawing is not to scale.</p>
+    <p class="sub">35 of the 36 GPIOs on the ESP32-S3-WROOM-1-N8R2 module are used; GPIO1 is spare. Hover or tab through the pins for details; the chips filter by function. Pin order follows the module (1–14 left, 15–26 bottom, 27–40 right); the drawing is not to scale.</p>
     <div class="btnrow" id="pinFilters"></div>
     <div class="pinwrap">
       <div class="card"><svg id="pinSvg" viewBox="0 0 640 670" role="img" aria-label="ESP32-S3 module pin map"></svg></div>
@@ -278,7 +339,7 @@ function bindTip(el, htmlFn) {
 
 /* ---------- model ---------- */
 const M = G1.model;
-const state = { thrust: 33, eta: 4.5, weight: G1.total.nominal, cap: M.cap, elec: M.elec_a };
+const state = { thrust: 100, eta: 3.0, weight: G1.total.nominal, cap: M.cap, elec: M.elec_a };
 const hoverCurrent = (W, s) => W / s.eta / M.v_nom + s.elec;
 const flight = (W, s) => s.cap / 1000 * M.derate * M.usable / hoverCurrent(W, s) * 60;
 const tw = (W, s) => 4 * s.thrust / W;
@@ -289,20 +350,20 @@ function drawTiles() {
   const cost = G1.cost.reduce((a, c) => a + c.line, 0);
   const twv = tw(s.weight, s);
   const tiles = [
-    ["Takeoff weight", `${fmt(s.weight)} g`, `G1 estimate ${fmt(t.nominal)} g · range ${fmt(t.lo, 0)}–${fmt(t.hi, 0)} g`, s.weight <= 80 ? ["ok", "under 80 g limit"] : ["bad", "over 80 g limit"]],
-    ["Thrust-to-weight", fmt(twv, 2), `${s.thrust} gf per motor`, twv >= 2 ? ["ok", "≥ 2 rule of thumb"] : ["bad", "below 2 – thin margin"]],
+    ["Takeoff weight", `${fmt(s.weight)} g`, `G1 estimate ${fmt(t.nominal)} g · range ${fmt(t.lo, 0)}–${fmt(t.hi, 0)} g`, s.weight <= 80 ? ["ok", "under 80 g target"] : ["bad", "over 80 g target"]],
+    ["Thrust-to-weight", fmt(twv, 2), `${s.thrust} g per motor`, twv >= 4 ? ["ok", "≥ 4: flips and fast climbs"] : ["bad", "below the 4 agility target"]],
     ["Hover time", `${fmt(flight(s.weight, s))} min`, `η ${fmt(s.eta)} g/W · ${s.cap} mAh`, null],
-    ["Priced parts", `$${fmt(cost, 2)}`, "per drone, before PCB, assembly, battery, camera", cost < 75 ? ["bad", "$75 target at risk"] : ["bad", "over $75 target"]],
+    ["Priced parts", `$${fmt(cost, 2)}`, "per drone, before PCBs, assembly, frame", cost < 75 ? ["ok", "under the $75 target"] : ["bad", "over the $75 target"]],
   ];
   $("#tiles").innerHTML = tiles.map(([l, v, n, st]) => `<div class="tile"><div class="label">${l}</div><div class="value">${v}</div><div class="note">${n}</div>${st ? `<div class="status ${st[0]}">${st[0] === "ok" ? "✓" : "▲"} ${st[1]}</div>` : ""}</div>`).join("");
 }
 
 /* ---------- controls ---------- */
 const CTL = [
-  ["weight", "Takeoff weight", 50, 100, 0.5, "g", "G1 estimate " + fmt(G1.total.nominal) + " g"],
-  ["thrust", "Thrust per motor", 20, 45, 1, "gf", "Only data found: 33–36 gf with 60 mm props"],
-  ["eta", "Hover efficiency η", 3, 6, 0.1, "g/W", "Generic 8520 test: 4–5 g/W"],
-  ["cap", "Battery capacity", 500, 900, 10, "mAh", "Selected pack: 660 mAh"],
+  ["weight", "Takeoff weight", 60, 110, 0.5, "g", "G1 rev B estimate " + fmt(G1.total.nominal) + " g"],
+  ["thrust", "Max thrust per motor", 60, 130, 1, "g", "EX1103 vendor table: 122 g; 85-100 g assumed after ducts and sag"],
+  ["eta", "Hover efficiency η", 2, 4.5, 0.1, "g/W", "Estimate 2.5-3.5 g/W (vendor table: 2.19 g/W at 82 g)"],
+  ["cap", "Battery capacity (2S)", 300, 700, 10, "mAh", "Selected pack: 550 mAh"],
   ["elec", "Electronics current", 0.3, 1.2, 0.01, "A", "G1 estimate " + fmt(M.elec_a, 2) + " A at the battery"],
 ];
 function buildControls() {
@@ -315,10 +376,10 @@ function buildControls() {
     out.textContent = `${fmt(state[k], st < 1 ? (st < 0.1 ? 2 : 1) : 0)} ${u}`;
   });
   const presets = [
-    ["G1 nominal", { weight: G1.total.nominal, thrust: 33, eta: 4.5, cap: M.cap, elec: M.elec_a }],
-    ["Pessimistic", { weight: G1.total.hi, thrust: 28, eta: 4, cap: M.cap, elec: M.elec_a }],
-    ["Optimistic", { weight: G1.total.lo, thrust: 36, eta: 5, cap: M.cap, elec: M.elec_a }],
-    ["65 g target (OQ-3)", { weight: 65, thrust: 33, eta: 4.5, cap: M.cap, elec: M.elec_a }],
+    ["G1 nominal", { weight: G1.total.nominal, thrust: 100, eta: 3.0, cap: M.cap, elec: M.elec_a }],
+    ["Pessimistic", { weight: G1.total.hi, thrust: 85, eta: 2.5, cap: M.cap, elec: M.elec_a }],
+    ["Optimistic", { weight: G1.total.lo, thrust: 122, eta: 3.5, cap: M.cap, elec: M.elec_a }],
+    ["450 mAh pack (OQ-11)", { weight: G1.total.nominal - 2.9, thrust: 100, eta: 3.0, cap: 450, elec: M.elec_a }],
   ];
   $("#presets").innerHTML = presets.map(([n], i) => `<button class="chip" type="button" data-i="${i}">${n}</button>`).join("");
   $("#presets").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
@@ -369,9 +430,9 @@ function lineChart(el, cfg) {
 function redrawModel() {
   const s = state, t = G1.total;
   lineChart($("#chTW"), {
-    title: "Thrust-to-weight vs takeoff weight", caption: `T/W = 4 × ${s.thrust} gf ÷ weight. Faint lines: the G1 scenarios (28, 33, 36 gf).`,
-    x0: 50, x1: 100, y0: 1, y1: 3.4, xt: [50, 60, 70, 80, 90, 100], yt: [1, 1.5, 2, 2.5, 3], xlabel: "takeoff weight (g)",
-    bands: [[t.lo, t.hi, "G1 weight range"]], vlines: [[80, "var(--critical)", "80 g limit"]], hlines: [[2, "T/W = 2 rule of thumb"]],
+    title: "Thrust-to-weight vs takeoff weight", caption: `T/W = 4 × ${s.thrust} g ÷ weight. Faint lines: the G1 scenarios (${G1.thrust.map((x) => x.gf).join(", ")} g).`,
+    x0: 60, x1: 110, y0: 2, y1: 8, xt: [60, 70, 80, 90, 100, 110], yt: [2, 3, 4, 5, 6, 7, 8], xlabel: "takeoff weight (g)",
+    bands: [[t.lo, t.hi, "G1 weight range"]], vlines: [[80, "var(--critical)", "80 g target"]], hlines: [[4, "T/W = 4 agility target"]],
     legend: [["var(--s1)", "your settings"], ["var(--muted)", "G1 scenarios", true]],
     series: [{ f: (w) => tw(w, s), c: "var(--s1)" }, ...G1.thrust.map((th) => ({ f: (w) => 4 * th.gf / w, c: "var(--muted)", w: 1.2, dash: true, o: 0.8 }))],
     marker: { x: s.weight, y: tw(s.weight, s), c: "var(--s1)", label: fmt(tw(s.weight, s), 2) },
@@ -379,8 +440,8 @@ function redrawModel() {
   });
   lineChart($("#chFT"), {
     title: "Hover time vs takeoff weight", caption: `${s.cap} mAh × ${Math.round(M.derate * 100)}% × ${Math.round(M.usable * 100)}% ÷ (W/η/${M.v_nom} V + ${fmt(s.elec, 2)} A)`,
-    x0: 50, x1: 100, y0: 0, y1: 12, xt: [50, 60, 70, 80, 90, 100], yt: [0, 2, 4, 6, 8, 10, 12], xlabel: "takeoff weight (g)",
-    bands: [[t.lo, t.hi, "G1 weight range"]], vlines: [[80, "var(--critical)", "80 g limit"]],
+    x0: 60, x1: 110, y0: 0, y1: 12, xt: [60, 70, 80, 90, 100, 110], yt: [0, 2, 4, 6, 8, 10, 12], xlabel: "takeoff weight (g)",
+    bands: [[t.lo, t.hi, "G1 weight range"]], vlines: [[80, "var(--critical)", "80 g target"]],
     series: [{ f: (w) => flight(w, s), c: "var(--s1)" }],
     marker: { x: s.weight, y: flight(s.weight, s), c: "var(--s1)", label: `${fmt(flight(s.weight, s))} min` },
     tip: (w, v) => `<div class="h">${fmt(w)} g</div><div class="m">${fmt(v)} min · ${fmt(hoverCurrent(w, s), 2)} A from the battery</div>`,
@@ -414,7 +475,7 @@ function drawWeight() {
     color: w.kind === "SOURCED" ? "var(--s1)" : "var(--s2)",
     tip: `<div class="h">${w.name}: ${fmt(w.value)} g</div><div class="m">range ${fmt(w.lo)}–${fmt(w.hi)} g · ${w.kind}</div><div class="m">${w.basis}</div>`,
   }));
-  bars($("#weightBars"), rows, 24);
+  bars($("#weightBars"), rows, Math.max(...rows.map((r) => r.hi)) * 1.05);
   $("#weightTable").innerHTML = `<tr><th>Item</th><th class="num">Nominal (g)</th><th class="num">Range (g)</th><th>Tag</th><th>Basis</th></tr>` +
     G1.weight.map((w) => `<tr><td>${w.name}</td><td class="num">${fmt(w.value)}</td><td class="num">${fmt(w.lo)}–${fmt(w.hi)}</td><td>${w.kind}</td><td>${w.basis}</td></tr>`).join("") +
     `<tr><th>Total</th><th class="num">${fmt(t.nominal)}</th><th class="num">${fmt(t.lo)}–${fmt(t.hi)}</th><th></th><th></th></tr>`;
@@ -423,19 +484,19 @@ function drawWeight() {
 function drawPowerCost() {
   const r33 = G1.rails["3V3"].loads;
   const pk = r33.reduce((a, l) => a + l.peak, 0), av = r33.reduce((a, l) => a + l.avg, 0);
-  $("#powerSub").textContent = `${fmt(av, 0)} mA average, ${fmt(pk, 0)} mA peak against a 2 A regulator rating. ESP32 average is a placeholder until the G6 bench test.`;
+  $("#powerSub").textContent = `${fmt(av, 0)} mA average, ${fmt(pk, 0)} mA peak against the 1 A buck rating. ESP32 and ESC-MCU averages are placeholders until the G6 bench test.`;
   bars($("#powerBars"), [...r33].sort((a, b) => b.peak - a.peak).map((l) => ({
     name: l.name, value: l.avg, peak: l.peak, color: "var(--s1)", label: `${fmt(l.avg, l.avg < 10 ? 1 : 0)} / ${fmt(l.peak, l.peak < 10 ? 1 : 0)} mA`,
     tip: `<div class="h">${l.full}</div><div class="m">average ${fmt(l.avg, 1)} mA · peak ${fmt(l.peak, 1)} mA</div><div class="m">${l.tag} · ${l.src}</div>`,
   })), 360);
   const cost = [...G1.cost].sort((a, b) => b.line - a.line);
   const total = cost.reduce((a, c) => a + c.line, 0);
-  $("#costSub").innerHTML = `<strong>$${fmt(total, 2)}</strong> for the parts priced so far, against a ~$75 target. LCSC prices seen 2026-10-04; they change daily.`;
+  $("#costSub").innerHTML = `<strong>$${fmt(total, 2)}</strong> for the parts priced so far, against a ~$75 target. LCSC and vendor prices seen 2026-10-04 to 10-07; they change daily.`;
   bars($("#costBars"), cost.slice(0, 12).map((c) => ({
     name: `${c.ref} ${c.mpn}`, value: c.line, color: "var(--s1)", label: `$${fmt(c.line, 2)}`,
     tip: `<div class="h">${c.mpn}</div><div class="m">${c.fn}</div><div class="m">${c.qty} × $${fmt(c.unit, 4)} (${c.brk || "listing"})${c.lcsc ? " · LCSC " + c.lcsc : ""}</div>`,
   })).concat([{ name: `${cost.length - 12} smaller lines`, value: cost.slice(12).reduce((a, c) => a + c.line, 0), color: "var(--neutral)",
-    label: `$${fmt(cost.slice(12).reduce((a, c) => a + c.line, 0), 2)}`, tip: `<div class="h">${cost.length - 12} lines under $1.20 each</div><div class="m">See the table view</div>` }]), 18);
+    label: `$${fmt(cost.slice(12).reduce((a, c) => a + c.line, 0), 2)}`, tip: `<div class="h">${cost.length - 12} lines under $1.20 each</div><div class="m">See the table view</div>` }]), Math.max(...cost.map((c) => c.line)) * 1.05);
   $("#costTable").innerHTML = `<tr><th>Ref</th><th>Part</th><th class="num">Qty</th><th class="num">Unit $</th><th class="num">Line $</th><th>LCSC</th></tr>` +
     cost.map((c) => `<tr><td>${c.ref}</td><td>${c.mpn}</td><td class="num">${c.qty}</td><td class="num">${fmt(c.unit, 4)}</td><td class="num">${fmt(c.line, 2)}</td><td>${c.lcsc}</td></tr>`).join("") +
     `<tr><th colspan="4">Subtotal of priced lines</th><th class="num">${fmt(total, 2)}</th><th></th></tr>`;
@@ -521,13 +582,79 @@ function buildPinFilters() {
 function buildFigures() {
   const figs = [["thrust-to-weight", "Thrust-to-weight across the weight range"], ["flight-time", "Hover time estimate"],
     ["weight-budget", "Weight budget by item"], ["power-budget", "Electronics current per load"],
-    ["cost-breakdown", "Priced parts per drone"], ["prop-clearance", "Why 55 mm props"], ["esp32-pinout", "ESP32-S3 pin allocation"]];
+    ["cost-breakdown", "Priced parts per drone"], ["duct-layout", "Duct layout to scale"], ["sim-flip", "Simulated back flip"], ["esp32-pinout", "ESP32-S3 pin allocation"]];
   $("#figGrid").innerHTML = figs.map(([f, c]) => `<figure class="card" style="padding:8px"><a href="figures/${f}-light.svg"><picture><source srcset="figures/${f}-dark.svg" media="(prefers-color-scheme: dark)"><img src="figures/${f}-light.svg" alt="${c}" loading="lazy"></picture></a><figcaption>${c}</figcaption></figure>`).join("");
   $("#oqList").innerHTML = G1.oq.map((q) => `<div class="card"><span class="id">${q.id}</span> ${q.q}<div class="rec">Recommendation: ${q.rec}</div></div>`).join("");
 }
 
 function redrawAll() { redrawModel(); drawWeight(); drawPowerCost(); drawPins(); }
 buildControls(); buildPinFilters(); buildFigures(); redrawAll();
+</script>
+
+<script type="module">
+// SPDX-License-Identifier: MIT
+import { createViewer } from "./viewer/scene.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+const canvas = document.getElementById("v3d"), info = document.getElementById("v3dinfo");
+let v;
+try {
+  v = await createViewer(canvas, { glbUrl: "models/microscout_concept.glb", background: getComputedStyle(document.documentElement).getPropertyValue("--page").trim() || "#f9f9f7", fov: 30 });
+} catch (e) {
+  canvas.replaceWith(Object.assign(document.createElement("img"), { src: "figures/renders/hero.png", alt: "Concept render (3D viewer unavailable)", style: "width:100%" }));
+  info.textContent = "3D viewer unavailable in this browser - showing a render.";
+  throw e;
+}
+const controls = new OrbitControls(v.camera, canvas);
+controls.enableDamping = true;
+const home = v.center.clone(); home.y += v.lift;
+function fit() { const r = canvas.getBoundingClientRect(); v.resize(r.width, r.height); }
+new ResizeObserver(fit).observe(canvas);
+fit();
+function setView(name) { v.frame(name, 300); controls.target.copy(home); controls.update(); }
+setView("hero");
+info.textContent = "concept model · drag to orbit";
+document.querySelectorAll("#viewBtns button").forEach((b) => b.addEventListener("click", () => { stop(); setView(b.dataset.view); }));
+document.getElementById("explode").addEventListener("input", (e) => v.setExplode(+e.target.value));
+let play = null, prop = 0;
+async function start(url, label) {
+  stop();
+  document.getElementById("explode").value = 0; v.setExplode(0);
+  const data = (await (await fetch(url)).json()).samples;
+  play = { data, t0: performance.now(), label, slow: url.includes("flip") ? 2.5 : 1 };
+  v.camera.position.set(home.x + 170, home.y + 120, home.z + 330);
+}
+function stop() {
+  if (!play) return;
+  play = null;
+  v.setPoseNED([0, 0, 0], [1, 0, 0, 0]);
+  setView("hero");
+  info.textContent = "concept model · drag to orbit";
+}
+document.getElementById("playFlip").addEventListener("click", () => start("data/sim_flip.json", "simulated back flip (2.5× slower)"));
+document.getElementById("playDemo").addEventListener("click", () => start("data/sim_demo.json", "simulated demo flight"));
+document.getElementById("stopPlay").addEventListener("click", stop);
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function tick() {
+  if (play) {
+    const d = play.data, T = d[0].t + (performance.now() - play.t0) / 1000 / play.slow;
+    let i = d.findIndex((s) => s.t >= T);
+    if (i < 0) i = d.length - 1;
+    const s = d[i];
+    const before = v.rig.position.clone();
+    v.setPoseNED(s.p, s.q);
+    const delta = v.rig.position.clone().sub(before);
+    v.camera.position.add(delta);
+    controls.target.copy(v.rig.position);
+    info.textContent = `${play.label} · t = ${(s.t - d[0].t).toFixed(2)} s · height ${(-s.p[2]).toFixed(2)} m`;
+    prop += reduce ? 0 : 0.9;
+    v.spinProps(prop);
+    if (i === d.length - 1 && T > d[d.length - 1].t + 1) stop();
+  }
+  controls.update();
+  v.render();
+  requestAnimationFrame(tick);
+}
+tick();
 </script>
 </body>
 </html>

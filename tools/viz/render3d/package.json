@@ -1,0 +1,7 @@
+{
+  "name": "microscout-render3d",
+  "private": true,
+  "description": "STATUS: DRAFT - UNVERIFIED. three.js for headless concept renders (tools/viz/render3d/render.py).",
+  "license": "MIT",
+  "dependencies": { "three": "0.169.0" }
+}

@@ -26,17 +26,16 @@ B = load_budgets()
 # --------------------------------------------------------------------------
 def short_weight_label(name):
     keys = [
-        ("Battery 1S", "Battery 1S 660 mAh"), ("Motors", "Motors 4× 8520"), ("Props", "Props 4× 55 mm"),
-        ("PCB bare", "PCB (bare 1.0 mm FR-4)"), ("Electronic components", "Electronic parts + ESP32"),
-        ("Camera", "Camera + FPC"), ("ELRS", "ELRS receiver"), ("Canopy", "Canopy shell"),
-        ("Prop guards", "Prop guards (4 rings)"), ("Guard struts", "Guard struts"), ("Landing feet", "Landing feet"),
-        ("Motor holders", "Motor holders"), ("Battery cradle", "Battery cradle"), ("Battery leads", "Leads, strap, fasteners"),
+        ("Battery 2S", "Battery 2S 550 mAh"), ("Battery 1S", "Battery 1S 660 mAh"), ("Motors", "Motors 4× EX1103"),
+        ("Props", "Props 4× 2-inch"), ("Ducted frame", "Ducted frame (PA11)"), ("Canopy", "Canopy + strap (TPU)"),
+        ("Flight-controller PCB", "FC PCB (bare)"), ("FC components", "FC parts + ESP32"), ("ESC PCB", "ESC PCB (bare)"),
+        ("ESC components", "ESC parts"), ("Camera", "Camera + FPC"), ("Side/rear ToF", "Side/rear ToF boards"),
+        ("ELRS", "ELRS receiver"), ("XT30", "XT30 lead + wires"), ("Soft-mount", "Grommets + screws"),
     ]
     for k, v in keys:
         if name.startswith(k):
             return v
     return name[:28]
-
 
 def fig_weight(theme):
     t = THEMES[theme]
@@ -44,7 +43,7 @@ def fig_weight(theme):
     tot, lo_t, hi_t = B.weight_totals()
     rows = sorted(items, key=lambda kv: kv[1].value)
     fig = new_fig(t, 9.6, 7.0)
-    title_block(fig, t, f"Takeoff weight: {tot:.1f} g nominal ({lo_t:.0f}–{hi_t:.0f} g range) against an 80 g limit",
+    title_block(fig, t, f"Takeoff weight: {tot:.1f} g nominal ({lo_t:.0f}–{hi_t:.0f} g range) against an 80 g target",
                 "Bars are the nominal value per item; thin lines span the low–high range. Colour shows where the number came from.")
     ax = fig.add_axes([0.27, 0.27, 0.66, 0.56])
     style_axes(ax, t, "x")
@@ -56,7 +55,7 @@ def fig_weight(theme):
         ax.plot([lo, hi], [i, i], color=t["ink2"], linewidth=1.2, solid_capstyle="round")
         ax.text(hi + 0.4, i, f"{v.value:.1f} g", va="center", fontsize=8.5, color=t["ink2"])
     ax.set_yticks(y, [short_weight_label(n) for n, _ in rows], fontsize=9)
-    ax.set_xlim(0, 25)
+    ax.set_xlim(0, max(v.rng()[1] for _, v in rows) * 1.18)
     ax.set_xlabel("grams")
     ax.legend(handles=[Patch(color=t["series"][0], label="datasheet / vendor value"),
                        Patch(color=t["series"][1], label="engineering estimate"),
@@ -68,9 +67,9 @@ def fig_weight(theme):
     ax2.barh(0, tot, height=0.5, color=t["series"][0], linewidth=0)
     ax2.plot([lo_t, hi_t], [0, 0], color=t["ink2"], linewidth=1.4)
     ax2.axvline(80, color=t["warn"], linewidth=1.5)
-    ax2.text(80.8, 0.32, "80 g limit", color=t["ink2"], fontsize=8.5, va="center")
+    ax2.text(80.8, 0.32, "80 g target", color=t["ink2"], fontsize=8.5, va="center")
     ax2.text(tot / 2, 0, f"{tot:.1f} g", color="#ffffff", fontsize=9, va="center", ha="center", fontweight="bold")
-    ax2.set_xlim(0, 100)
+    ax2.set_xlim(0, 110)
     ax2.set_yticks([0], ["Total takeoff weight"], fontsize=9)
     ax2.set_xlabel("grams")
     stamp(fig, t, "source: review/G1/budgets.md §1")
@@ -80,20 +79,21 @@ def fig_weight(theme):
 def fig_thrust(theme):
     t = THEMES[theme]
     tot, lo_t, hi_t = B.weight_totals()
-    W = np.linspace(50, 100, 200)
+    W = np.linspace(60, 110, 200)
+    tws = [4 * tm / tot for tm, _ in B.THRUST_SCENARIOS]
     fig = new_fig(t, 9.6, 5.6)
-    title_block(fig, t, "Thrust-to-weight falls below 2 across most of the estimated weight range",
-                "T/W = 4 × thrust per motor ÷ takeoff weight. No 55 mm-prop thrust data was found; 33–36 gf is secondhand data for 60 mm props.")
-    ax = fig.add_axes([0.08, 0.15, 0.66, 0.62])
+    title_block(fig, t, f"Thrust-to-weight {min(tws):.1f}–{max(tws):.1f} at the nominal {tot:.0f} g – enough for flips",
+                "T/W = 4 × thrust per motor ÷ weight. 122 g = EX1103 vendor table (open prop, 7.4 V); 85 and 100 g are assumed derates.")
+    ax = fig.add_axes([0.08, 0.15, 0.62, 0.62])
     style_axes(ax, t, "y")
     ax.axvspan(lo_t, hi_t, color=t["grid"], alpha=0.55, linewidth=0)
-    ax.text(lo_t + 0.6, 3.14, "estimated weight range", ha="left", va="top", fontsize=8.5, color=t["ink2"])
+    ax.text(lo_t + 0.6, 7.85, "estimated weight range", ha="left", va="top", fontsize=8.5, color=t["ink2"])
     ax.axvline(tot, color=t["ink2"], linewidth=1)
-    ax.text(tot + 0.6, 1.08, f"nominal {tot:.1f} g", fontsize=8.5, color=t["ink2"])
+    ax.text(tot + 0.6, 2.1, f"nominal {tot:.1f} g", fontsize=8.5, color=t["ink2"])
     ax.axvline(80, color=t["warn"], linewidth=1.3)
-    ax.text(80.6, 1.08, "80 g limit", fontsize=8.5, color=t["ink2"])
-    ax.axhline(2.0, color=t["muted"], linewidth=1, linestyle=(0, (4, 3)))
-    ax.text(50.5, 2.04, "T/W = 2 rule of thumb (assumption)", fontsize=8, color=t["ink2"], va="bottom")
+    ax.text(80.6, 2.4, "80 g target", fontsize=8.5, color=t["ink2"])
+    ax.axhline(4.0, color=t["muted"], linewidth=1, linestyle=(0, (4, 3)))
+    ax.text(60.5, 4.05, "T/W = 4 agility target (R-20)", fontsize=8, color=t["ink2"], va="bottom")
     handles = []
     for i, (tm, tag) in enumerate(B.THRUST_SCENARIOS):
         c = t["series"][i]
@@ -102,11 +102,11 @@ def fig_thrust(theme):
         ax.plot([tot], [tw], "o", ms=7, color=c, mec=t["surface"], mew=2)
         ax.text(tot - 1.2, tw, f"{tw:.2f}", fontsize=8.5, color=t["ink"], ha="right", va="center",
                 bbox=dict(facecolor=t["surface"], edgecolor="none", pad=1.2))
-        label = f"{tm} gf/motor – {'assumed for 55 mm' if tag == 'ASSUMPTION' else 'S19, 60 mm props'}"
-        ax.text(100.8, 4 * tm / 100, label, fontsize=8.5, color=t["ink2"], va="center")
+        label = f"{tm} g/motor – " + ("vendor table" if tag.startswith("SOURCED") else ("−30 % ducts + sag" if tm == 85 else "sag to ~7 V"))
+        ax.text(110.8, 4 * tm / 110, label, fontsize=8.5, color=t["ink2"], va="center")
         handles.append(Line2D([], [], color=c, lw=2, label=label))
-    ax.set_xlim(50, 100)
-    ax.set_ylim(1.0, 3.2)
+    ax.set_xlim(60, 110)
+    ax.set_ylim(2.0, 8.0)
     ax.set_xlabel("takeoff weight (g)")
     ax.set_ylabel("thrust-to-weight ratio")
     fig.legend(handles=handles, loc="upper left", bbox_to_anchor=(0.075, 0.86), frameon=False, fontsize=8.5,
@@ -114,21 +114,20 @@ def fig_thrust(theme):
     stamp(fig, t, "source: review/G1/budgets.md §2")
     return save_svg(fig, "thrust-to-weight", theme)
 
-
 def fig_flight(theme):
     t = THEMES[theme]
     tot, lo_t, hi_t = B.weight_totals()
-    W = np.linspace(50, 100, 200)
+    W = np.linspace(60, 110, 200)
     fig = new_fig(t, 9.6, 5.4)
     elec = B.electronics_battery_current_a()
-    title_block(fig, t, f"Estimated hover time: {B.flight_time_min(tot, 4):.1f}–{B.flight_time_min(tot, 5):.1f} min at the nominal weight",
-                f"660 mAh × {B.HV_DERATE.value:.0%} HV derate × {B.USABLE_FRAC.value:.0%} usable ÷ (motors W/η/3.7 V + {elec:.2f} A electronics). η = 4–5 g/W from a generic 8520 test.")
+    title_block(fig, t, f"Estimated hover time: {B.flight_time_min(tot, min(B.ETA_GW)):.1f}–{B.flight_time_min(tot, max(B.ETA_GW)):.1f} min at the nominal weight",
+                f"{B.CAP_MAH.value:.0f} mAh × {B.HV_DERATE.value:.0%} × {B.USABLE_FRAC.value:.0%} usable ÷ (W/η/{B.V_NOM.value} V + {elec:.2f} A electronics). η = 2.5–3.5 g/W (estimate). Hover only – acro drains it 2–3× faster.")
     ax = fig.add_axes([0.08, 0.15, 0.68, 0.62])
     style_axes(ax, t, "y")
     ax.axvspan(lo_t, hi_t, color=t["grid"], alpha=0.55, linewidth=0)
     ax.axvline(80, color=t["warn"], linewidth=1.3)
-    ax.text(80.6, 0.4, "80 g limit", fontsize=8.5, color=t["ink2"])
-    ax.text(lo_t + 0.6, 8.85, "estimated weight range", ha="left", va="top", fontsize=8.5, color=t["ink2"])
+    ax.text(80.6, 0.4, "80 g target", fontsize=8.5, color=t["ink2"])
+    ax.text(lo_t + 0.6, 9.85, "estimated weight range", ha="left", va="top", fontsize=8.5, color=t["ink2"])
     handles = []
     for i, eta in enumerate(B.ETA_GW):
         c = t["series"][i]
@@ -138,11 +137,11 @@ def fig_flight(theme):
         ax.plot([tot], [v], "o", ms=7, color=c, mec=t["surface"], mew=2)
         ax.text(tot - 1.2, v, f"{v:.1f} min", fontsize=8.5, color=t["ink"], ha="right", va="center",
                 bbox=dict(facecolor=t["surface"], edgecolor="none", pad=1.2))
-        lab = f"η = {eta:.0f} g/W"
-        ax.text(100.8, B.flight_time_min(100, eta), lab, fontsize=8.5, color=t["ink2"], va="center")
+        lab = f"η = {eta} g/W"
+        ax.text(110.8, B.flight_time_min(110, eta), lab, fontsize=8.5, color=t["ink2"], va="center")
         handles.append(Line2D([], [], color=c, lw=2, label=lab))
-    ax.set_xlim(50, 100)
-    ax.set_ylim(0, 9)
+    ax.set_xlim(60, 110)
+    ax.set_ylim(0, 10)
     ax.set_xlabel("takeoff weight (g)")
     ax.set_ylabel("hover time (min)")
     fig.legend(handles=handles, loc="upper left", bbox_to_anchor=(0.075, 0.86), frameon=False, fontsize=8.5,
@@ -154,7 +153,7 @@ def fig_flight(theme):
 def short_load(name):
     for k, v in [("ESP32", "ESP32-S3 module"), ("BMI270", "BMI270 IMU"), ("BMP390", "BMP390 baro"),
                  ("QMC5883P", "QMC5883P mag"), ("4x VL53L1X", "4× VL53L1X ToF"), ("VL53L5CX", "VL53L5CX 8×8 ToF"),
-                 ("PMW3901", "PMW3901 flow"), ("INA226", "INA226"), ("OV2640", "OV2640 camera"), ("Buzzer", "Buzzer"),
+                 ("PMW3901", "PMW3901 flow"), ("INA226", "INA226"), ("OV2640", "OV2640 camera"), ("Buzzer", "Buzzer"), ("4x AT32F421", "4× ESC MCUs"), ("ICM-42688-P", "ICM-42688-P IMU"),
                  ("4x WS2812", "4× WS2812B LEDs"), ("ELRS", "ELRS receiver")]:
         if name.startswith(k):
             return v
@@ -168,8 +167,8 @@ def fig_power(theme):
     pk5, av5 = B.rail_totals(B.RAIL5)
     title_block(fig, t, f"Electronics load: 3.3 V rail {av33:.0f} mA average / {pk33:.0f} mA peak; 5 V rail {av5:.0f} / {pk5:.0f} mA",
                 "Each row runs from average to peak (one dot = constant load). ESP32 average, ELRS and LED figures are placeholders until G6.")
-    panels = [("3.3 V rail (TPS63802, rated 2 A)", B.RAIL33, [0.2, 0.33, 0.73, 0.47]),
-              ("5 V rail (TPS61023)", B.RAIL5, [0.2, 0.11, 0.73, 0.12])]
+    panels = [("3.3 V rail (TPS62162 buck, rated 1 A)", B.RAIL33, [0.2, 0.33, 0.73, 0.47]),
+              ("5 V rail (TPS62133 buck)", B.RAIL5, [0.2, 0.11, 0.73, 0.12])]
     for title, rail, rect in panels:
         ax = fig.add_axes(rect)
         style_axes(ax, t, "x")
@@ -218,51 +217,105 @@ def fig_cost(theme):
     return save_svg(fig, "cost-breakdown", theme)
 
 
-def fig_props(theme):
+def fig_ducts(theme):
     t = THEMES[theme]
     D = B.MOTOR_TO_MOTOR_MM.value
-    s = D / math.sqrt(2)
-    fig = new_fig(t, 9.6, 5.6)
-    title_block(fig, t, f"Why 55 mm props: at {D:.0f} mm, 65 mm props leave no room for guards",
-                "Top view to scale. Adjacent motor spacing s = D/√2; tip gap = s − prop diameter. Guard ring = 3 mm clearance + 1 mm wall (estimate).")
-    for j, prop in enumerate((55, 65)):
-        ax = fig.add_axes([0.04 + j * 0.48, 0.1, 0.44, 0.7])
-        ax.set_facecolor(t["surface"])
-        ax.set_aspect("equal")
-        ax.axis("off")
-        lim = s / 2 + prop / 2 + 9
-        ax.set_xlim(-lim, lim)
-        ax.set_ylim(-lim, lim)
-        ax.add_patch(Rectangle((-20, -20), 40, 40, facecolor=t["grid"], edgecolor=t["axis"], lw=1))
-        ax.plot([-s / 2, s / 2], [-s / 2, s / 2], color=t["axis"], lw=6, solid_capstyle="round", zorder=1)
-        ax.plot([-s / 2, s / 2], [s / 2, -s / 2], color=t["axis"], lw=6, solid_capstyle="round", zorder=1)
-        guard_r = prop / 2 + 3 + 1
-        gap = s - prop
-        guard_gap = s - 2 * guard_r
-        for (x, y) in [(-s / 2, s / 2), (s / 2, s / 2), (s / 2, -s / 2), (-s / 2, -s / 2)]:
-            ax.add_patch(Circle((x, y), prop / 2, facecolor=t["series"][0], alpha=0.16, edgecolor=t["series"][0], lw=1.5))
-            ax.add_patch(Circle((x, y), guard_r, facecolor="none", edgecolor=t["warn"] if guard_gap < 0 else t["ink2"], lw=1.2))
-            ax.add_patch(Circle((x, y), 4.25, facecolor=t["ink2"], edgecolor="none"))
-        # gap annotation between top two props
-        x0, x1 = -s / 2 + prop / 2, s / 2 - prop / 2
-        ax.annotate("", xy=(x1, s / 2), xytext=(x0, s / 2),
-                    arrowprops=dict(arrowstyle="<->", color=t["ink"], lw=1, shrinkA=0, shrinkB=0))
-        ax.text(0, s / 2 + 4, f"tip gap {gap:.1f} mm", ha="center", fontsize=9, color=t["ink"])
-        verdict = (f"guards clear each other by {guard_gap:.1f} mm" if guard_gap >= 0
-                   else f"guards overlap by {-guard_gap:.1f} mm")
-        ax.text(0, -lim + 2, f"{prop} mm props · {verdict}", ha="center", fontsize=10,
-                color=t["ink"], fontweight="bold")
-        ax.text(0, 0, "40 mm\nbody", ha="center", va="center", fontsize=8, color=t["ink2"])
-    stamp(fig, t, "source: review/G1/budgets.md §4e, D-019")
-    return save_svg(fig, "prop-clearance", theme)
+    a = D / math.sqrt(2) / 2
+    r_in = B.PROP_MM.value / 2 + B.DUCT_CLEAR_MM
+    r_out = r_in + B.DUCT_WALL_MM
+    fig = new_fig(t, 9.6, 6.4)
+    title_block(fig, t, f"Ducts at {D:.0f} mm: 2-inch props, {B.DUCT_CLEAR_MM:.0f} mm tip clearance, boards inside the frame",
+                f"Top view to scale; {D:.0f} mm is the diagonal motor-to-motor distance. The FC board above the ducts is notched around each inlet (D-030).")
+    ax = fig.add_axes([0.02, 0.07, 0.62, 0.78])
+    ax.set_facecolor(t["surface"])
+    ax.set_aspect("equal")
+    ax.axis("off")
+    lim = a + r_out + 6
+    ax.set_xlim(-lim, lim)
+    ax.set_ylim(-lim, lim)
+    # FC board (notched) drawn as a square with inlet circles masked
+    ax.add_patch(Rectangle((-20, -20), 40, 40, facecolor=t["series"][2], alpha=0.30, edgecolor=t["series"][2], lw=1.2, zorder=1))
+    ax.add_patch(Rectangle((-14.5, -14.5), 29, 29, facecolor="none", edgecolor=t["series"][4], lw=1.4, ls=(0, (3, 2)), zorder=3))
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            x, y = sx * a, sy * a
+            ax.add_patch(Circle((x, y), r_in + 2.6, facecolor=t["surface"], edgecolor="none", zorder=2))
+            ax.add_patch(Circle((x, y), r_out, facecolor="none", edgecolor=t["ink"], lw=2.2, zorder=4))
+            ax.add_patch(Circle((x, y), B.PROP_MM.value / 2, facecolor=t["series"][0], alpha=0.14, edgecolor=t["series"][0], lw=1, zorder=4))
+            ax.add_patch(Circle((x, y), 7.0, facecolor=t["ink2"], edgecolor="none", zorder=5))
+    gap = 2 * a - 2 * r_out
+    ax.annotate("", xy=(a - r_out, a), xytext=(-a + r_out, a), arrowprops=dict(arrowstyle="<->", color=t["ink"], lw=1, shrinkA=0, shrinkB=0), zorder=6)
+    ax.text(0, a + 3, f"{gap:.1f} mm between ducts", ha="center", fontsize=8.5, color=t["ink"], zorder=6)
+    ax.text(lim - 2, -lim + 2, f"overall ≈ {2 * (a + r_out + 2):.0f} mm", ha="right", fontsize=8.5, color=t["ink2"])
+    tx = 0.66
+    for i, (lab, sub, c, style) in enumerate([
+        ("Duct wall (PA11)", f"inner Ø{2*r_in:.0f} mm, wall {B.DUCT_WALL_MM} mm, height {B.DUCT_H_MM:.0f} mm", t["ink"], "line"),
+        ("2-inch prop disc", f"Ø{B.PROP_MM.value:.0f} mm, tip clearance {B.DUCT_CLEAR_MM:.0f} mm", t["series"][0], "fill"),
+        ("Flight-controller board", "40 mm, corners notched around the inlets", t["series"][2], "fill"),
+        ("4-in-1 ESC board", "29 mm, between the ducts below", t["series"][4], "dash"),
+    ]):
+        y = 0.74 - i * 0.12
+        if style == "line":
+            fig.lines.append(Line2D([tx, tx + 0.025], [y + 0.01, y + 0.01], transform=fig.transFigure, color=c, lw=2.2))
+        elif style == "dash":
+            fig.lines.append(Line2D([tx, tx + 0.025], [y + 0.01, y + 0.01], transform=fig.transFigure, color=c, lw=1.6, ls=(0, (3, 2))))
+        else:
+            fig.patches.append(Rectangle((tx, y), 0.025, 0.022, transform=fig.transFigure, facecolor=c, alpha=0.4, edgecolor=c))
+        fig.text(tx + 0.035, y + 0.022, lab, fontsize=9, color=t["ink"], va="top")
+        fig.text(tx + 0.035, y - 0.012, sub, fontsize=8, color=t["ink2"], va="top")
+    stamp(fig, t, "source: budgets.py §4e, mechanical/concept")
+    return save_svg(fig, "duct-layout", theme)
 
+
+def _sim_flip():
+    import sys as _s
+    _s.path.insert(0, str(REPO / "software" / "microscout_sdk" / "src"))
+    import microscout
+    d = microscout.connect("sim")
+    d.takeoff(1.5)
+    d.hover(0.3)
+    t0 = d.telemetry.t
+    d.flip("back")
+    d.hover(0.5)
+    return [s for s in d.log if s.t >= t0 - 0.2], t0
+
+
+def fig_flip(theme):
+    t = THEMES[theme]
+    log, t0 = _sim_flip()
+    tt = np.array([s.t - t0 for s in log])
+    rate = np.array([s.rates_dps[1] for s in log])
+    ang = np.concatenate([[0.0], np.cumsum(rate[1:] * np.diff(tt))])
+    h = np.array([s.height for s in log])
+    fig = new_fig(t, 9.6, 6.2)
+    dur = tt[[i for i, s in enumerate(log) if s.status == "flip complete"][0]] if any(s.status == "flip complete" for s in log) else tt[-1]
+    title_block(fig, t, f"Simulated back flip: 360° in about {dur:.1f} s without losing height",
+                "MicroScout SDK simulator with the rev B estimated parameters (30 ms motor lag, 85 g/motor). Not flight data – real tuning happens at G7.")
+    axs = []
+    for k, (lab, y, c) in enumerate([("rotation (deg)", ang, t["series"][0]), ("pitch rate (deg/s)", rate, t["series"][1]), ("height (m)", h, t["series"][2])]):
+        ax = fig.add_axes([0.1, 0.62 - k * 0.235, 0.84, 0.19])
+        style_axes(ax, t, "y")
+        ax.plot(tt, y, color=c, lw=2)
+        ax.set_ylabel(lab, fontsize=8.5)
+        ax.set_xlim(tt[0], tt[-1])
+        if k < 2:
+            ax.tick_params(labelbottom=False)
+        axs.append(ax)
+    axs[0].axhline(360, color=t["muted"], lw=1, ls=(0, (4, 3)))
+    axs[0].text(tt[0] + 0.01, 368, "360°", fontsize=8, color=t["ink2"])
+    axs[1].axhline(1000, color=t["muted"], lw=1, ls=(0, (4, 3)))
+    axs[1].text(tt[0] + 0.01, 1040, "1000 °/s setpoint", fontsize=8, color=t["ink2"])
+    axs[2].set_xlabel("time from the flip command (s)")
+    axs[2].set_ylim(0, max(h) * 1.15)
+    stamp(fig, t, "source: software/microscout_sdk (simulation)")
+    return save_svg(fig, "sim-flip", theme)
 
 # --------------------------------------------------------------------------
 PIN_GROUPS = [  # (label, predicate on net) - slot order fixed
     ("Camera DVP", lambda n: n.startswith("CAM_")),
     ("SPI sensors", lambda n: n.startswith(("SPI_", "IMU_", "FLOW_"))),
     ("I²C bus", lambda n: n.startswith("I2C_")),
-    ("Motor gates", lambda n: n.startswith("MOT")),
+    ("ESC DShot", lambda n: n.startswith("MOT")),
     ("USB / UART / ELRS", lambda n: n.startswith(("USB_", "U0", "CRSF_"))),
     ("Control & status", lambda n: True),
 ]
@@ -283,7 +336,7 @@ def pin_table():
             r = rows[p]
             g = int(r["gpio"])
             net = r["net"]
-            gi = next(i for i, (_, f) in enumerate(PIN_GROUPS) if f(net))
+            gi = None if net == "SPARE" else next(i for i, (_, f) in enumerate(PIN_GROUPS) if f(net))
             pins[p] = (f"IO{g}", net, gi, g in STRAPPING)
     return pins
 
@@ -292,7 +345,7 @@ def fig_pinout(theme):
     t = THEMES[theme]
     pins = pin_table()
     fig = new_fig(t, 10.5, 9.0)
-    title_block(fig, t, "ESP32-S3-WROOM-1-N8R2: all 36 GPIOs are assigned",
+    title_block(fig, t, "ESP32-S3-WROOM-1-N8R2: 35 of 36 GPIOs assigned, GPIO1 spare (rev B)",
                 "Schematic top view in module pin order (1–14 left, 15–26 bottom, 27–40 right), not to scale. ◆ marks a strapping pin.\nCheck every pin against the datasheet of the modules you buy.")
     ax = fig.add_axes([0.02, 0.06, 0.96, 0.8])
     ax.set_facecolor(t["surface"])
@@ -343,7 +396,7 @@ def fig_pinout(theme):
     return save_svg(fig, "esp32-pinout", theme)
 
 
-ALL = [fig_weight, fig_thrust, fig_flight, fig_power, fig_cost, fig_props, fig_pinout]
+ALL = [fig_weight, fig_thrust, fig_flight, fig_power, fig_cost, fig_ducts, fig_flip, fig_pinout]
 
 if __name__ == "__main__":
     for f in ALL:

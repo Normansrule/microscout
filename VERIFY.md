@@ -1,4 +1,4 @@
-> STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1 (and at every later gate)
+> STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1 rev B (and at every later gate)
 
 # MicroScout verification checklist
 
@@ -21,46 +21,51 @@ The human must verify each item. The agent restates the relevant items at every 
 - [ ] Whether esp-drone supports this exact sensor set and simultaneous camera streaming on ESP32-S3 without modification. Treat as UNCONFIRMED until bench-tested.
 - [ ] Regulatory compliance (FAA or local aviation rules, radio rules), battery safety certification, and license compatibility across reused code and CAD files. The agent drafts guidance only.
 
-## G1 - Architecture and parts (package: `review/G1/`) - AWAITING REVIEW
+## G1 rev B - Architecture and parts (package: `review/G1/`) - AWAITING REVIEW
 
-Architecture
-- [ ] Block diagram matches intent: motors on battery via Q1/Q2, electronics on BQ24074 OUT, 3.3 V buck-boost, 5 V boost, 1.8 V and camera LDOs (`review/G1/block-diagram.svg`).
-- [ ] Requirements table and derived requirements DR-01…DR-05 accepted (`review/G1/requirements.md`).
-- [ ] Remote G1 deferral to M5 accepted (D-024).
+Rev A (brushed, 1S) is superseded; its checklist is in git tag `g1-rev-a`. Only the owner ticks boxes.
+
+Direction and architecture
+- [ ] Rev B direction accepted: 2S brushless, separate AM32 ESC board, ducted one-piece frame, soft-mounted boards (D-028 to D-031), including the brief changes listed in OQ-12.
+- [ ] Block diagram matches intent: charger and power stage separate, soft switch on logic rails only, DShot to the ESC board (`review/G1/block-diagram.svg`).
+- [ ] Requirements R-20 (agility), R-21 (speed), R-22 (durability), R-23/24 (ease of use) and DR-06/07 accepted (`review/G1/requirements.md`).
 
 Parts (`bom/drone-bom-g1.csv`, `review/G1/parts-selection.md`)
-- [ ] Each datasheet link opens the intended manufacturer document.
-- [ ] Each LCSC number matches the intended part and package (spot-check at least U1, U2, U3, U12, U19, Q1).
-- [ ] Stock and prices re-checked (they were recorded 2026-10-04).
-- [ ] Module choice ESP32-S3-WROOM-1-N8R2 (quad PSRAM) accepted (D-003).
-- [ ] IMU BMI270 instead of ICM-42688-P accepted (D-006).
-- [ ] TPS63802 efficiency (~88-92% graph reading) accepted vs the 90% target, or switch to TPS63020 (D-014).
+- [ ] Datasheet links open the intended documents; LCSC numbers match (spot-check U2 BQ25887, U3, U4, U12 ICM-42688-P, ESC parts, J2 XT30).
+- [ ] Prices and stock re-checked (seen 2026-10-04 to 10-07); gate-driver stock (FD6288Q) resolved (OQ-9).
+- [ ] EX1103 thrust/current figures accepted as vendor data, or one motor measured.
 
-Budgets (`review/G1/budgets.md`, regenerate with `calc/budgets.py`)
-- [ ] Weight inputs and ranges are reasonable; nominal 71.6 g, range 58-94 g.
-- [ ] Thrust-to-weight scenarios reviewed; thrust source quality understood (secondhand, 60 mm props).
-- [ ] 3.3 V and 5 V rail tables checked; ESTIMATE rows (ESP32 average, ELRS current, LED average) accepted as placeholders for G6 measurement.
-- [ ] Hover current / flight time method accepted (4-5 g/W from a generic 8520 test).
-- [ ] Charger R_ISET 1.78 kOhm, shunt 5 mOhm, MOSFET dissipation and series-drop calculations checked.
-- [ ] Prop clearance calculation and the 55 mm / 95 mm choice accepted.
+Budgets (`review/G1/budgets.md`)
+- [ ] Weight inputs reasonable; frame mass taken from the CAD concept (11.9 g); nominal 82.4 g (OQ-11).
+- [ ] Thrust scenarios (85/100/122 g per motor) and inertia estimate reasonable; agility calculation checked.
+- [ ] Rails (TPS62162 1 A margin is tight), hover time method, peak current vs XT30 rating, shunt and crash-energy table checked.
+- [ ] No fuse and no reverse-polarity FET accepted, with keyed connectors and "unplug after flight" as the mitigation (D-035, OQ-10); ESC driver-supply switch Q4 concept accepted (D-036).
 
-Pin table (`review/G1/pin-allocation.md`, `.csv`, `pin-check-report.txt`)
-- [ ] Every GPIO ↔ module pin number checked against the purchased module's datasheet revision.
-- [ ] Strapping pins GPIO0/3/45/46: connected circuits give the required boot levels.
-- [ ] GPIO3 eFuse (JTAG strap) and module pins 28-30 "decided by eFuse" note confirmed harmless.
-- [ ] Motor gates on GPIO2/21/38/47 with pull-downs accepted.
-- [ ] Expander maps and the I2C address plan (ToF reassignment avoiding 0x30) accepted.
+Pin table (`review/G1/pin-allocation.*`, `pin-check-report.txt`)
+- [ ] Every GPIO ↔ module pin checked against the purchased module's datasheet.
+- [ ] Strapping pins GPIO0/3/45/46 give the required boot levels; eFuse notes confirmed.
+- [ ] DShot outputs on GPIO2/21/38/47 with pull-downs accepted; bidirectional DShot on ESP32-S3 to be proven at G6.
+- [ ] GPIO1 spare (VBAT divider removed, D-021); LED data via SPI3 (D-042); U11 P1/P2 now BQ25887 INT and VBUS detect.
 
-Visuals (`docs/figures/`, explorer at normansrule.github.io/microscout, D-027)
-- [ ] Charts match `budgets.md`, the BOM and the pin table.
-- [ ] Animations and the concept sketch do not overstate what is known (they are illustrations, not renders or measurements).
+Concept CAD and renders (`mechanical/concept/`, `docs/figures/renders/`; D-039)
+- [ ] Concept accepted as a direction for G5 (it is not the G5 design); envelopes understood as APPROXIMATE.
+- [ ] No board/prop/frame interference in `concept_report.json`; 1 mm prop tip clearance acceptable for a first print.
+- [ ] CAD frame mass (11.9 g, used in the weight budget) compared with the hand estimate in `concept_report.json`; motor numbering in the CAD matches D-040.
+
+SDK and simulator (`software/microscout_sdk/`; D-038)
+- [ ] `pip install -e ".[dev]" && pytest` passes on the owner's machine; `microscout demo` runs.
+- [ ] Reference controller behaviour (modes, flips, safety rules) is what the firmware should implement.
+- [ ] Simulator parameters understood as estimates (test checks they match `budgets.py`).
+
+Visuals (`docs/figures/`, explorer, D-027)
+- [ ] Charts match `budgets.md`, the BOM and the pin table; renders and animations do not overstate what is known.
 
 Licences (`review/G1/license-plan.md`)
-- [ ] Licence per directory accepted; third-party items to audit noted.
+- [ ] Licence per directory accepted; AM32 (GPL-3.0) and three.js (MIT) noted.
 
 Open questions (`review/G1/README.md`) - reply with a decision for each
-- [ ] OQ-1 toolchain  - [ ] OQ-2 battery connector  - [ ] OQ-3 thrust margin  - [ ] OQ-4 optical flow  - [ ] OQ-5 cost
-- [ ] OQ-6 barometer stock  - [ ] OQ-7 GitHub repo (owner decided 2026-10-05: public, Normansrule - tick to confirm)  - [ ] OQ-8 ESP-IDF version  - [ ] OQ-9 5 V rail
+- [ ] OQ-1 toolchain  - [ ] OQ-2 battery/connector  - [ ] OQ-3 frame fabrication  - [ ] OQ-4 optical flow  - [ ] OQ-5 cost  - [ ] OQ-6 barometer
+- [ ] OQ-7 repo public + Pages (commands given)  - [ ] OQ-8 firmware base  - [ ] OQ-9 ESC board  - [ ] OQ-10 reverse polarity  - [ ] OQ-11 weight  - [ ] OQ-12 brief changes
 
 ## G2 - Schematic (package: `review/G2/`) - NOT STARTED
 - [ ] PDF of all sheets (`kicad-cli sch export pdf`) reviewed

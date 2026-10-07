@@ -12,7 +12,7 @@
 | Sticks | 2x analog dual-axis gimbals on ADC1 pins | Part not chosen |
 | Buttons | 4x tactile | Part not chosen |
 | Display | Small I2C OLED (e.g. 0.96 in, 128x64) | Part not chosen - UNCONFIRMED |
-| Battery and charging | 1S LiPo + USB-C, reuse BQ24074 + TPS63802 from the drone | Candidate |
+| Battery and charging | 1S LiPo + USB-C with BQ24074 + TPS63802 (the rev A drone circuit; the remote stays 1S - only the drone moved to 2S in rev B) | Candidate |
 | Shell | CadQuery, printable | M6 |
 
 Open points for the remote G1: link budget and latency of ESP-NOW vs ELRS, whether the drone can serve CRSF and ESP-NOW simultaneously (ESP-NOW shares the Wi-Fi radio with the MJPEG stream - **UNCONFIRMED**), and gimbal part selection with datasheets.

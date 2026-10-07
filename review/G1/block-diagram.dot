@@ -1,97 +1,68 @@
-// STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1
-// MicroScout drone PCB block diagram. Render: dot -Tsvg block-diagram.dot -o block-diagram.svg
+// STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1 (rev B)
+// MicroScout rev B block diagram. Render: dot -Tsvg block-diagram.dot -o block-diagram.svg
 digraph microscout {
   graph [rankdir=LR, fontname="Helvetica", fontsize=11, nodesep=0.25, ranksep=0.55, splines=true,
-         label="MicroScout drone PCB - G1 block diagram (DRAFT - UNVERIFIED)", labelloc=t];
+         label="MicroScout rev B - 2S brushless, two-board stack (DRAFT - UNVERIFIED)", labelloc=t];
   node  [shape=box, style="rounded,filled", fillcolor="#f4f6f8", color="#55606e", fontname="Helvetica", fontsize=10];
   edge  [color="#55606e", fontname="Helvetica", fontsize=8];
 
   subgraph cluster_power {
-    label="Power (1S)"; style="rounded,dashed"; color="#b06000";
-    BATT   [label="1S LiPo 660 mAh\nconnector: OQ-2 open\n(PH2.0 vs BT2.0)", fillcolor="#fff1db"];
-    F1     [label="F1 fuse 15 A\n0451015.MRL"];
-    SHUNT  [label="RS1 5 mOhm\n+ U9 INA226 (I2C 0x40)"];
-    Q1     [label="Q1 reverse-battery\nP-FET DMP2008UFG"];
-    USB    [label="USB-C J1\n+ USBLC6-2SC6 ESD\nCC 5.1k pull-downs"];
-    CHG    [label="U2 BQ24074\ncharger + power path\nI_CHG ~500 mA"];
-    PWR    [label="U8 LTC2954-1\npushbutton on/off\nKILL from MCU + U23 UVLO"];
-    Q2     [label="Q2 motor-rail\nP-FET switch (via Q3)"];
-    REG33  [label="U3 TPS63802\nbuck-boost 3.3 V"];
-    REG5   [label="U4 TPS61023\nboost 5 V"];
-    LDO18A [label="U5 TLV70018\n1.8 V (IMU core only)"];
-    LDO18B [label="U5B LDO 1.9-2.0 V\n(flow core, TBD)"];
-    LDOCAM [label="U6/U7 ME6211\n2.8 V AVDD / 1.2 V DVDD\n(1.5 V option)\nCE = CAM_PWR_EN"];
+    label="Power (2S, on the FC board)"; style="rounded,dashed"; color="#b06000";
+    BATT  [label="2S LiHV 550 mAh\nkeyed XT30 + JST-XH balance\n(no reverse FET - D-035, OQ-2)", fillcolor="#fff1db"];
+    SHUNT [label="RS1 1 mOhm, high side\n+ U9 INA226 (0x40)"];
+    DRV   [label="Q4 gate-driver supply switch\n(part TBD, D-036)"];
+    USB   [label="USB-C J1 + USBLC6\nCC 5.1k pull-downs"];
+    CHG   [label="U2 BQ25887\n2S boost charger\n+ cell balancing"];
+    PWR   [label="U8 LTC2954-1\nsoft switch (logic + driver supply)\nKILL from MCU + U23 UVLO"];
+    B33   [label="U3 TPS62162\nbuck 3.3 V (1 A)"];
+    B5    [label="U4 TPS62133\nbuck 5 V (3 A)"];
+    LDO   [label="LDOs: 1.8 V IMU,\n1.9-2.0 V flow core,\n2.8/1.2 V camera"];
   }
 
-  subgraph cluster_mcu {
-    label="Compute + radio"; style="rounded,dashed"; color="#1f5fa8";
-    MCU [label="U1 ESP32-S3-WROOM-1-N8R2\n8 MB flash, 2 MB quad PSRAM\nWi-Fi (UDP, MJPEG) + BLE\nPCB antenna at board edge", fillcolor="#e3eefb"];
-    DBG [label="Debug pads\nUART0 + EN + IO0\nBOOT / RESET buttons"];
+  subgraph cluster_fc {
+    label="Flight-controller board (40 mm, notched)"; style="rounded,dashed"; color="#1f5fa8";
+    MCU [label="U1 ESP32-S3-WROOM-1-N8R2\nflight control + Wi-Fi + BLE\nMJPEG stream", fillcolor="#e3eefb"];
+    IMU [label="U12 ICM-42688-P\n(SPI, 8 kHz)", fillcolor="#e6f4e7"];
+    EXP [label="2x TCA6408A\nXSHUT / LPn / status"];
+    SEN [label="BMP390 · QMC5883P\n5x ToF (VL53L1X x4,\nVL53L5CX 8x8)"];
+    FLOW [label="Sensor pod: PMW3901\nflow + down ToF\n(OQ-4)"];
+    CAM [label="OV2640 camera\n(24-pin FPC)"];
+    RX  [label="ELRS receiver\n(CRSF, 5 V)"];
+    LED [label="4x WS2812B-2020\n+ buzzer"];
   }
 
-  subgraph cluster_sense {
-    label="Sensors"; style="rounded,dashed"; color="#2e7d32";
-    IMU  [label="U12 BMI270 IMU\n(SPI, near CoM)", fillcolor="#e6f4e7"];
-    FLOW [label="U20 PMW3901 + lens\n(SPI, downward)\nCONDITIONAL - OQ-4", fillcolor="#e6f4e7"];
-    BARO [label="U13 BMP390 (0x76)"];
-    MAG  [label="U14 QMC5883P (0x2C)\naway from motor current"];
-    TOFD [label="U15 VL53L1X down"];
-    TOFS [label="U16-18 VL53L1X\nleft / right / rear"];
-    TOFF [label="U19 VL53L5CX\nforward 8x8"];
-    EXP  [label="U10/U11 TCA6408A\n(0x20 / 0x21)\nXSHUT, LPn, resets, status"];
-    CAM  [label="OV2640 module\n24-pin 0.5 mm FPC (J3)", fillcolor="#e6f4e7"];
+  subgraph cluster_esc {
+    label="4-in-1 ESC board (30 mm, AM32) - D-029"; style="rounded,dashed"; color="#8e24aa";
+    ESC [label="4x AT32F421 (AM32)\n4x FD6288Q gate drivers\n24x HL60N03D FETs", fillcolor="#f3e5f5"];
+    MOT [label="4x EX1103 11000KV\n2-inch 3-blade props\nin ducts", fillcolor="#f3e5f5"];
   }
 
-  subgraph cluster_act {
-    label="Actuators + I/O"; style="rounded,dashed"; color="#8e24aa";
-    MOT  [label="4x AO3400A low-side\n+ B5819W flyback\n100k gate pull-downs", fillcolor="#f3e5f5"];
-    M    [label="4x 8520 brushed motors\n55 mm props", fillcolor="#f3e5f5"];
-    LED  [label="4x WS2812B-2020\n(via SN74AHCT1G125)"];
-    BZ   [label="MLT-5020 buzzer\n(via AO3400A)"];
-    RX   [label="ELRS nano receiver\n(CRSF 420000 baud, 5 V)"];
-  }
-
-  // power flow
-  BATT -> Q1 -> F1 -> SHUNT [color="#b06000", penwidth=2.2, label="VBAT"];
-  SHUNT -> Q2 [color="#b06000", penwidth=2.2];
-  Q2 -> M  [color="#b06000", penwidth=2.2, label="VMOT"];
-  SHUNT -> CHG [color="#b06000", label="BAT pin"];
+  BATT -> SHUNT [color="#b06000", penwidth=2.4, label="VBAT 6.0-8.7 V"];
+  SHUNT -> ESC [color="#b06000", penwidth=2.4, label="FET power stage (always connected)"];
+  SHUNT -> PWR [color="#b06000"];
   USB -> CHG [color="#b06000", label="VBUS 5 V"];
-  CHG -> REG33 [color="#b06000", label="OUT (sys)"];
-  CHG -> REG5  [color="#b06000"];
-  PWR -> REG33 [style=dashed, label="EN"];
-  PWR -> REG5  [style=dashed, label="EN"];
-  PWR -> Q2    [style=dashed, label="EN via Q3"];
-  REG33 -> MCU [color="#b06000", label="3V3"];
-  REG33 -> LDO18A [color="#b06000"];
-  REG33 -> LDO18B [color="#b06000"];
-  REG33 -> LDOCAM [color="#b06000"];
-  LDO18A -> IMU [color="#b06000", label="VDD 1.8"];
-  LDO18B -> FLOW [color="#b06000", label="VDD 1.8"];
-  LDOCAM -> CAM [color="#b06000"];
-  REG5 -> LED [color="#b06000", label="5V"];
-  REG5 -> RX  [color="#b06000", label="5V"];
+  CHG -> BATT [color="#b06000", label="charge + balance"];
+  PWR -> B33 [color="#b06000", label="EN"];
+  PWR -> B5 [color="#b06000", label="EN"];
+  PWR -> DRV [color="#b06000", label="EN"];
+  SHUNT -> DRV [color="#b06000"];
+  DRV -> ESC [color="#b06000", label="driver VCC"];
+  B33 -> MCU [color="#b06000", label="3V3"];
+  B33 -> ESC [color="#b06000", label="3V3 logic"];
+  B33 -> LDO [color="#b06000"];
+  B5 -> RX [color="#b06000"]; B5 -> LED [color="#b06000"];
+  ESC -> MOT [color="#b06000", penwidth=2.4, label="3-phase"];
 
-  // signals
-  I2C [label="I2C bus 400 kHz\nGPIO39 SDA / GPIO40 SCL", shape=box, style="filled", fillcolor="#fffde7"];
-  SPI [label="SPI2 <=10 MHz\nGPIO11/12/13", shape=box, style="filled", fillcolor="#fffde7"];
-  USB -> MCU [label="USB D-/D+"];
-  MCU -> SPI [dir=both];
-  SPI -> IMU [dir=both, label="CS GPIO35, INT GPIO37"];
-  SPI -> FLOW [dir=both, label="CS GPIO36"];
-  MCU -> CAM  [dir=both, label="DVP 8-bit + sync (12 GPIO)"];
-  MCU -> I2C [dir=both];
-  I2C -> EXP; I2C -> BARO; I2C -> MAG; I2C -> TOFD; I2C -> TOFS; I2C -> TOFF; I2C -> SHUNT; I2C -> CAM [label="SCCB 0x30"];
-  EXP -> TOFD [label="XSHUT"]; EXP -> TOFS [label="XSHUT x3"]; EXP -> TOFF [label="LPn"];
-  EXP -> CAM  [label="PWDN/RESET"]; EXP -> LDOCAM [label="CAM_PWR_EN"];
-  EXP -> MCU [label="INT (GPIO3)", style=dotted];
-  CHG -> EXP [label="CHG, PGOOD", style=dotted];
-  PWR -> EXP [label="button INT", style=dotted];
-  MCU -> PWR [label="KILL (GPIO48)", style=dotted];
-  MCU -> MOT [label="4x PWM (GPIO2/21/38/47)"];
-  MOT -> M;
-  MCU -> LED [label="GPIO45"];
-  MCU -> BZ  [label="GPIO46"];
-  MCU -> RX  [dir=both, label="UART1 (GPIO41/42)"];
-  MCU -> DBG [dir=both];
+  MCU -> ESC [dir=both, label="4x bidirectional DShot\n(GPIO2/21/38/47)"];
+  MCU -> IMU [dir=both, label="SPI2"];
+  MCU -> FLOW [dir=both, label="SPI2 + I2C"];
+  MCU -> EXP [dir=both, label="I2C 400 kHz"];
+  MCU -> SEN [dir=both, label="I2C"];
+  EXP -> SEN [label="XSHUT / LPn"];
+  MCU -> CAM [dir=both, label="DVP + SCCB"];
+  MCU -> RX [dir=both, label="UART1 CRSF"];
+  MCU -> LED [label="GPIO45 / 46"];
+  MCU -> SHUNT [dir=both, label="I2C + ALERT"];
+  MCU -> PWR [style=dotted, label="KILL"];
+  CHG -> MCU [style=dotted, label="I2C status"];
 }

@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
-# STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1
+# STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1 (rev B)
 # SPDX-License-Identifier: MIT
-"""Gate G1 budgets for MicroScout: weight, thrust-to-weight, power, flight time,
-prop clearance, charger/shunt/MOSFET calculations, I2C timing and parts cost.
+"""Gate G1 rev B budgets for MicroScout (2S brushless, ducted durable frame).
+
+Weight, thrust-to-weight, agility (flip), power, hover time, peak current,
+component sizing, impact energy and parts cost.
 
 Every input is tagged:
   SOURCED    - value read from the cited page (datasheet, vendor listing, test)
   ESTIMATE   - engineering estimate; method stated; replace with measurement
-  ASSUMPTION - design choice or generic material constant; human to confirm
+  ASSUMPTION - design choice or generic constant; human to confirm
 Run:  python3 review/G1/calc/budgets.py   (writes review/G1/budgets.md)
 No result here is a measurement. All outputs are DRAFT - UNVERIFIED.
+Rev A (brushed 8520, 1S) is preserved at git tag g1-rev-a.
 """
 import csv
 import math
@@ -19,6 +22,7 @@ from dataclasses import dataclass
 HERE = pathlib.Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 OUT = HERE.parent / "budgets.md"
+REV = "rev B"
 
 
 @dataclass
@@ -37,144 +41,161 @@ class V:
 
 
 # --------------------------------------------------------------------------
-# Sources (short keys used in tables)
 SRC = {
     "S1": "ESP32-S3-WROOM-1 datasheet v1.8 Table 6-4 https://documentation.espressif.com/esp32-s3-wroom-1_wroom-1u_datasheet_en.pdf",
-    "S2": "BMI270 datasheet https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmi270-ds000.pdf",
-    "S3": "BMP390 datasheet (drone use case) https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmp390-ds002.pdf",
+    "S2": "ICM-42688-P datasheet v1.6 (0.88 mA 6-axis low-noise) https://product.tdk.com/system/files/dam/doc/product/sensor/mortion-inertial/imu/data_sheet/ds-000347-icm-42688-p-v1.6.pdf",
+    "S3": "BMP390 datasheet (drone use case 570 uA) https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmp390-ds002.pdf",
     "S4": "QMC5883P datasheet https://www.qstcorp.com/upload/pdf/202512/2C939E5AA0704285BC3BE71132B8629B.pdf",
-    "S5": "VL53L1X datasheet https://www.st.com/resource/en/datasheet/vl53l1x.pdf",
-    "S6": "VL53L5CX datasheet https://www.st.com/resource/en/datasheet/vl53l5cx.pdf",
-    "S7": "PMW3901MB datasheet (Bitcraze-hosted) https://wiki.bitcraze.io/_media/projects:crazyflie2:expansionboards:pot0189-pmw3901mb-txqt-ds-r1.00-200317_20170331160807_public.pdf",
+    "S5": "VL53L1X datasheet (16 mA avg, 40 mA peak) https://www.st.com/resource/en/datasheet/vl53l1x.pdf",
+    "S6": "VL53L5CX datasheet (313 mW at 3.3 V) https://www.st.com/resource/en/datasheet/vl53l5cx.pdf",
+    "S7": "PMW3901MB datasheet (Bitcraze-hosted, 9 mA run) https://wiki.bitcraze.io/_media/projects:crazyflie2:expansionboards:pot0189-pmw3901mb-txqt-ds-r1.00-200317_20170331160807_public.pdf",
     "S8": "INA226 datasheet https://www.ti.com/lit/ds/symlink/ina226.pdf",
-    "S9": "OV2640 datasheet (UCTronics copy) https://www.uctronics.com/download/cam_module/OV2640DS.pdf",
+    "S9": "OV2640 datasheet (UCTronics copy, 140 mW compressed) https://www.uctronics.com/download/cam_module/OV2640DS.pdf",
     "S10": "WS2812B-2020 datasheet (Mouser copy) https://www.mouser.com/pdfDocs/WS2812B-2020_V10_EN_181106150240761.pdf",
-    "S11": "MLT-5020 listing https://jlcpcb.com/partdetail/Jiangsu_HuanengElec-MLT5020/C94598",
-    "S12": "TPS63802 datasheet Fig 10-5 https://www.ti.com/lit/ds/symlink/tps63802.pdf",
-    "S13": "TPS61023 datasheet Fig 6-1 https://www.ti.com/lit/ds/symlink/tps61023.pdf",
-    "S14": "GNB 660 mAh 1S HV listing https://www.gaoneng.shop/products/gaoneng-gnb-lihv-1s-3.8v-660mah-90c-ph2.0-cabled-lipo-battery",
-    "S15": "8520 vendor listings: xyzhobby 4.5 g https://xyzhobby.com/product/15276/ ; SpeedyFPV 5 g https://speedyfpv.com/products/usaq-8520-coreless-brushed-motor-set-53-000rpm-with-2cw-2ccw-65mm-propellers ; iFuture 5.0-5.5 g https://ifuturetech.org/product/8520-magnetic-micro-coreless-motor-for-micro-quadcopters/",
-    "S16": "Gemfan 65 mm prop 0.5 g https://www.getfpv.com/gemfan-65mm-micro-propellers-1mm-shaft-set-of-8.html",
+    "S11": "MLT-5020 listing (100 mA) https://jlcpcb.com/partdetail/Jiangsu_HuanengElec-MLT5020/C94598",
+    "S12": "TPS62162 product page (3-17 V in, 1 A, fixed 3.3 V) https://www.ti.com/product/TPS62162 - efficiency at our load UNCONFIRMED",
+    "S13": "TPS62133 product page (3-17 V, 3 A); LCSC lists TPS62133RGTR as fixed 5 V https://www.lcsc.com/product-detail/C73973.html - efficiency UNCONFIRMED",
+    "S14": "GNB 2S 550 mAh 100C LiHV XT30 listing: 29 g +/-1, 12x18x69 mm, JST-XH charge plug https://www.fpvfaster.com.au/products/gaoneng-gnb-550mah-2s-100c-7-6v-lihv-lipo-battery-long-type-xt30-dg",
+    "S15": "Happymodel EX1103 11000KV vendor table (retailer copy): 3.8 g; 7.4 V, Gemfan 2023 3-blade: 81.8 g at 5.04 A (2.19 g/W), max 121.9 g at 9.20 A (68.1 W, 1.79 g/W) https://druav.com/en-us/products/happymodel-ex1103-brushless-motor",
+    "S16": "Prop weights: Gemfan 2015 2-blade 0.5 g https://www.getfpv.com/gemfan-durable-2015-2-blade-propeller-set-of-8-1-5mm-shaft.html ; HQProp T2x2x3 0.75 g https://www.unmannedtechshop.co.uk/products/hqprop-durable-prop-t2x2x3-grey",
     "S17": "BetaFPV ELRS Lite 0.46 g https://betafpv.com/collections/rx/products/elrs-lite-receiver ; RadioMaster RP1 V2 2.2 g https://radiomasterrc.com/products/rp1-expresslrs-2-4ghz-nano-receiver",
-    "S18": "Crazyflie 2.1 datasheet (29 g, 250 mAh 7.1 g battery) https://www.bitcraze.io/documentation/hardware/crazyflie_2_1/crazyflie_2_1-datasheet.pdf ; BetaFPV 7x16 motor 2.95 g https://betafpv.com/products/7x16mm-19000kv-brushed-motors-2cw-2ccw",
-    "S19": "remma.net 8x20 motor tests citing ~33-36 gf with 60 mm props on LiPo https://www.remma.net/?p=1243 (secondhand; not 55 mm)",
-    "S20": "Not Black Magic motor test stand: generic 8520 + Hubsan H107 prop, 4-5 g/W at 3.5-4.2 V https://notblackmagic.com/projects/motor-test-stand/",
-    "S21": "8520 current: iFuture rated load ~1.6-1.8 A; RIC-8520D rated 2.27 A, stall 15.1 A https://www.ricmotor.com/details/8520-coreless-motor ; IntoFPV measured stall 10.57 A https://intofpv.com/t-racerstar-8520-motors-vs-bg-cheapies",
-    "S22": "BQ24074 datasheet (K_ISET 890 A*Ohm typ, 797-975) https://www.ti.com/lit/ds/symlink/bq24074.pdf",
-    "S23": "AO3400A datasheet (Rds(on) max 48 mOhm at Vgs 2.5 V) https://www.aosmd.com/res/datasheets/AO3400A.pdf",
-    "S24": "DMP2008UFG datasheet (9.8 mOhm max at Vgs -2.5 V) https://www.diodes.com/datasheet/download/DMP2008UFG.pdf",
-    "S25": "UM2884 (~84 kB VL53L5CX firmware over I2C) https://www.st.com/resource/en/user_manual/um2884-a-guide-to-using-the-vl53l5cx-multizone-timeofflight-ranging-sensor-with-wide-field-of-view-ultra-lite-driver-uld-stmicroelectronics.pdf",
-    "S26": "RotorBuilds 27142: 100 mm 8520 build, 59-65 g AUW, 5-6 min on 1S 650 mAh https://rotorbuilds.com/build/27142",
-    "S27": "JST PH datasheet (2 A AC/DC, AWG24) https://www.jst-mfg.com/product/pdf/eng/ePH.pdf ; BetaFPV BT2.0 vendor claim 9 A continuous https://betafpv.com/products/bt2-0-1s-whoop-cable-pigtail",
+    "S18": "Reference: Happymodel Mobula8 85 mm, 2S, EX1103, 43 g dry with camera https://www.getfpv.com/micro-quadcopters/micro-rtf-bnf/happymodel-mobula8-1-2s-85mm-analog-drone.html ; BetaFPV Meteor85 43.85 g dry, 2S 450 mAh, 7 min claimed https://betafpv.com/collections/all/products/meteor85-brushless-whoop-quadcopter-2022",
+    "S19": "Commercial PP whoop frames 5.8-7.8 g at 80 mm (Meteor75 Pro 7.73 g) https://www.getfpv.com/betafpv-meteor75-pro-brushless-whoop-frame-black.html",
+    "S20": "Betaflight rate guide: freestyle 850-1200 deg/s https://betaflight.com/docs/wiki/guides/current/Rate-Calculator",
+    "S21": "BQ25887 product page: 2 A boost, 93.4 % at 5 V in / 7.6 V / 1 A, balancing up to 400 mA https://www.ti.com/product/BQ25887",
+    "S22": "HL 60N03D: 30 V, 60 A, 4.7 mOhm, PDFN3333 https://lcsc.com/product-detail/MOSFETs_HL-60N03D_C7471100.html (gate-drive condition of the 4.7 mOhm UNCONFIRMED)",
+    "S23": "Amass XT30: 15 A continuous, 30 A peak (retailer listing) https://shop.pimoroni.com/products/amass-xt30-connector",
+    "S24": "UM2884 (~84 kB VL53L5CX firmware over I2C) https://www.st.com/resource/en/user_manual/um2884-a-guide-to-using-the-vl53l5cx-multizone-timeofflight-ranging-sensor-with-wide-field-of-view-ultra-lite-driver-uld-stmicroelectronics.pdf",
+    "S25": "Drop tests: IEC 60068-2-31 procedure run as 1000 mm falls https://stg.westpak.com/testing-services/reliability/tumble-testing/ ; MIL-STD-810 transit drop 1.22 m, 26 drops https://gorillacasestore.com/blogs/news/mil-std-810g-vs-810h-what-the-newer-drop-standard-adds",
+    "S26": "HP MJF PA11 datasheet: 1.05 g/cm3, elongation 50 % XY / 35 % Z, Izod 5 kJ/m2 https://3dprinting.com/wp-content/uploads/2019/02/HP-PA-11-TDS-4AA7-0715ENE.pdf ; Bambu TPU 95A: 1.20 g/cm3, elongation >700 % https://polyalkemi.no/wp-content/uploads/2023/06/Bambu_TPU_95A_Technical_Data_Sheet.pdf",
+    "S27": "Shunt 1 mOhm 2 W 2512 (HoJLR2512-2W-1mR) https://fat.lcsc.com/product-detail/Current-Sense-Resistors-Shunt-Resistors_Milliohm-HoJLR2512-2W-1mR-1-75ppm_C2924520.html",
+    "S29": "FD6288Q gate driver: supply 5.0-20 V, 3.3/5 V logic (LCSC listing) https://lcsc.com/product-detail/Others_Fortior-Tech-FD6288Q_C328453.html",
+    "S28": "Academic collision data: FlexiQuad (405 g) undamaged at 3 and 4.5 m/s frontal hits https://arxiv.org/pdf/2511.05426",
 }
 
 # --------------------------------------------------------------------------
-# Geometry / design assumptions
-MOTOR_TO_MOTOR_MM = V(95, "mm", "ASSUMPTION", "brief: 90-100 mm; 95 mm chosen (D-019)")
-PROP_MM = V(55, "mm", "ASSUMPTION", "brief: 55-65 mm; 55 mm chosen (D-019)")
-V_NOM = V(3.7, "V", "ASSUMPTION", "1S nominal voltage used for current conversion")
-CAP_MAH = V(660, "mAh", "SOURCED", "S14")
-USABLE_FRAC = V(0.80, "-", "ASSUMPTION", "land with ~20% remaining; human to set from LiPo practice")
-HV_DERATE = V(0.90, "-", "ESTIMATE", "LiHV pack charged only to 4.2 V (D-013) delivers less than rated capacity; reduction unquantified - placeholder")
+# Geometry and design assumptions
+MOTOR_TO_MOTOR_MM = V(95, "mm", "ASSUMPTION", "brief: 90-100 mm; 95 mm kept (D-019 rev B)")
+PROP_MM = V(52.2, "mm", "SOURCED", "Gemfan Hurricane 2023 3-blade: 52.17 mm per the Mobula8 listing (S18)")
+DUCT_CLEAR_MM = 1.0       # radial prop-tip clearance (ASSUMPTION, checked at G5)
+DUCT_WALL_MM = 0.9        # duct wall (ASSUMPTION)
+DUCT_H_MM = 11.0          # duct height (ASSUMPTION)
+V_NOM = V(7.4, "V", "ASSUMPTION", "2S nominal voltage used for current conversion")
+CAP_MAH = V(550, "mAh", "SOURCED", "S14")
+USABLE_FRAC = V(0.80, "-", "ASSUMPTION", "land with ~20 % remaining")
+HV_DERATE = V(0.92, "-", "ESTIMATE", "LiHV pack charged to 8.4 V instead of 8.7 V (D-033) gives less than rated capacity; reduction unquantified - placeholder")
 
-# PCB weight inputs
-PCB_CORE_MM = (40, 40)          # central body (ASSUMPTION; settled at G3)
-ARM_MM = (25, 9)                # each arm incl. motor pad: corner at 28.3 mm + 25 mm reaches past the 47.5 mm motor radius (ASSUMPTION)
-PCB_THK_CM = 0.10               # 1.0 mm board (brief)
-FR4_DENSITY = V(1.85, "g/cm3", "ASSUMPTION", "typical FR-4 laminate density; confirm for fab's laminate")
-CU_THK_UM = 35 * 2 + 17.5 * 2   # 1 oz outer, 0.5 oz inner (ASSUMPTION; stackup at G3)
-CU_COVER = 0.6                  # average copper coverage fraction (ESTIMATE)
-CU_DENSITY = 8.96               # g/cm3, copper (material constant)
+FR4_DENSITY = 1.85        # g/cm3, typical FR-4 (ASSUMPTION)
+CU_DENSITY = 8.96         # g/cm3
+PA11_DENSITY = 1.05       # S26
+TPU_DENSITY = 1.20        # S26
 
-# Printed parts inputs (PLA)
-PLA_DENSITY = V(1.24, "g/cm3", "ASSUMPTION", "typical PLA; check filament spec")
-CANOPY = dict(w=50, l=64, h=16, wall=0.8)           # mm; length set by the 58 mm battery + margin (ESTIMATE)
-GUARD = dict(clear=3.0, ring_t=1.0, ring_h=4.0)     # mm: radial clearance, wall, height (ESTIMATE)
+FC_BOARD_MM = (40, 40)    # flight-controller board (ASSUMPTION; settled at G3)
+ESC_BOARD_MM = (30, 30)   # 4-in-1 ESC board (ASSUMPTION; settled at G3)
+
+
+def board_mass(dims, thk_cm=0.10, cu_um=105, cover=0.6):
+    a = dims[0] * dims[1] / 100.0
+    return a, a * thk_cm * FR4_DENSITY + a * cu_um * 1e-4 * cover * CU_DENSITY
+
+
+def duct_frame_mass():
+    """Ducted one-piece frame estimate: 4 duct rings + arms + centre tray + motor mounts (PA11)."""
+    d_in = PROP_MM.value + 2 * DUCT_CLEAR_MM
+    ring = math.pi * (d_in + DUCT_WALL_MM) * DUCT_WALL_MM * DUCT_H_MM          # mm3
+    mount = 4 * 120.0          # motor boss + 3 spokes each (ESTIMATE, mm3)
+    tray = 42 * 46 * 1.0 * 0.55  # perforated centre tray (ESTIMATE, mm3)
+    links = 8 * 18 * 3 * 1.2   # duct-to-tray links (ESTIMATE, mm3)
+    vol = 4 * ring + mount + tray + links
+    return vol, vol / 1000 * PA11_DENSITY
+
+
+CAD_REPORT = REPO / "mechanical" / "concept" / "out" / "concept_report.json"
+
+
+def cad_masses():
+    """Printed-part masses from the CadQuery concept model, if it has been built."""
+    import json
+    if CAD_REPORT.exists():
+        parts = json.loads(CAD_REPORT.read_text())["parts"]
+        return {k: v["mass_g"] for k, v in parts.items()}
+    return {}
+
+
+def weight_table():
+    _, fc = board_mass(FC_BOARD_MM)
+    _, esc = board_mass(ESC_BOARD_MM, cu_um=2 * 70 + 2 * 35)   # 2 oz outer for motor current (ASSUMPTION)
+    fvol, frame = duct_frame_mass()
+    cad = cad_masses()
+    frame_basis = f"{fvol/1000:.1f} cm3 x {PA11_DENSITY} g/cm3 (hand estimate); commercial 80 mm PP frames 5.8-7.8 g (S19)"
+    if "frame_pa11" in cad:
+        frame = cad["frame_pa11"]
+        frame_basis = f"CAD concept volume x {PA11_DENSITY} g/cm3 (mechanical/concept); commercial 80 mm PP frames 5.8-7.8 g (S19)"
+    canopy = cad.get("canopy_tpu", 3.0) + cad.get("battery_strap", 0.8)
+    canopy_basis = "CAD concept volume x 1.20 g/cm3 (canopy + strap)" if cad else "printed shell ~2.5 cm3 x 1.20 g/cm3"
+    return [
+        ("Battery 2S 550 mAh HV (GNB, XT30)", V(29.0, "g", "SOURCED", "S14 (29 g +/-1)", 28.0, 30.0)),
+        ("Motors 4x EX1103 11000KV", V(4 * 3.8, "g", "SOURCED", "S15 (3.8 g each)", 4 * 3.7, 4 * 4.0)),
+        ("Props 4x 2-inch 3-blade", V(2.6, "g", "ESTIMATE", "S16: 0.5 g (2-blade) to 0.75 g (3-blade) per prop", 2.0, 3.0)),
+        ("Ducted frame (one piece, PA11)", V(frame, "g", "ESTIMATE", frame_basis, frame * 0.8, frame * 1.2)),
+        ("Canopy + battery strap (TPU 95A)", V(canopy, "g", "ESTIMATE", canopy_basis, canopy * 0.8, canopy * 1.5)),
+        ("Flight-controller PCB (bare, 4-layer)", V(fc, "g", "ESTIMATE", f"{FC_BOARD_MM[0]}x{FC_BOARD_MM[1]} mm x 1.0 mm FR-4 + copper", fc * 0.85, fc * 1.2)),
+        ("FC components incl. ESP32 module", V(5.0, "g", "ESTIMATE", "module + sensors + charger + passives; weigh at G6", 3.5, 7.0)),
+        ("ESC PCB (bare, 2 oz outer)", V(esc, "g", "ESTIMATE", f"{ESC_BOARD_MM[0]}x{ESC_BOARD_MM[1]} mm", esc * 0.85, esc * 1.2)),
+        ("ESC components (4 MCU, 4 drivers, 24 FETs)", V(2.0, "g", "ESTIMATE", "commercial 12 A whoop AIOs weigh 2.7-5.1 g complete", 1.5, 3.0)),
+        ("Camera + FPC", V(2.0, "g", "ESTIMATE", "UNCONFIRMED; weigh chosen module", 1.0, 3.0)),
+        ("Side/rear ToF daughter boards + flex", V(1.5, "g", "ESTIMATE", "3 small boards", 1.0, 2.5)),
+        ("ELRS receiver", V(0.46, "g", "SOURCED", "S17 (Lite 0.46 g; RP1 2.2 g)", 0.46, 2.2)),
+        ("XT30 lead + motor wires", V(2.5, "g", "ESTIMATE", "allowance", 1.5, 3.5)),
+        ("Soft-mount grommets + screws", V(1.2, "g", "ESTIMATE", "4 grommets, 4 M2 screws", 0.8, 2.0)),
+    ]
+
+
+# --------------------------------------------------------------------------
+# Propulsion
+T_MAX_TABLE_G = 121.9   # S15 max thrust per motor, 7.4 V, open prop
+I_MAX_TABLE_A = 9.20    # S15 max current per motor
+THRUST_SCENARIOS = (
+    (85, "ASSUMPTION: -30 % for ducts + sag"),
+    (100, "ASSUMPTION: battery sag to ~7 V"),
+    (122, "SOURCED S15 vendor table, open prop"),
+)
+ETA_GW = (3.5, 2.5)            # hover efficiency bracket g/W (ESTIMATE: S15 gives 2.19 g/W at 82 g; hover is ~20 g/motor where small motors are typically more efficient)
+I_MOTOR_FULL_A = (7.0, I_MAX_TABLE_A)   # per-motor full-throttle current (ASSUMPTION lower bound / S15)
+MOTOR_TAU_S = V(0.030, "s", "ASSUMPTION", "first-order thrust response time of a 1103 motor; measure at G6")
+RATE_TARGET_DPS = 1000         # S20 freestyle range 850-1200 deg/s
 
 # --------------------------------------------------------------------------
 # Electrical load tables (name, peak mA, average mA, tag, source)
 RAIL33 = [
-    # name, I_peak_mA, I_avg_mA, kind, source
     ("ESP32-S3 module (Wi-Fi TX 802.11b 20.5 dBm peak)", 355, 200, "SOURCED peak / ESTIMATE avg", "S1 peak; average while streaming UNCONFIRMED - measure at G6"),
-    ("BMI270 IMU (performance mode, via 1.8 V LDO)", 0.97, 0.97, "SOURCED", "S2"),
+    ("ICM-42688-P IMU (6-axis low-noise)", 0.88, 0.88, "SOURCED", "S2"),
     ("BMP390 (drone use case)", 0.57, 0.57, "SOURCED", "S3"),
     ("QMC5883P (high-power mode 100 Hz)", 0.6, 0.6, "SOURCED", "S4"),
     ("4x VL53L1X (16 mA avg, 40 mA peak each)", 160, 64, "SOURCED", "S5"),
     ("VL53L5CX (313 mW at 3.3 V AVDD/IOVDD)", 313 / 3.3, 313 / 3.3, "SOURCED + CALC", "S6; I = P/V"),
-    ("PMW3901 run mode (via 1.8 V LDO)", 9, 9, "SOURCED", "S7"),
+    ("PMW3901 run mode (via 1.9 V LDO)", 9, 9, "SOURCED", "S7"),
     ("INA226", 0.33, 0.33, "SOURCED", "S8"),
-    ("OV2640 (140 mW compressed) via 2.8 V/1.2 V LDOs", 140 / 1.2, 140 / 1.2, "SOURCED + ESTIMATE", "S9; worst case assumes all power on the 1.2 V LDO: I = 140 mW / 1.2 V"),
+    ("OV2640 (140 mW compressed) via 2.8 V/1.2 V LDOs", 140 / 1.2, 140 / 1.2, "SOURCED + ESTIMATE", "S9; worst case I = 140 mW / 1.2 V"),
+    ("4x AT32F421 ESC MCUs", 80, 60, "ESTIMATE", "UNCONFIRMED - no datasheet current read yet; 15-20 mA each assumed"),
     ("Buzzer MLT-5020 (intermittent)", 100, 0, "SOURCED", "S11; excluded from average"),
 ]
-
 LED_MAX_MA = 4 * 3 * 16
 RAIL5 = [
-    ("4x WS2812B-2020 at full white", LED_MAX_MA, 50, "SOURCED peak basis / ESTIMATE avg",
-     "S10 tests each colour at 16 mA; full-white current not stated -> 3 x 16 mA per LED (CALC). Average assumes dim status lighting (ESTIMATE)"),
-    ("ELRS receiver", 100, 100, "ESTIMATE", "UNCONFIRMED - no vendor current found; placeholder to replace from receiver spec or bench"),
+    ("4x WS2812B-2020 at full white", LED_MAX_MA, 50, "SOURCED peak basis / ESTIMATE avg", "S10: 16 mA per colour -> 3 x 16 mA per LED (CALC); dim status average (ESTIMATE)"),
+    ("ELRS receiver", 100, 100, "ESTIMATE", "UNCONFIRMED placeholder"),
 ]
-
-EFF33 = V(0.90, "-", "ESTIMATE", "S12 Fig 10-5 read ~88-92% at V_IN 3.6 V, 300-500 mA")
-EFF5 = V(0.85, "-", "ESTIMATE", "S13 Fig 6-1 read ~80-90% at 0.2-0.5 A")
-THRUST_SCENARIOS = ((28, "ASSUMPTION"), (33, "SOURCED S19 (60 mm)"), (36, "SOURCED S19 (60 mm)"))
-ETA_GW = (5.0, 4.0)   # g/W hover efficiency bracket (S20, ESTIMATE)
-I_MOTOR_FULL_A = (1.6, 2.27)   # per-motor full-throttle current (S21)
-
-
-def pcb_mass():
-    area_cm2 = (PCB_CORE_MM[0] * PCB_CORE_MM[1] + 4 * ARM_MM[0] * ARM_MM[1]) / 100.0
-    fr4 = area_cm2 * PCB_THK_CM * FR4_DENSITY.value
-    cu = area_cm2 * (CU_THK_UM * 1e-4) * CU_COVER * CU_DENSITY
-    return area_cm2, fr4, cu
-
-
-def printed_mass():
-    c = CANOPY
-    # open-bottom box shell surface ~ top + 4 sides
-    surf_mm2 = c["w"] * c["l"] + 2 * (c["w"] + c["l"]) * c["h"]
-    canopy_g = surf_mm2 * c["wall"] / 1000.0 * PLA_DENSITY.value
-    d_ring = PROP_MM.value + 2 * GUARD["clear"]
-    ring_vol_mm3 = math.pi * d_ring * GUARD["ring_t"] * GUARD["ring_h"]
-    guards_g = 4 * ring_vol_mm3 / 1000.0 * PLA_DENSITY.value
-    struts_g = 1.5   # ESTIMATE: 8 struts tying rings to canopy/arms
-    feet_g = 1.0     # ESTIMATE
-    holders_g = 4 * 0.5  # ESTIMATE: printed motor clamps
-    return canopy_g, guards_g, struts_g, feet_g, holders_g, d_ring
-
-
-def weight_table():
-    area, fr4, cu = pcb_mass()
-    canopy, guards, struts, feet, holders, d_ring = printed_mass()
-    items = [
-        ("Battery 1S 660 mAh HV (GNB)", V(15.5, "g", "SOURCED", "S14 (15.5 g +/-1)", 14.5, 16.5)),
-        ("Motors 4x 8520", V(4 * 5.0, "g", "SOURCED", "S15 (4.5-5.5 g each, vendor-dependent)", 4 * 4.5, 4 * 5.5)),
-        ("Props 4x 55 mm", V(4 * 0.5, "g", "ESTIMATE", "S16 is a 65 mm prop at 0.5 g; 55 mm weight UNCONFIRMED", 4 * 0.4, 4 * 1.0)),
-        (f"PCB bare 1.0 mm FR-4 ({area:.1f} cm2) incl. copper", V(fr4 + cu, "g", "ESTIMATE",
-            f"area x thickness x density ({FR4_DENSITY.value} g/cm3) + copper {CU_THK_UM:.0f} um x {CU_COVER:.0%} coverage", (fr4 + cu) * 0.85, (fr4 + cu) * 1.2)),
-        ("Electronic components incl. ESP32 module", V(7.0, "g", "ESTIMATE",
-            "Crazyflie 2.1 (S18): 29 g - 7.1 g battery - 4x~2.95 g motors = ~10 g for PCB+parts+mounts; this board has more parts", 5.0, 10.0)),
-        ("Camera module OV2640 + FPC", V(2.0, "g", "ESTIMATE", "UNCONFIRMED; weigh chosen module", 1.0, 3.0)),
-        ("ELRS receiver", V(0.46, "g", "SOURCED", "S17 (Lite 0.46 g; RP1 2.2 g)", 0.46, 2.2)),
-        ("Canopy shell (PLA)", V(canopy, "g", "ESTIMATE", f"open box shell {CANOPY['w']}x{CANOPY['l']}x{CANOPY['h']} mm, {CANOPY['wall']} mm wall, PLA {PLA_DENSITY.value} g/cm3", canopy * 0.7, canopy * 1.4)),
-        (f"Prop guards 4 rings (dia {d_ring:.0f} mm)", V(guards, "g", "ESTIMATE", f"pi x D x {GUARD['ring_t']} x {GUARD['ring_h']} mm per ring", guards * 0.7, guards * 1.5)),
-        ("Guard struts", V(struts, "g", "ESTIMATE", "8 struts", 1.0, 3.0)),
-        ("Landing feet", V(feet, "g", "ESTIMATE", "4 feet", 0.5, 1.5)),
-        ("Motor holders (printed)", V(holders, "g", "ESTIMATE", "4 clamps", 1.0, 3.0)),
-        ("Battery cradle (printed)", V(1.5, "g", "ESTIMATE", "holds 58x18x7.8 mm pack under the board", 1.0, 2.5)),
-        ("Battery leads, strap, fasteners, solder", V(2.0, "g", "ESTIMATE", "allowance", 1.0, 3.5)),
-    ]
-    return items
+EFF33 = V(0.85, "-", "ESTIMATE", "TPS62162 7.4 V -> 3.3 V at ~0.5 A; datasheet curve not read (S12)")
+EFF5 = V(0.88, "-", "ESTIMATE", "TPS62133 7.4 V -> 5 V at 0.1-0.3 A; datasheet curve not read (S13)")
 
 
 # --------------------------------------------------------------------------
-# Helpers shared with tools/viz (figures, animations, explorer data)
+# Helpers shared with tools/viz and software/microscout_sdk tests
 def rail_totals(rail):
-    """(peak mA, average mA) of a load table."""
     return sum(r[1] for r in rail), sum(r[2] for r in rail)
 
 
 def electronics_battery_current_a():
-    """Average electronics current drawn from the battery at V_NOM (A)."""
     _, av33 = rail_totals(RAIL33)
     _, av5 = rail_totals(RAIL5)
     p = 3.3 * av33 / 1000 / EFF33.value + 5.0 * av5 / 1000 / EFF5.value
@@ -182,12 +203,10 @@ def electronics_battery_current_a():
 
 
 def hover_total_current_a(weight_g, eta_gw):
-    """Hover current from the battery (A): motors W/eta/V_nom + electronics."""
     return weight_g / eta_gw / V_NOM.value + electronics_battery_current_a()
 
 
 def flight_time_min(weight_g, eta_gw, cap_mah=None):
-    """Hover flight time (min): C x HV derate x usable / I_total."""
     cap = CAP_MAH.value if cap_mah is None else cap_mah
     return cap / 1000 * HV_DERATE.value * USABLE_FRAC.value / hover_total_current_a(weight_g, eta_gw) * 60
 
@@ -197,22 +216,66 @@ def weight_totals():
     return (sum(v.value for _, v in items), sum(v.rng()[0] for _, v in items), sum(v.rng()[1] for _, v in items))
 
 
+def inertia_estimate():
+    """Point/slab estimate of Ixx, Iyy, Izz (kg m^2) about the centre of mass, including the
+    height of each mass (battery on top). Heights are concept-model values (ESTIMATE)."""
+    s = MOTOR_TO_MOTOR_MM.value / math.sqrt(2) / 1000 / 2      # motor x/y offset (m)
+    items = dict(weight_table())
+    m_rot = (items["Motors 4x EX1103 11000KV"].value + items["Props 4x 2-inch 3-blade"].value) / 4 / 1000
+    m_duct = items["Ducted frame (one piece, PA11)"].value * 0.7 / 4 / 1000   # 70 % of frame mass in ducts
+    r_duct = (PROP_MM.value / 2 + DUCT_CLEAR_MM) / 1000
+    m_bat = items["Battery 2S 550 mAh HV (GNB, XT30)"].value / 1000
+    L, H, Wd = 0.069, 0.012, 0.018                                # battery dims (S14), long axis forward
+    m_core = (sum(v.value for _, v in items.items()) - 4 * 1000 * (m_rot + m_duct) - 1000 * m_bat) / 1000
+    core = 0.040                                                  # core as 40 mm square plate
+    # heights above the duct bottom (m), from the concept model (ESTIMATE)
+    z_rot, z_duct, z_bat, z_core = 0.007, 0.0055, 0.0304, 0.011
+    m_tot = 4 * m_rot + 4 * m_duct + m_bat + m_core
+    zc = (4 * m_rot * z_rot + 4 * m_duct * z_duct + m_bat * z_bat + m_core * z_core) / m_tot
+    dz = lambda z: (z - zc) ** 2
+    par = 4 * m_rot * dz(z_rot) + 4 * m_duct * dz(z_duct) + m_bat * dz(z_bat) + m_core * dz(z_core)
+    Ixx = 4 * m_rot * s**2 + 4 * m_duct * (s**2 + r_duct**2 / 2) + m_bat * (Wd**2 + H**2) / 12 + m_core * core**2 / 12 + par
+    Iyy = 4 * m_rot * s**2 + 4 * m_duct * (s**2 + r_duct**2 / 2) + m_bat * (L**2 + H**2) / 12 + m_core * core**2 / 12 + par
+    Izz = 4 * m_rot * 2 * s**2 + 4 * m_duct * (2 * s**2 + r_duct**2) + m_bat * (L**2 + Wd**2) / 12 + m_core * core**2 / 6
+    return Ixx, Iyy, Izz
+
+
+def top_speed_estimate(weight_g, t_motor_g, cda=0.010, v_pitch=59.0, rho=1.225):
+    """Level-flight speed where tilted thrust balances drag; thrust falls linearly with
+    axial inflow T = T0 (1 - v_ax / v_pitch). cda, v_pitch: ASSUMPTIONS. Upper bound."""
+    g = 9.81
+    m = weight_g / 1000
+    t0 = 4 * t_motor_g / 1000 * g
+    best = 0.0
+    for i in range(1, 890):
+        th = math.radians(i / 10)
+        lo, hi = 0.0, 80.0
+        for _ in range(60):
+            v = (lo + hi) / 2
+            T = t0 * max(0.0, 1 - v * math.sin(th) / v_pitch)
+            fx = T * math.sin(th) - 0.5 * rho * cda * v * v
+            lo, hi = (v, hi) if fx > 0 else (lo, v)
+        v = lo
+        T = t0 * max(0.0, 1 - v * math.sin(th) / v_pitch)
+        if T * math.cos(th) >= m * g:
+            best = max(best, v)
+    return best
+
+
+# --------------------------------------------------------------------------
 def main():
     L = []
     w = L.append
-    w("STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1")
+    w("STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1 (rev B)")
     w("")
-    w("# G1 budgets (generated by `review/G1/calc/budgets.py` - do not hand-edit)")
+    w("# G1 rev B budgets (generated by `review/G1/calc/budgets.py` - do not hand-edit)")
     w("")
-    w("Tags: **SOURCED** = read from the cited page; **ESTIMATE** = engineering estimate (method given, replace with a measurement); "
-      "**ASSUMPTION** = design choice or generic constant. Nothing here is measured. Source keys (S1...) are listed at the end.")
+    w("Rev B is the 2S brushless, ducted-frame redesign for agility (flips), speed and crash survival. Rev A (brushed, 1S, PCB-as-frame) is at git tag `g1-rev-a`. "
+      "Tags: **SOURCED** = read from the cited page; **ESTIMATE** = engineering estimate (method given); **ASSUMPTION** = design choice or generic constant. Nothing here is measured.")
     w("")
 
-    # ---------------- Weight
     items = weight_table()
-    tot = sum(v.value for _, v in items)
-    tlo = sum(v.rng()[0] for _, v in items)
-    thi = sum(v.rng()[1] for _, v in items)
+    tot, tlo, thi = weight_totals()
     w("## 1. Weight budget")
     w("")
     w("| Item | Nominal (g) | Range (g) | Tag | Basis |")
@@ -222,169 +285,138 @@ def main():
         w(f"| {name} | {v.value:.1f} | {lo:.1f}-{hi:.1f} | {v.kind} | {v.source} |")
     w(f"| **Takeoff weight** | **{tot:.1f}** | **{tlo:.1f}-{thi:.1f}** | CALC | sum |")
     w("")
-    w(f"Formula: W_takeoff = sum(items). Nominal {tot:.1f} g vs brief target < 80 g; worst case {thi:.1f} g. "
-      f"Reference point: a 100 mm 8520 build flew at 59-65 g AUW on 1S 650 mAh (S26).")
+    w(f"Formula: W = sum(items). Nominal {tot:.1f} g against the < 80 g target. Reference: Mobula8 (85 mm, 2S, same motor, with camera) is 43 g dry, ~72 g with a 29 g pack (S18). "
+      "Ours carries five ToF sensors, optical flow, a larger frame and on-board charging.")
     w("")
 
-    # ---------------- Thrust to weight
-    w("## 2. Thrust-to-weight (T/W)")
+    w("## 2. Thrust-to-weight and agility")
     w("")
-    w("No measured static thrust for an 8520 with a **55 mm** prop at ~3.7 V was found. The only figure is a secondhand "
-      "~33-36 gf per motor with **60 mm** props (S19). Three scenarios bracket it; 28 gf is an ASSUMED lower value for the smaller 55 mm prop.")
+    w("Formula: T/W = 4 x T_motor / W. Hover throttle (thrust fraction) = W / (4 x T_motor).")
     w("")
-    w("Formula: T/W = (4 x T_motor) / W_takeoff. Hover throttle fraction (thrust) ~ W / (4 x T_motor).")
-    w("")
-    w("| T per motor (gf) | Tag | T/W at nominal {:.1f} g | T/W at worst {:.1f} g | T/W at 80 g |".format(tot, thi))
+    w(f"| T per motor (g) | Basis | T/W at {tot:.1f} g | T/W at worst {thi:.1f} g | hover thrust fraction |")
     w("|---:|---|---:|---:|---:|")
     for t, tag in THRUST_SCENARIOS:
-        w(f"| {t} | {tag} | {4*t/tot:.2f} | {4*t/thi:.2f} | {4*t/80:.2f} |")
+        w(f"| {t} | {tag} | {4*t/tot:.2f} | {4*t/thi:.2f} | {tot/(4*t):.0%} |")
     w("")
-    w(f"Reading: T/W is {4*28/tot:.1f}-{4*36/tot:.1f} at nominal weight and drops to {4*28/thi:.1f} at worst-case weight. Below ~2 leaves thin margin for altitude-hold and gust rejection "
-      "(ASSUMPTION: common rule of thumb, not a requirement in the brief). This is the main G1 risk - see open question OQ-3.")
+    Ixx, Iyy, Izz = inertia_estimate()
+    s = MOTOR_TO_MOTOR_MM.value / math.sqrt(2) / 1000 / 2
+    w(f"Inertia (ESTIMATE, point/slab model incl. the top-mounted battery height): Ixx = {Ixx:.2e}, Iyy = {Iyy:.2e}, Izz = {Izz:.2e} kg m2. Motor offset from each axis = D/(2 sqrt 2) = {s*1000:.1f} mm.")
+    w("")
+    w("| T per motor (g) | max pitch torque (N m) | angular accel (rad/s2) | time to 1000 deg/s (ms, ignoring motor lag) |")
+    w("|---:|---:|---:|---:|")
+    for t, _ in THRUST_SCENARIOS:
+        tau = 2 * t / 1000 * 9.81 * s
+        a = tau / Iyy
+        w(f"| {t} | {tau:.3f} | {a:,.0f} | {math.radians(RATE_TARGET_DPS)/a*1000:.0f} |")
+    w("")
+    w(f"Torque = 2 x T_max x arm (one pair at full thrust, the other at zero). Motor response ({MOTOR_TAU_S.value*1000:.0f} ms, ASSUMPTION) dominates, so reaching "
+      f"{RATE_TARGET_DPS} deg/s (freestyle range 850-1200 deg/s, S20) takes roughly 3 x tau ~ {3*MOTOR_TAU_S.value*1000:.0f} ms. A 360 deg flip at that rate takes ~{360/RATE_TARGET_DPS+3*MOTOR_TAU_S.value:.2f} s. "
+      "The simulator (`software/microscout_sdk`) flies the full flip with motor lag and reports altitude lost.")
+    w("")
+    vt = [top_speed_estimate(tot, t) for t, _ in THRUST_SCENARIOS]
+    w(f"Level top-speed upper bound (ESTIMATE; CdA 0.010 m2 for the ducted ~126 mm frame and prop pitch speed 59 m/s are ASSUMPTIONS; real props lose more thrust): "
+      + ", ".join(f"{t} g/motor -> {v:.0f} m/s" for (t, _), v in zip(THRUST_SCENARIOS, vt))
+      + ". Requirement R-21 sets a conservative 10 m/s target to be measured at G7.")
     w("")
 
-    # ---------------- Electronics power
     w("## 3. Power budget")
     w("")
-    w("### 3a. 3.3 V rail (TPS63802 output)")
+    w("### 3a. 3.3 V rail (TPS62162 buck from 2S)")
     w("")
     w("| Load | Peak (mA) | Average (mA) | Tag | Source / method |")
     w("|---|---:|---:|---|---|")
-    pk = av = 0.0
-    for n, p, a, k, s in RAIL33:
-        pk += p
-        av += a
-        w(f"| {n} | {p:.1f} | {a:.1f} | {k} | {s} |")
+    for n, p, a, k, src in RAIL33:
+        w(f"| {n} | {p:.1f} | {a:.1f} | {k} | {src} |")
+    pk, av = rail_totals(RAIL33)
     w(f"| **Total 3.3 V** | **{pk:.0f}** | **{av:.0f}** | CALC | sum |")
     w("")
-    w(f"TPS63802 rating: 2 A for V_IN >= 2.3 V at V_OUT 3.3 V (S12) -> margin over peak = 2000 / {pk:.0f} = {2000/pk:.1f}x. "
-      "The ESP32-S3 datasheet also requires a supply able to deliver >= 500 mA to the module.")
-    eff33 = EFF33
-    p33_batt = 3.3 * av / 1000 / eff33.value
+    w(f"TPS62162 is rated 1 A (S12): margin over peak = 1000 / {pk:.0f} = {1000/pk:.2f}x. Tight - G2 checks the datasheet curve and may move the ESC MCUs to their own LDO.")
     w("")
-    w(f"Battery-side power for 3.3 V average: P = 3.3 V x {av:.0f} mA / eta({eff33.value:.2f}) = **{p33_batt:.2f} W** "
-      f"-> I = P / {V_NOM.value} V = **{p33_batt/V_NOM.value*1000:.0f} mA**.")
-    w("")
-    w("### 3b. 5 V rail (TPS61023 output)")
+    w("### 3b. 5 V rail (TPS62133 buck from 2S)")
     w("")
     w("| Load | Peak (mA) | Average (mA) | Tag | Source / method |")
     w("|---|---:|---:|---|---|")
-    pk5 = av5 = 0.0
-    for n, p, a, k, s in RAIL5:
-        pk5 += p
-        av5 += a
-        w(f"| {n} | {p:.0f} | {a:.0f} | {k} | {s} |")
+    for n, p, a, k, src in RAIL5:
+        w(f"| {n} | {p:.0f} | {a:.0f} | {k} | {src} |")
+    pk5, av5 = rail_totals(RAIL5)
     w(f"| **Total 5 V** | **{pk5:.0f}** | **{av5:.0f}** | CALC | sum |")
-    eff5 = EFF5
-    p5_batt = 5.0 * av5 / 1000 / eff5.value
     w("")
-    w(f"Battery-side: P = 5 V x {av5:.0f} mA / {eff5.value:.2f} = **{p5_batt:.2f} W** -> **{p5_batt/V_NOM.value*1000:.0f} mA** at {V_NOM.value} V. "
-      f"Boost input current at peak and V_IN = 3.0 V: 5 x {pk5:.0f} / (0.85 x 3.0) = {5*pk5/(0.85*3.0):.0f} mA (TPS61023 switch limit 3.7 A valley; usable output current at 3.0 V UNCONFIRMED - check at G2).")
+    elec = electronics_battery_current_a()
+    w(f"Electronics at the battery: (3.3 x {av:.0f} mA / {EFF33.value} + 5 x {av5:.0f} mA / {EFF5.value}) / {V_NOM.value} V = **{elec*1000:.0f} mA**.")
     w("")
-
-    # ---------------- Motor power, hover, flight time
-    w("### 3c. Motors, hover and flight time")
+    w("### 3c. Hover current and hover time")
     w("")
-    w("Hover power uses a measured thrust efficiency for a generic 8520 + Hubsan H107 prop: 4-5 g/W at 3.5-4.2 V (S20). Not our prop - ESTIMATE.")
+    w("Formulas: P_hover = W / eta; I = P_hover / V_nom + I_elec; t = C x HV_derate x usable / I.")
     w("")
-    w("Formulas: P_hover = W / eta_gW;  I_motors = P_hover / V_nom;  I_total = I_motors + I_3V3,batt + I_5V,batt;  "
-      "t_flight = (C x HV_derate x usable) / I_total.")
-    w("")
-    w("| W (g) | eta (g/W) | P_hover (W) | I_motors (A) | I_total (A) | Flight time (min) |")
-    w("|---:|---:|---:|---:|---:|---:|")
-    elec_a = (p33_batt + p5_batt) / V_NOM.value
-    flight = {}
+    w("| W (g) | eta (g/W) | P_hover (W) | I_total (A) | Hover time (min) |")
+    w("|---:|---:|---:|---:|---:|")
     for W in (tot, thi, 80.0):
         for eta in ETA_GW:
-            P = W / eta
-            Im = P / V_NOM.value
-            It = Im + elec_a
-            t = CAP_MAH.value / 1000 * HV_DERATE.value * USABLE_FRAC.value / It * 60
-            flight[(round(W, 1), eta)] = (It, t)
-            w(f"| {W:.1f} | {eta:.0f} | {P:.1f} | {Im:.2f} | {It:.2f} | {t:.1f} |")
+            w(f"| {W:.1f} | {eta} | {W/eta:.1f} | {hover_total_current_a(W, eta):.2f} | {flight_time_min(W, eta):.1f} |")
     w("")
-    w(f"Electronics at battery: {elec_a:.2f} A (3.3 V + 5 V averages above). Capacity {CAP_MAH.value:.0f} mAh (S14) x {HV_DERATE.value:.2f} HV derate (ESTIMATE, D-013) x usable {USABLE_FRAC.value:.0%} (ASSUMPTION). "
-      "Cross-check: S26 reports 5-6 min for a 59-65 g 8520 build without camera/sensors, consistent in magnitude.")
+    w(f"Capacity {CAP_MAH.value:.0f} mAh (S14) x {HV_DERATE.value} (ESTIMATE) x {USABLE_FRAC.value:.0%} usable (ASSUMPTION). eta bracket: S15 gives 2.19 g/W at 82 g per motor; "
+      "at ~20 g per motor (hover) small motors usually run more efficiently, so 2.5-3.5 g/W is assumed. Aggressive flying draws several times hover current; expect 2-3 min of acro per pack (ESTIMATE). "
+      "Cross-check: Meteor85 (2S 450 mAh, 1103) claims 7 min (S18).")
     w("")
-    w("### 3d. Peak battery current (sizing connector, fuse, traces, FETs)")
+    w("### 3d. Peak current")
     w("")
-    i_full_lo, i_full_hi = I_MOTOR_FULL_A
-    peak_lo = 4 * i_full_lo + pk / 1000 / eff33.value * 3.3 / 3.0 + pk5 / 1000 * 5 / (0.85 * 3.0)
-    peak_hi = 4 * i_full_hi + pk / 1000 / eff33.value * 3.3 / 3.0 + pk5 / 1000 * 5 / (0.85 * 3.0)
-    w(f"Per-motor full-throttle current 1.6-2.27 A (vendor/maker figures, S21). Electronics peak referred to a 3.0 V battery. "
-      f"I_peak = 4 x I_motor + I_3V3,pk x 3.3/(0.90 x 3.0) + I_5V,pk x 5/(0.85 x 3.0) = **{peak_lo:.1f}-{peak_hi:.1f} A**. "
-      "Motor stall can reach 10.6 A (measured, S21) to 15.1 A (maker table, S21) per motor for short transients (start-up, blocked prop).")
-    w("")
-    w(f"Connector check: JST-PH is rated 2 A per contact (S27). Estimated hover current {flight[(round(tot,1),5.0)][0]:.1f}-{flight[(round(tot,1),4.0)][0]:.1f} A and peak {peak_lo:.1f}-{peak_hi:.1f} A "
-      "exceed that rating. BT2.0 is claimed 9 A continuous by its vendor (no formal datasheet, S27). -> Open question OQ-2 / D-011.")
+    ipk = 4 * I_MAX_TABLE_A + (pk / 1000 * 3.3 / EFF33.value + pk5 / 1000 * 5 / EFF5.value) / 6.0
+    w(f"I_peak = 4 x {I_MAX_TABLE_A} A (S15 full throttle) + electronics at a sagged 6.0 V = **{ipk:.1f} A**. "
+      f"XT30 is rated 15 A continuous / 30 A peak (S23): full-throttle bursts exceed the peak rating, so firmware limits motor output to keep battery current <= 30 A "
+      f"(DR-06), and the connector choice stays an open question (OQ-2). Hover ({hover_total_current_a(tot, 3.0):.1f} A) is well inside the 15 A continuous rating; sustained hard acro "
+      "(ESTIMATE 10-15 A average) approaches it.")
     w("")
 
-    # ---------------- Component calcs
     w("## 4. Component calculations")
     w("")
-    kiset, klo, khi = 890.0, 797.0, 975.0
-    i_target = 0.5
-    r_iset = kiset / i_target
-    w("### 4a. BQ24074 charge current (S22)")
+    r_sh = 0.001
+    w(f"**4a. Shunt (INA226, S8, S27).** Full scale 81.92 mV / 1 mOhm = {0.08192/r_sh:.0f} A; LSB 2.5 uV / 1 mOhm = 2.5 mA. "
+      f"P = I^2 R: hover {hover_total_current_a(tot, 3.0):.1f} A -> {hover_total_current_a(tot, 3.0)**2*r_sh*1000:.0f} mW; 30 A limit -> {30**2*r_sh:.2f} W; {ipk:.0f} A burst -> {ipk**2*r_sh:.2f} W "
+      "(2 W part; bursts only).")
     w("")
-    w(f"I_CHG = K_ISET / R_ISET, K_ISET = {kiset:.0f} A*Ohm typ ({klo:.0f}-{khi:.0f}). Target {i_target*1000:.0f} mA "
-      f"(~{i_target/(CAP_MAH.value/1000):.2f}C for {CAP_MAH.value:.0f} mAh, ASSUMPTION: conservative below 1C). "
-      f"R_ISET = {kiset:.0f}/{i_target} = {r_iset:.0f} Ohm -> nearest E96 **1.78 kOhm**. "
-      f"Resulting I_CHG range = {klo/1780*1000:.0f}-{khi/1780*1000:.0f} mA (typ {kiset/1780*1000:.0f} mA). "
-      "R_ISET must be within 590 Ohm-8.9 kOhm (datasheet) - OK. Input current limit: USB500 mode via EN1/EN2 (ASSUMPTION: no Type-C current advertisement is read).")
+    w("**4b. Reverse polarity (D-035, OQ-10).** Ground-return FETs do not work here: the charger's JST-XH balance lead ties pack negative straight to board ground, "
+      "bypassing them. Rev B relies on keyed XT30 and JST-XH connectors; a high-side ideal-diode controller with back-to-back N-FETs is the alternative (part TBD). "
+      "No fuse: a firmware limit cannot clear a shorted ESC FET on a 100C pack - residual risk stated in R-13 and the flying guide (unplug after flight).")
     w("")
-    w("### 4b. INA226 shunt (S8)")
+    r_fet = 0.0047
+    i_m = I_MAX_TABLE_A
+    w(f"**4c. ESC conduction loss per channel.** Two FETs conduct at a time: P = I^2 x 2R = {i_m}^2 x 2 x 4.7 mOhm = {i_m**2*2*r_fet:.2f} W peak per channel "
+      "(switching loss checked at G2). FD6288Q-class drivers need a 5-20 V supply (S29): their supply comes from VBAT through a small switch (Q4, part TBD) enabled by the logic "
+      "soft switch (D-036), so drivers are unpowered when the drone is off.")
     w("")
-    vsh = 0.08192
-    imax_design = 12.0
-    r_max = vsh / imax_design
-    r_sel = 0.005
-    w(f"Full-scale shunt voltage +/-81.92 mV. Design max measurable current {imax_design:.0f} A (ASSUMPTION: above the ~{peak_hi:.0f} A full-throttle estimate). "
-      f"R_shunt <= 81.92 mV / {imax_design:.0f} A = {r_max*1000:.2f} mOhm -> select **5 mOhm**: range = 81.92/5 = {vsh/r_sel:.1f} A, "
-      f"LSB = 2.5 uV / 5 mOhm = {2.5e-6/r_sel*1000:.2f} mA. Dissipation P = I^2 R: at 5 A = {25*r_sel:.3f} W, at 9 A = {81*r_sel:.3f} W, "
-      f"at 16 A transient = {256*r_sel:.2f} W -> choose a >= 1 W part at G2.")
+    w(f"**4d. Charger (S21).** BQ25887 boosts 5 V USB to the 2S pack and balances cells (needs the pack's JST-XH balance lead). At 0.5C = {CAP_MAH.value/2:.0f} mA into 7.6 V "
+      f"the USB draw is 7.6 x {CAP_MAH.value/2/1000:.3f} / (0.934 x 5.0) = {7.6*CAP_MAH.value/2/1000/(0.934*5):.2f} A - inside the 0.5 A any USB port supplies, so the input limit "
+      "defaults to 500 mA (set over I2C by firmware; the charger cannot read the USB-C CC pins itself).")
     w("")
-    w("### 4c. Motor MOSFET AO3400A (S23)")
-    w("")
-    rds = 0.048
-    for i in (1.0, 1.6, 2.27):
-        w(f"- I = {i:.2f} A: P = I^2 x 48 mOhm = {i*i*rds*1000:.0f} mW (worst-case Rds(on) max at Vgs 2.5 V; actual gate drive 3.3 V gives lower Rds - curve value at 3.3 V UNCONFIRMED).")
-    w("- Stall 10.6 A transient: P = 5.4 W - must be short; firmware ramp limits and the 15 A fuse bound it. SOT-23 thermal resistance check at G3.")
-    w("")
-    w("### 4d. Series drop in the battery path (S24)")
-    w("")
-    r_fet = 0.0098
-    for i in (5.0, 9.0):
-        drop = i * (2 * r_fet + r_sel)
-        w(f"- {i:.0f} A through Q1 + Q2 (2 x 9.8 mOhm max at -2.5 V) + 5 mOhm shunt: V_drop = {i:.0f} x {2*r_fet*1000+r_sel*1000:.1f} mOhm = **{drop*1000:.0f} mV** "
-          f"(+ fuse, connector, traces - UNCONFIRMED); FET loss {i*i*r_fet*1000:.0f} mW each.")
-    w("")
-    w("### 4e. Prop clearance (adjacent props on a square X frame)")
-    w("")
-    w("Adjacent motor spacing s = D / sqrt(2) (D = diagonal motor-to-motor). Tip gap g = s - d_prop.")
-    w("")
-    w("| D (mm) | s (mm) | gap, 55 mm props | gap, 65 mm props |")
-    w("|---:|---:|---:|---:|")
-    for D in (90, 95, 100):
-        s = D / math.sqrt(2)
-        w(f"| {D} | {s:.1f} | {s-55:.1f} | {s-65:.1f} |")
-    w("")
-    w("Guard rings need radial clearance plus wall thickness per prop; 65 mm props leave <= 5.7 mm between tips even at 100 mm, so guards would overlap. -> 55 mm at 95 mm (D-019).")
-    w("")
-    w("### 4f. VL53L5CX firmware upload time on a 400 kHz I2C bus (S25)")
+    d_in = PROP_MM.value + 2 * DUCT_CLEAR_MM
+    d_out = d_in + 2 * DUCT_WALL_MM
+    sp = MOTOR_TO_MOTOR_MM.value / math.sqrt(2)
+    w(f"**4e. Duct clearance.** Duct inner diameter {d_in:.1f} mm, outer {d_out:.1f} mm. Adjacent motor spacing D/sqrt2 = {sp:.1f} mm, so neighbouring ducts are "
+      f"{sp-d_out:.1f} mm apart - room for the linking struts.")
     w("")
     nbytes = 84 * 1024
-    t = nbytes * 9 / 400e3
-    w(f"t ~ bytes x 9 bits (8 data + ACK) / f_SCL = {nbytes} x 9 / 400 kHz = **{t:.2f} s** per boot (ignores address/command overhead; ESTIMATE). "
-      "The bus runs at 400 kHz because VL53L1X and QMC5883P are 400 kHz devices.")
+    w(f"**4f. VL53L5CX firmware upload (S24).** {nbytes} B x 9 bit / 400 kHz = {nbytes*9/400e3:.2f} s per boot (ESTIMATE).")
     w("")
 
-    # ---------------- Cost
-    w("## 5. Parts cost (per drone, from bom/drone-bom-g1.csv)")
+    w("## 5. Crash and drop energy")
+    w("")
+    m = tot / 1000
+    w("| Case | Speed (m/s) | Energy (J) | Basis |")
+    w("|---|---:|---:|---|")
+    w(f"| 1.0 m drop onto a hard floor | {math.sqrt(2*9.81*1.0):.1f} | {m*9.81*1.0:.2f} | IEC 60068-2-31 run as 1000 mm falls (S25) |")
+    w(f"| 1.22 m transit drop | {math.sqrt(2*9.81*1.22):.1f} | {m*9.81*1.22:.2f} | MIL-STD-810 (S25) |")
+    for v in (3.0, 5.0, 10.0):
+        w(f"| Wall hit at {v:.0f} m/s | {v:.1f} | {0.5*m*v*v:.2f} | KE = 1/2 m v^2 |")
+    w("")
+    w("Design response (D-030, D-031): the ducts and bumpers take the load in PA11 / TPU (elongation 35-50 % and > 500 %, S26), the boards are soft-mounted and never "
+      "part of the load path, and the cheap parts (props, canopy, ducts) fail first. Requirement R-22 targets survival of 26 drops from 1.0 m and frontal hits at 3 m/s; "
+      "faster crashes may break replaceable parts. An academic 405 g quad survived 4.5 m/s frontal hits undamaged (S28) - different scale, for orientation only.")
+    w("")
+
+    w("## 6. Parts cost (per drone, from bom/drone-bom-g1.csv)")
     w("")
     rows = [l for l in (REPO / "bom" / "drone-bom-g1.csv").read_text().splitlines() if not l.startswith("#")]
-    known = 0.0
-    missing = []
+    known, missing = 0.0, []
     w("| Ref | Part | Qty | Unit USD | Line USD |")
     w("|---|---|---:|---:|---:|")
     for r in csv.DictReader(rows):
@@ -399,18 +431,17 @@ def main():
             missing.append(f"{r['ref']} {r['mpn']}")
     w(f"| | **Subtotal of priced lines** | | | **{known:.2f}** |")
     w("")
-    w(f"Prices are the LCSC break covering the 5-drone quantity, as listed per line in the BOM (`price_break` column), seen 2026-10-04 (they move daily); no shipping or tariffs. "
-      f"Not priced (UNCONFIRMED): {'; '.join(missing)}; plus all passives, PCB fabrication, assembly and JLCPCB extended-part fees.")
+    w(f"Prices: LCSC/vendor pages seen 2026-10-04 to 2026-10-07 at the break covering five drones (BOM `price_break` column); no shipping or tariffs. "
+      f"Not priced (UNCONFIRMED): {'; '.join(missing)}; plus passives, PCBs, assembly and the printed frame.")
     w("")
-    w(f"**Finding:** priced lines alone are ${known:.0f} per drone against the ~$75 target, before the battery, barometer, camera, props, passives, "
-      "PCB and assembly. The target is very likely exceeded - open question OQ-5 lists the cost levers.")
+    w(f"**Finding:** brushless 2S costs more - priced lines are ${known:.0f} per drone, above the ~$75 target before PCBs and assembly (OQ-5).")
     w("")
     w("## Sources")
     w("")
-    for k, s in SRC.items():
-        w(f"- **{k}**: {s}")
+    for k, s_ in SRC.items():
+        w(f"- **{k}**: {s_}")
     OUT.write_text("\n".join(L) + "\n")
-    print(f"wrote {OUT.relative_to(REPO)}  weight nominal {tot:.1f} g  range {tlo:.1f}-{thi:.1f} g  cost subtotal ${known:.2f}")
+    print(f"wrote {OUT.relative_to(REPO)}  weight {tot:.1f} g ({tlo:.1f}-{thi:.1f})  cost ${known:.2f}")
 
 
 if __name__ == "__main__":

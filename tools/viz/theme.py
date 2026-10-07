@@ -36,7 +36,7 @@ THEMES = {
     ),
 }
 
-STAMP = "MicroScout · Gate G1 · DRAFT – UNVERIFIED · estimates and datasheet values, not measurements"
+STAMP = "MicroScout · Gate G1 rev B · DRAFT – UNVERIFIED · estimates and datasheet values, not measurements"
 
 plt.rcParams.update({
     "font.family": "DejaVu Sans",

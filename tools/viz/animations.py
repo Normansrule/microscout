@@ -53,8 +53,8 @@ def drone_concept():
     D = B.MOTOR_TO_MOTOR_MM.value
     s = D / math.sqrt(2)
     prop_r = B.PROP_MM.value / 2
-    guard_r = prop_r + 3 + 1
-    motors = [(-s / 2, s / 2, +1), (s / 2, s / 2, -1), (s / 2, -s / 2, +1), (-s / 2, -s / 2, -1)]  # +1 = CCW
+    guard_r = prop_r + B.DUCT_CLEAR_MM + B.DUCT_WALL_MM
+    motors = [(-s / 2, s / 2, -1), (s / 2, s / 2, +1), (s / 2, -s / 2, -1), (-s / 2, -s / 2, +1)]  # +1 = CCW; Betaflight default (D-040)
     # FoV: VL53L5CX 63 deg diagonal square -> horizontal = 2 atan(tan(31.5)/sqrt2)
     fwd_half = math.degrees(math.atan(math.tan(math.radians(31.5)) / math.sqrt(2)))
     side_half = 27 / 2
@@ -63,8 +63,8 @@ def drone_concept():
     for k in range(n):
         ph = k / n
         fig = new_fig(T, W_PX / 100, H_PX / 100)
-        header(fig, "MicroScout concept – top view (illustrative)",
-               f"{D:.0f} mm motor-to-motor · {B.PROP_MM.value:.0f} mm props in guard rings · sensor fields of view (ranges not to scale)")
+        header(fig, "MicroScout rev B concept – top view (illustrative)",
+               f"{D:.0f} mm motor-to-motor · 2-inch props in ducts · sensor fields of view (ranges not to scale)")
         ax = fig.add_axes([0.0, 0.07, 0.62, 0.8])
         ax.set_facecolor(T["surface"])
         ax.set_aspect("equal")
@@ -89,7 +89,7 @@ def drone_concept():
         ax.add_patch(FancyBboxPatch((-25, -32), 50, 64, boxstyle="round,pad=0,rounding_size=12",
                                     facecolor=T["page"], edgecolor=T["ink2"], lw=1.4, zorder=3))
         ax.add_patch(Rectangle((-9, -29), 18, 58, facecolor=T["grid"], edgecolor="none", zorder=3, alpha=0.9))
-        ax.text(0, -20, "battery\n(under board)", ha="center", va="center", fontsize=6.5, color=T["ink2"], zorder=4)
+        ax.text(0, -20, "battery\n(on top)", ha="center", va="center", fontsize=6.5, color=T["ink2"], zorder=4)
         ax.add_patch(Rectangle((-5, 25), 10, 5, facecolor=T["ink2"], zorder=4))
         ax.text(0, 36, "camera + 8×8 ToF", ha="center", fontsize=7, color=T["ink"], zorder=6,
                 bbox=dict(facecolor=T["surface"], edgecolor="none", pad=1))
@@ -120,7 +120,7 @@ def drone_concept():
             ("Forward 8×8 multizone ToF (VL53L5CX)", f"63° diagonal FoV ≈ {2*fwd_half:.0f}° across · up to 4 m", sc[0]),
             ("Left / right / rear ToF (VL53L1X ×3)", "27° FoV each · up to 4 m", sc[1]),
             ("Downward ToF + optical flow", "VL53L1X + PMW3901 (flow lens source open)", sc[2]),
-            ("Guard rings", f"{B.PROP_MM.value:.0f} mm props, 3 mm clearance + 1 mm wall (estimate)", T["ink2"]),
+            ("Ducts (PA11, double as bumpers)", f"{B.PROP_MM.value:.0f} mm props, {B.DUCT_CLEAR_MM:.0f} mm tip clearance, {B.DUCT_WALL_MM} mm wall", T["ink2"]),
         ]
         y0 = 0.78
         for ttl, sub, col in lines:
@@ -128,7 +128,7 @@ def drone_concept():
             fig.text(tx + 0.022, y0 + 0.022, ttl, fontsize=9, color=T["ink"], va="top")
             fig.text(tx + 0.022, y0 - 0.016, sub, fontsize=8, color=T["ink2"], va="top")
             y0 -= 0.12
-        fig.text(tx, y0 - 0.0, "Spin directions and motor numbering are\nplaceholders until the G2 schematic.", fontsize=8,
+        fig.text(tx, y0 - 0.0, "Spin directions follow the Betaflight default;\nplaceholders until the G2 schematic (D-040).", fontsize=8,
                  color=T["ink2"], va="top")
         footer(fig, "concept sketch, not a render: no CAD exists yet. FoV figures: ST datasheet values via Pololu/SparkFun product pages.")
         frames.append(frame_of(fig))
@@ -236,7 +236,7 @@ def power_frame(cursor, captions):
     ax = fig.add_axes([0.22, 0.2, 0.75, 0.64])
     ax.set_xlim(0, 100)
     sc = T["series"]
-    rows = ["Power button", "LTC2954 EN", "3.3 V / 5 V rails", "Motor rail (Q2)", "Motor gates", "ESP32 reset → run",
+    rows = ["Power button", "LTC2954 EN", "3.3 V / 5 V bucks", "ESC logic (AM32 boot)", "DShot lines", "ESP32 reset → run",
             "KILL ignored", "Expanders, cam rails", "ToF addressing + 8×8 FW", "Arming allowed"]
     n = len(rows)
     ax.set_ylim(-0.8, n - 0.2)
@@ -296,8 +296,8 @@ def power_frame(cursor, captions):
 def power_sequence():
     script = [
         (4, "Press: the LTC2954 sees the button go low and starts its 32 ms debounce (datasheet typ)."),
-        (14, "EN goes high: the 3.3 V and 5 V regulators start, and Q3 switches on the motor-rail P-FET Q2."),
-        (20, "Motor gates stay LOW the whole time: 100 kΩ pull-downs hold them off while the ESP32 boots."),
+        (14, "EN goes high: the 3.3 V and 5 V bucks start; the ESC MCUs and gate drivers power up (power stage stays idle)."),
+        (20, "DShot lines stay LOW (no frames) the whole time: 100 kΩ pull-downs keep every motor stopped while the ESP32 boots."),
         (24, "ESP32 EN releases after its RC delay; it samples straps: GPIO0 = 1, GPIO45 = 0, GPIO46 = 0 → normal boot."),
         (44, "For 400–650 ms after turn-on the LTC2954 ignores KILL (datasheet), so a fault can't power-cycle it instantly."),
         (62, "Firmware brings up the I²C expanders, then the camera rails via CAM_PWR_EN."),

@@ -1,60 +1,56 @@
-> STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1
+> STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1 (rev B)
 
-# Part selection and findings (drone)
+# Part selection and findings (drone) - rev B
 
-The machine-readable part list with LCSC numbers, prices, stock and datasheet links is **`bom/drone-bom-g1.csv`**. This page explains the choices and lists what each check found. All values were read from pages fetched on 2026-10-03/04 (mostly via a web-fetch tool that returns a summary of the page, not the raw PDF); every LCSC number marked `page` in the CSV was seen on its LCSC product page with the part name matching. **Prices and stock change daily and must be re-checked before ordering.**
+The machine-readable list with LCSC numbers, prices, stock and datasheet links is **`bom/drone-bom-g1.csv`**. Values below were read from pages fetched 2026-10-03 to 2026-10-07, mostly through a web-fetch tool that summarises pages; they are datasheet or vendor readings, not independently verified. **Prices and stock change daily.** Rev A choices are at git tag `g1-rev-a`.
 
-## Selected parts by block
+## What changed from rev A, and why
 
-| Block | Selected | LCSC | Key datasheet values read (not independently verified) | Main finding / risk |
+| Area | Rev A | Rev B | Reason |
+|---|---|---|---|
+| Propulsion | 4x brushed 8520, 55 mm props, AO3400A drivers | 4x **EX1103 11000KV brushless**, 2-inch 3-blade props in ducts, separate **4-in-1 AM32 ESC** board | Flips and speed need T/W ≥ 4; rev A reached 1.6-2.0. EX1103 vendor table: 121.9 g at 9.2 A on 7.4 V (S15). Same motor as the 85 mm 2S Mobula8 |
+| Battery | 1S 660 mAh, JST-PH | **2S LiHV 550 mAh**, XT30 + JST-XH balance | Brushless 1103 motors are 2S motors; XT30 is rated 15 A cont / 30 A peak vs JST-PH 2 A |
+| Charger | BQ24074 (1S) | **BQ25887** 2S boost charger with balancing | 2S from 5 V USB needs a boost charger and cell balancing |
+| Regulators | TPS63802 buck-boost, TPS61023 boost | **TPS62162** 3.3 V buck, **TPS62133** 5 V buck | 2S is always above 5 V, so plain bucks work |
+| IMU | BMI270 | **ICM-42688-P** | Betaflight docs: ICM-42688-P "recommended for new designs" (8 kHz); BMI270 "not recommended" (3.2 kHz). LCSC price is $3.39 - the earlier $19.64 was a stale third-party figure |
+| Frame | PCB is the frame; printed canopy with guards | **One-piece ducted frame** (PA11 prototype, PP for production); boards soft-mounted inside; TPU canopy | Crash loads go through the frame, not the PCB. Bitcraze: "we want the motor mount to break instead of the PCB arms" |
+| Protection | 10/15 A fuse, P-FET reverse protection, motor-rail P-FET switch | No fuse (firmware 30 A current limit); no reverse FET - keyed XT30 + JST-XH only (D-035, OQ-10); soft switch on logic rails and ESC driver supply (D-036) | A 37 A full-throttle path makes series fuses and P-FETs lossy and bulky; commercial whoops rely on keyed connectors and ESC current limiting |
+
+## Selected parts (rev B)
+
+| Block | Part | LCSC | Key values read | Risk |
 |---|---|---|---|---|
-| MCU + radio | ESP32-S3-WROOM-1-N8R2 | C2913204 | 8 MB flash, 2 MB quad PSRAM, -40..85 C; 3.0-3.6 V, supply ≥ 0.5 A; Wi-Fi TX peak 355 mA (802.11b, 20.5 dBm); antenna should overhang the board edge or have board cut away beneath it | Uses every GPIO (D-021) |
-| Charger | BQ24074RGTR | C54313 | 4.35-10.2 V input, OVP ~10.5 V; up to 1.5 A charge, I = 890/R_ISET; OUT recommended max 4.5 A | Motors must not use OUT (D-012) |
-| 3.3 V | TPS63802DLAR | C2845237 | 2 A for V_IN ≥ 2.3 V; 11 uA I_Q; ~88-92% at 3.6 V/300-500 mA (graph) | Borderline vs 90% (D-014) |
-| 5 V | TPS61023DRLR | C919459 | 0.5-5.5 V in; 3.7 A valley switch limit; true load disconnect | Max output at 3.0 V in not stated - calculate at G2 |
-| 1.8 V (IMU) | TLV70018DDCR | C79924 | 200 mA, 2-5.5 V in, 31 uA I_Q | Optical-flow core gets a separate 1.9-2.0 V LDO (U5B, chosen at G2) because 1.8 V nominal sits on the PMW3901 1.8-2.1 V lower limit |
-| Camera rails | ME6211C28M5G-N / ME6211C12M5G-N | C53099 / C236672 | CE active high; 450 mA / 300 mA (LCSC listing) | MOQ 10 each |
-| Soft power | LTC2954CTS8-1 | C580652 | 2.7-26.4 V, 6 uA; KILL active low, ignored 400-650 ms after turn-on | **11 in stock, $6.22** |
-| Battery monitor | INA226AIDGSR | C49851 | Bus 0-36 V, shunt ±81.92 mV, 16 addresses | Needs calibration register written before current reads |
-| Expanders (x2) | TCA6408ARGTR | C181499 | Power-up = inputs, high-Z; 0x20/0x21 | Needs external pulls (D-010) |
-| IMU | BMI270 | C2836813 | VDD 1.71-3.6 V, VDDIO 1.2-3.6 V; 970 uA performance mode | 8 kB config upload each boot; chosen over ICM-42688-P on cost |
-| Barometer | BMP390 | C5124834 | 570 uA drone use case; 0x76/0x77; light-sensitive | **Out of stock** (also DPS310, SPL06-001) |
-| Magnetometer | QMC5883P | C2847467 | 2.5-3.6 V; 400 kHz; 0x2C fixed; no copper under/near | Placement constraint (D-008) |
-| ToF x4 | VL53L1CXV0FY/1 | C190004 | 0x29 default; XSHUT each; 16 mA avg / 40 mA peak; min range 4 cm | 4 x $4.39 is a large cost line |
-| Multizone ToF | VL53L5CXV0GC/1 | C3178303 | 0x29 default; LPn; ~84 kB firmware upload; 313 mW at 3.3 V | 1.9 s boot upload at 400 kHz |
-| Optical flow | PMW3901MB-TXQT (conditional) | C43496881 | VDD 1.8-2.1 V, VDDIO 1.8-3.6 V (≥ VDD); 9 mA; 80 mm to infinity; needs LN03-ZSZ lens | **Lens has no confirmed source** (OQ-4); X-ray at JLCPCB |
-| LED data buffer | SN74AHCT1G125DBVR | C7484 | VIH 2.0 V at VCC 4.5-5.5 V; 3.8 ns typ | - |
-| USB ESD | USBLC6-2SC6 | C7519 | 6 V min breakdown, 3.5 pF max, IEC 61000-4-2 8 kV contact | - |
-| Reverse FET, motor switch | DMP2008UFG-7 (x2) | C461052 | -20 V, -14 A, 9.8 mOhm max at -2.5 V ("Advance Information" datasheet) | 600 in stock; alt CSD25402Q3A |
-| N-FETs (x6) | AO3400A | C20917 | 48 mOhm max at 2.5 V; 5.7 A; Vgs(th) ≤ 1.45 V; JLCPCB Basic | - |
-| Flyback (x5) | B5819W SL | C8598 | 1 A, 40 V, 0.6 V; JLCPCB Basic | Re-check average current at G2 |
-| Fuse | Littelfuse 0451015.MRL | C44480 | 15 A, 65 V DC, 2410; melting I2t 97.82 A2s (LCSC listing) | 10 A part rejected (below full-throttle estimate after derating); check I2t vs 4-motor start-up at G2 |
-| USB-C | TYPE-C-31-M-12 | C165948 | 16-pin, 5 A/20 V rating | - |
-| Camera FPC | XUNPU FPC-05F-24PH20 | C2856805 | 24-pin, 0.5 mm, bottom contact, flip lock | Contact side vs module - confirm |
-| Buzzer | MLT-5020 | C94598 | 3 V (2-4 V), 100 mA, 4 kHz; JLCPCB Basic | Needs FET drive |
-| LEDs (x4) | WS2812B-2020 | C965555 | VDD 3.7-5.3 V; VIH 0.7 VDD; 16 mA per colour (test) | Needs 5 V rail (D-015) |
+| MCU + radio | ESP32-S3-WROOM-1-N8R2 | C2913204 | unchanged from rev A | 35 of 36 GPIOs used (GPIO1 spare) |
+| IMU | ICM-42688-P | C1850418 | 1.71-3.6 V, SPI 24 MHz, 0.88 mA, $3.39 | - |
+| Charger | BQ25887RGER | C2761614 | 3.9-6.2 V in, 2 A boost, 93.4 % at 5 V → 7.6 V / 1 A, balancing 400 mA, $5.08 | needs pack balance lead; 698 in stock |
+| 3.3 V | TPS62162DSGR | C40256 | 3-17 V in, 1 A, fixed 3.3 V, $1.29 | 1 A vs ~0.95 A peak - tight |
+| 5 V | TPS62133RGTR | C73973 | 3-17 V in, 3 A, fixed 5 V (per LCSC), $1.69 | confirm suffix in datasheet |
+| Battery monitor | INA226 + 1 mΩ 2 W shunt | C49851, C2924520 | 81.9 A full scale, 2.5 mA LSB | - |
+| Soft switch | LTC2954-1 | C580652 | unchanged | 11 in stock, $6.22 |
+| ESC MCU (x4) | AT32F421G8U7 | C2765098 | AM32 supports AT32F421 (GPL-3.0), $0.76 | package not shown on LCSC page |
+| Gate driver (x4) | FD6288Q (JSMSEMI second source) | C7466367 | 5-20 V supply → runs from 2S; $0.41 | Fortior original 0 in stock; JSMSEMI stock unknown (OQ-9) |
+| ESC FETs (x24) | HL 60N03D | C7471100 | 30 V, 60 A, 4.7 mΩ, PDFN3333, $0.068 | 24 parts = board area; dual-N part would halve it |
+| Reverse protection | **not fitted** (Q1 kept as ALTERNATE) | - | ground-return FETs are bypassed by the balance lead (budgets 4b) | OQ-10: keyed connectors vs high-side ideal-diode controller |
+| ESC driver supply switch | Q4, part TBD | - | switches FD6288Q VCC from VBAT with the soft switch (D-036) | chosen at G2 |
+| Battery connector | XT30PW-M (right angle) | C431092 | 15 A cont / 30 A peak (retailer) | gender must mate the pack; full throttle exceeds peak rating |
+| Motors (x4) | Happymodel EX1103 11000KV | - | 3.8 g; 121.9 g / 9.2 A on 7.4 V (vendor table); $14.99 each | vendor data only |
+| Props (x4) | Gemfan Hurricane 2023 3-blade | - | 2-inch, 1.5 mm T-mount; $3.99 per 4 | designed sacrificial part |
+| Battery | GNB 2S 550 mAh 100C LiHV XT30 | - | 29 g, 12x18x69 mm, JST-XH balance plug; A$13.99 | LAVA alternative discontinued |
+| Everything else | as rev A (sensors, camera, expanders, LEDs, buzzer, USB, ESD) | see BOM | | barometer and flow-lens sourcing still open |
 
-Off-board: 8520 motors (4.5-5.5 g, 1.0 mm shaft, vendor specs vary widely), 55 mm props, GNB 660 mAh 1S HV (15.5 g, 58x18x7.8 mm, PH2.0 lead), BetaFPV ELRS Lite receiver (5 V, 0.46 g), OV2640 24-pin FPC camera module (vendor and pinout TBD).
+## Firmware base for acro (OQ-8)
 
-## Findings that change the brief's assumptions
-
-1. **GPIO count forces a quad-PSRAM module.** Octal modules lose GPIO35-37; the design needs all 36 GPIOs (pin-allocation.md).
-2. **JST-PH 2.0 is rated 2 A per contact** (JST datasheet) against ~4.6-5.6 A hover and ~8-11 A full-throttle estimates (OQ-2).
-3. **No measured 8520 thrust data for 55 mm props was found.** Using the secondhand 33-36 gf (60 mm props) figure, T/W is ~1.6-2.0 at the nominal 71.6 g and ~1.2-1.5 at the 94 g worst case (OQ-3).
-4. **65 mm props do not fit with guards** on a ≤100 mm frame (tip gap 2.2 mm at 95 mm).
-5. **Cost target likely exceeded**: priced lines alone ~$69/drone (OQ-5).
-6. **ELRS receivers and WS2812B-2020 need ~5 V**, so a 5 V boost and a level buffer are added (D-015).
-7. **All three barometer candidates were out of stock** at LCSC on 2026-10-04 (OQ-6).
-8. **esp-drone**: supports ESP32-S3 per its README, targets ESP-IDF `release/v5.0`, has had limited support since Dec 2022, has MPU6050/VL53L1X/PMW3901 drivers but none for BMI270, BMP390, QMC5883P, VL53L5CX, INA226 or camera streaming (OQ-8). **Whether it can fly this sensor set while streaming video is UNCONFIRMED.**
-9. **Camera modules**: OV2640 24-pin FPC modules expect the host to supply AVDD/DVDD (e.g. Espressif ESP32-S3-EYE supplies 2.8 V and 1.5 V from on-board LDOs). Pinout and rails vary by vendor - confirm on the actual module.
+- **esp-drone** (Espressif, GPL-3.0, Crazyflie-derived): good for autonomy and position hold; no brushless/DShot support documented.
+- **esp-fc** (rtlopez): Betaflight-style acro controller for ESP32 with DShot and Betaflight Configurator over MSP; release notes report "esp32-s3 bidir dshot support" but also "ESP32-S2 and ESP32-S3 are not ready yet" for web flashing; listed gyros do not include ICM-42688-P or BMI270; licence UNCONFIRMED.
+- The Python reference controller in `software/microscout_sdk/src/microscout/sim/fc.py` defines the behaviour either base must reach (cascade, modes, flips, safety).
 
 ## Key sources
 
-- ESP32-S3-WROOM-1 datasheet: <https://documentation.espressif.com/esp32-s3-wroom-1_wroom-1u_datasheet_en.pdf>
-- Espressif hardware design guidelines (schematic checklist, PCB layout): <https://docs.espressif.com/projects/esp-hardware-design-guidelines/en/latest/esp32s3/>
-- esp32-camera driver: <https://github.com/espressif/esp32-camera>
-- esp-drone: <https://github.com/espressif/esp-drone>, docs <https://docs.espressif.com/projects/espressif-esp-drone/en/latest/>
-- JST PH datasheet: <https://www.jst-mfg.com/product/pdf/eng/ePH.pdf>
-- ExpressLRS receiver wiring: <https://www.expresslrs.org/quick-start/receivers/wiring-up/>
-- FAA recreational flyers: <https://www.faa.gov/uas/recreational_flyers>; registration: <https://www.faa.gov/uas/getting_started/register_drone>
-- Per-part datasheets: `datasheet_url` column in `bom/drone-bom-g1.csv`; calculation sources S1-S27 at the end of `budgets.md`.
+- EX1103 table: <https://druav.com/en-us/products/happymodel-ex1103-brushless-motor> · Mobula8: <https://www.getfpv.com/micro-quadcopters/micro-rtf-bnf/happymodel-mobula8-1-2s-85mm-analog-drone.html>
+- Betaflight supported sensors: <https://betaflight.com/docs/wiki/guides/current/Supported-Sensors> · rates: <https://betaflight.com/docs/wiki/guides/current/Rate-Calculator>
+- AM32: <https://github.com/am32-firmware/AM32> · OpenESC 30x30 (AM32, CERN-OHL-S-2.0): <https://hub.allspice.io/AllSpiceMirrors/incutec-OpenESC-30x30>
+- BQ25887: <https://www.ti.com/product/BQ25887> · TPS62162: <https://www.ti.com/product/TPS62162> · TPS62133: <https://www.ti.com/product/TPS62133>
+- esp-fc releases: <https://github.com/rtlopez/esp-fc/releases> · ESP-IDF RMT (DShot example): <https://docs.espressif.com/projects/esp-idf/en/v5.1.4/esp32s3/api-reference/peripherals/rmt.html>
+- Bitcraze on arm breakage: <https://forum.bitcraze.io/viewtopic.php?p=664> · PP whoop frames: <https://www.getfpv.com/betafpv-meteor75-pro-brushless-whoop-frame-black.html>
+- Materials: HP PA11 <https://3dprinting.com/wp-content/uploads/2019/02/HP-PA-11-TDS-4AA7-0715ENE.pdf>, Bambu TPU 95A <https://polyalkemi.no/wp-content/uploads/2023/06/Bambu_TPU_95A_Technical_Data_Sheet.pdf>
+- Every number in the budgets: sources S1-S28 at the end of `budgets.md`.
