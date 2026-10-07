@@ -19,3 +19,11 @@ gh api -X POST repos/Normansrule/microscout/pages \
 After a minute or two the explorer is at https://normansrule.github.io/microscout/. If step 2 says Pages already exists, it is already on. Check with `gh repo view Normansrule/microscout --json visibility` and `gh api repos/Normansrule/microscout/pages`.
 
 Things that become public with the repo: every file and the full git history, including commit author names and email addresses.
+
+## Rev A tag
+
+The G1 review files refer to the superseded rev A design at git tag `g1-rev-a`. The agent's session could not push tags, so create it once from a clone:
+
+```bash
+git fetch origin && git tag g1-rev-a 01358cd && git push origin g1-rev-a
+```
