@@ -21,7 +21,9 @@ The human must verify each item. The agent restates the relevant items at every 
 - [ ] Whether esp-drone supports this exact sensor set and simultaneous camera streaming on ESP32-S3 without modification. Treat as UNCONFIRMED until bench-tested.
 - [ ] Regulatory compliance (FAA or local aviation rules, radio rules), battery safety certification, and license compatibility across reused code and CAD files. The agent drafts guidance only.
 
-## G1 rev B - Architecture and parts (package: `review/G1/`) - AWAITING REVIEW
+## G1 rev B - Architecture and parts (package: `review/G1/`) - APPROVED BY THE OWNER 2026-10-07 (D-044)
+
+The owner approved the package and the agent's recommendation for every open question. The boxes below are left for the owner to tick as items are actually checked.
 
 Rev A (brushed, 1S) is superseded; its checklist is in git tag `g1-rev-a`. Only the owner ticks boxes.
 
@@ -67,13 +69,17 @@ Open questions (`review/G1/README.md`) - reply with a decision for each
 - [ ] OQ-1 toolchain  - [ ] OQ-2 battery/connector  - [ ] OQ-3 frame fabrication  - [ ] OQ-4 optical flow  - [ ] OQ-5 cost  - [ ] OQ-6 barometer
 - [ ] OQ-7 repo public + Pages (commands given)  - [ ] OQ-8 firmware base  - [ ] OQ-9 ESC board  - [ ] OQ-10 reverse polarity  - [ ] OQ-11 weight  - [ ] OQ-12 brief changes
 
-## G2 - Schematic (package: `review/G2/`) - NOT STARTED
-- [ ] PDF of all sheets (`kicad-cli sch export pdf`) reviewed
-- [ ] ERC report clean, every waiver justified
-- [ ] Net list reviewed
-- [ ] Each power and charger circuit matches its datasheet reference design (comparison table)
-- [ ] Pull-up and strapping summary checked
-- [ ] ESD and protection summary checked
+## G2 - Schematic (package: `review/G2/`) - AWAITING REVIEW
+- [ ] PDF of all sheets (`kicad-cli sch export pdf`) reviewed: `review/G2/schematics/` (FC, ESC, ToF side, ToF front)
+- [ ] ERC: `review/G2/check-*.md` (agent checks: 0 errors, netlists identical) **and KiCad's own ERC run in KiCad 8/9** - every waiver justified
+- [ ] Net lists reviewed (`review/G2/netlists/`)
+- [ ] Each power and charger circuit matches its datasheet reference design (`review/G2/reference-designs.md`), including every listed deviation
+- [ ] Pull-up and strapping summary checked (`review/G2/pullups-straps.md`)
+- [ ] ESD and protection summary checked (`review/G2/protection.md`), including the residual risks (no fuse, no reverse protection, no pack thermistor)
+- [ ] Power-on matrix understood: battery only, USB only, both (D-046, D-053, D-055)
+- [ ] AM32 pin map (`OPENESC_20_F421`) and FD6288Q wiring checked against the AT32F421 datasheet you hold
+- [ ] Open questions OQ-13 to OQ-18 answered (`review/G2/README.md`)
+- [ ] Costed BOM `bom/drone-bom-g2.csv` reviewed (prices and stock change daily)
 
 ## G3 - PCB layout (package: `review/G3/`) - NOT STARTED
 - [ ] Layer-by-layer exports and 3D renders (top, bottom, angled) reviewed

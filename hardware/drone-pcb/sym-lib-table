@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name "microscout")(type "KiCad")(uri "${KIPRJMOD}/../libraries/microscout.kicad_sym")(options "")(descr "MicroScout project symbols"))
+)

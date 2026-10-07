@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1 (rev B) -->
+<!-- STATUS: DRAFT - UNVERIFIED - requires human review at Gate G2 -->
 <!-- Template for docs/index.html. Edit this file, then run: python3 tools/viz/build_site.py -->
 <!-- Page text and data: CC-BY-SA-4.0. Inline script: SPDX-License-Identifier: MIT -->
 <html lang="en">
@@ -7,7 +7,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MicroScout Design Explorer</title>
-<meta name="description" content="Interactive view of the MicroScout ESP32-S3 micro drone (Gate G1 rev B draft): 3D concept, simulated flights, thrust, hover time, power, cost and pin allocation. Draft, unverified estimates.">
+<meta name="description" content="Interactive view of the MicroScout ESP32-S3 micro drone (Gate G2 schematic draft): 3D concept, simulated flights, thrust, hover time, power, cost and pin allocation. Draft, unverified estimates.">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 <style>
 :root {
@@ -140,7 +140,7 @@ pre.code { background: var(--page); border: 1px solid var(--border); border-radi
 <div class="wrap">
   <header class="top">
     <button class="chip themebtn" id="themeBtn" type="button" aria-label="Toggle light or dark theme">◐ Theme</button>
-    <p class="eyebrow">Open-source micro drone · Gate G1 rev B draft</p>
+    <p class="eyebrow">Open-source micro drone · G1 approved · Gate G2 schematics draft</p>
     <h1>MicroScout design explorer</h1>
     <p class="lede">A 95 mm, 2S brushless ESP32-S3 quadcopter designed to be quick, to flip and to survive crashes: a one-piece ducted nylon frame is meant to protect soft-mounted electronics, and a Python SDK flies it - in a simulator today, on the drone later. This page shows the Gate G1 rev B draft and lets you change the assumptions.</p>
     <div class="banner" role="note">
@@ -148,7 +148,7 @@ pre.code { background: var(--page); border: 1px solid var(--border); border-radi
       <div><strong>Draft, unverified.</strong> No hardware has been built, powered or flown. Every number here is a datasheet value, a vendor claim, an estimate or an assumption, and the design is waiting for review at Gate G1. Sources and formulas are in <a href="https://github.com/Normansrule/microscout/blob/main/review/G1/budgets.md">review/G1/budgets.md</a>.</div>
     </div>
     <nav class="toc" aria-label="Sections">
-      <a href="#model3d">3D concept</a><a href="#use">Fly &amp; program</a><a href="#whatif">What-if calculator</a><a href="#weight">Weight</a><a href="#pins">Pin map</a>
+      <a href="#model3d">3D concept</a><a href="#use">Fly &amp; program</a><a href="#whatif">What-if calculator</a><a href="#weight">Weight</a><a href="#pins">Pin map</a><a href="#schematics">Schematics</a>
       <a href="#power">Power &amp; cost</a><a href="#animations">Animations</a><a href="#figures">Figures</a><a href="#open">Open questions</a>
       <a href="https://github.com/Normansrule/microscout">GitHub repo ↗</a>
     </nav>
@@ -218,7 +218,7 @@ with microscout.connect("sim") as drone:
 
   <section id="whatif" aria-labelledby="h-whatif">
     <h2 id="h-whatif">What-if calculator</h2>
-    <p class="sub">The same hover model as <code>budgets.py</code>. Start values are the G1 estimates; move them to see how much margin each assumption buys. Hover time = capacity × HV derate × usable fraction ÷ (motor current + electronics current).</p>
+    <p class="sub">The same hover model as <code>budgets.py</code>. Start values are the current estimates (G1 model, updated at G2); move them to see how much margin each assumption buys. Hover time = capacity × HV derate × usable fraction ÷ (motor current + electronics current).</p>
     <div class="card">
       <div class="controls" id="controls"></div>
       <div class="btnrow" id="presets"></div>
@@ -237,6 +237,16 @@ with microscout.connect("sim") as drone:
       <div class="bars" id="weightBars"></div>
       <details><summary>Table view</summary><div class="scroll"><table id="weightTable"></table></div></details>
     </div>
+  </section>
+
+  <section id="schematics" aria-labelledby="h-sch">
+    <h2 id="h-sch">Schematics (Gate G2 draft)</h2>
+    <p class="sub">Generated from Python (<code>tools/sch</code>) as KiCad 7 files: flight controller (4 sheets), 4-in-1 ESC (5 sheets) and the ToF satellite boards. The agent's checks report 0 errors and KiCad netlists identical to the source; KiCad's own ERC and a human review are still to come. Click a sheet for the full PDF.</p>
+    <div class="grid2">
+      <figure class="card" style="padding:8px"><a href="https://github.com/Normansrule/microscout/blob/main/review/G2/schematics/microscout-fc.pdf"><img src="figures/schematics/microscout-fc-2.png" loading="lazy" style="width:100%;height:auto" alt="Flight-controller power sheet: charger, soft switch, bucks, undervoltage cut-off and ESC driver supply."></a><figcaption>Flight controller - power sheet</figcaption></figure>
+      <figure class="card" style="padding:8px"><a href="https://github.com/Normansrule/microscout/blob/main/review/G2/schematics/microscout-esc.pdf"><img src="figures/schematics/microscout-esc-3.png" loading="lazy" style="width:100%;height:auto" alt="ESC motor 1 sheet: AT32F421 MCU with AM32, FD6288Q gate driver, six MOSFETs and back-EMF dividers."></a><figcaption>ESC - motor 1 (motors 2-4 identical)</figcaption></figure>
+    </div>
+    <p class="sub" style="margin-top:8px"><a href="https://github.com/Normansrule/microscout/blob/main/review/G2/README.md">G2 review package →</a> reference-design comparison, protection summary, pull-ups and strapping, costed BOM.</p>
   </section>
 
   <section id="pins" aria-labelledby="h-pins">
@@ -284,13 +294,13 @@ with microscout.connect("sim") as drone:
   </section>
 
   <section id="open" aria-labelledby="h-open">
-    <h2 id="h-open">Open questions at Gate G1</h2>
+    <h2 id="h-open">Open questions at Gate G2</h2>
     <p class="sub">Decisions the owner makes before the schematic starts. The recommendation is the drafting agent's.</p>
     <div class="oq" id="oqList"></div>
   </section>
 
   <footer>
-    Built by <code>tools/viz/build_site.py</code> from <code>review/G1/calc/budgets.py</code>, <code>bom/drone-bom-g1.csv</code> and <code>review/G1/pin-allocation.csv</code>.
+    Built by <code>tools/viz/build_site.py</code> from <code>review/G1/calc/budgets.py</code>, <code>bom/drone-bom-g2.csv</code> and <code>review/G1/pin-allocation.csv</code>.
     Documentation CC-BY-SA-4.0 · hardware CERN-OHL-S-2.0 · software MIT. Status: DRAFT – UNVERIFIED.
   </footer>
 </div>
@@ -350,21 +360,21 @@ function drawTiles() {
   const cost = G1.cost.reduce((a, c) => a + c.line, 0);
   const twv = tw(s.weight, s);
   const tiles = [
-    ["Takeoff weight", `${fmt(s.weight)} g`, `G1 estimate ${fmt(t.nominal)} g · range ${fmt(t.lo, 0)}–${fmt(t.hi, 0)} g`, s.weight <= 80 ? ["ok", "under 80 g target"] : ["bad", "over 80 g target"]],
+    ["Takeoff weight", `${fmt(s.weight)} g`, `estimate ${fmt(t.nominal)} g · range ${fmt(t.lo, 0)}–${fmt(t.hi, 0)} g`, s.weight <= 85 ? ["ok", "within the ~85 g limit"] : ["bad", "over the ~85 g limit"]],
     ["Thrust-to-weight", fmt(twv, 2), `${s.thrust} g per motor`, twv >= 4 ? ["ok", "≥ 4: flips and fast climbs"] : ["bad", "below the 4 agility target"]],
     ["Hover time", `${fmt(flight(s.weight, s))} min`, `η ${fmt(s.eta)} g/W · ${s.cap} mAh`, null],
-    ["Priced parts", `$${fmt(cost, 2)}`, "per drone, before PCBs, assembly, frame", cost < 75 ? ["ok", "under the $75 target"] : ["bad", "over the $75 target"]],
+    ["Priced parts", `$${fmt(cost, 2)}`, "per drone from the G2 schematics, before PCBs, assembly, frame", cost < 75 ? ["ok", "under the original $75 target"] : ["bad", "over the original $75 target (higher cost accepted, OQ-5)"]],
   ];
   $("#tiles").innerHTML = tiles.map(([l, v, n, st]) => `<div class="tile"><div class="label">${l}</div><div class="value">${v}</div><div class="note">${n}</div>${st ? `<div class="status ${st[0]}">${st[0] === "ok" ? "✓" : "▲"} ${st[1]}</div>` : ""}</div>`).join("");
 }
 
 /* ---------- controls ---------- */
 const CTL = [
-  ["weight", "Takeoff weight", 60, 110, 0.5, "g", "G1 rev B estimate " + fmt(G1.total.nominal) + " g"],
+  ["weight", "Takeoff weight", 60, 110, 0.5, "g", "estimate " + fmt(G1.total.nominal) + " g"],
   ["thrust", "Max thrust per motor", 60, 130, 1, "g", "EX1103 vendor table: 122 g; 85-100 g assumed after ducts and sag"],
   ["eta", "Hover efficiency η", 2, 4.5, 0.1, "g/W", "Estimate 2.5-3.5 g/W (vendor table: 2.19 g/W at 82 g)"],
   ["cap", "Battery capacity (2S)", 300, 700, 10, "mAh", "Selected pack: 550 mAh"],
-  ["elec", "Electronics current", 0.3, 1.2, 0.01, "A", "G1 estimate " + fmt(M.elec_a, 2) + " A at the battery"],
+  ["elec", "Electronics current", 0.3, 1.2, 0.01, "A", "estimate " + fmt(M.elec_a, 2) + " A at the battery"],
 ];
 function buildControls() {
   $("#controls").innerHTML = CTL.map(([k, l, mn, mx, st, u, h]) =>
@@ -376,7 +386,7 @@ function buildControls() {
     out.textContent = `${fmt(state[k], st < 1 ? (st < 0.1 ? 2 : 1) : 0)} ${u}`;
   });
   const presets = [
-    ["G1 nominal", { weight: G1.total.nominal, thrust: 100, eta: 3.0, cap: M.cap, elec: M.elec_a }],
+    ["Nominal", { weight: G1.total.nominal, thrust: 100, eta: 3.0, cap: M.cap, elec: M.elec_a }],
     ["Pessimistic", { weight: G1.total.hi, thrust: 85, eta: 2.5, cap: M.cap, elec: M.elec_a }],
     ["Optimistic", { weight: G1.total.lo, thrust: 122, eta: 3.5, cap: M.cap, elec: M.elec_a }],
     ["450 mAh pack (OQ-11)", { weight: G1.total.nominal - 2.9, thrust: 100, eta: 3.0, cap: 450, elec: M.elec_a }],
@@ -432,7 +442,7 @@ function redrawModel() {
   lineChart($("#chTW"), {
     title: "Thrust-to-weight vs takeoff weight", caption: `T/W = 4 × ${s.thrust} g ÷ weight. Faint lines: the G1 scenarios (${G1.thrust.map((x) => x.gf).join(", ")} g).`,
     x0: 60, x1: 110, y0: 2, y1: 8, xt: [60, 70, 80, 90, 100, 110], yt: [2, 3, 4, 5, 6, 7, 8], xlabel: "takeoff weight (g)",
-    bands: [[t.lo, t.hi, "G1 weight range"]], vlines: [[80, "var(--critical)", "80 g target"]], hlines: [[4, "T/W = 4 agility target"]],
+    bands: [[t.lo, t.hi, "weight range"]], vlines: [[85, "var(--critical)", "~85 g limit"]], hlines: [[4, "T/W = 4 agility target"]],
     legend: [["var(--s1)", "your settings"], ["var(--muted)", "G1 scenarios", true]],
     series: [{ f: (w) => tw(w, s), c: "var(--s1)" }, ...G1.thrust.map((th) => ({ f: (w) => 4 * th.gf / w, c: "var(--muted)", w: 1.2, dash: true, o: 0.8 }))],
     marker: { x: s.weight, y: tw(s.weight, s), c: "var(--s1)", label: fmt(tw(s.weight, s), 2) },
@@ -441,7 +451,7 @@ function redrawModel() {
   lineChart($("#chFT"), {
     title: "Hover time vs takeoff weight", caption: `${s.cap} mAh × ${Math.round(M.derate * 100)}% × ${Math.round(M.usable * 100)}% ÷ (W/η/${M.v_nom} V + ${fmt(s.elec, 2)} A)`,
     x0: 60, x1: 110, y0: 0, y1: 12, xt: [60, 70, 80, 90, 100, 110], yt: [0, 2, 4, 6, 8, 10, 12], xlabel: "takeoff weight (g)",
-    bands: [[t.lo, t.hi, "G1 weight range"]], vlines: [[80, "var(--critical)", "80 g target"]],
+    bands: [[t.lo, t.hi, "weight range"]], vlines: [[85, "var(--critical)", "~85 g limit"]],
     series: [{ f: (w) => flight(w, s), c: "var(--s1)" }],
     marker: { x: s.weight, y: flight(s.weight, s), c: "var(--s1)", label: `${fmt(flight(s.weight, s))} min` },
     tip: (w, v) => `<div class="h">${fmt(w)} g</div><div class="m">${fmt(v)} min · ${fmt(hoverCurrent(w, s), 2)} A from the battery</div>`,

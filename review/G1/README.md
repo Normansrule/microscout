@@ -1,8 +1,8 @@
-> STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1 (rev B)
+> STATUS: DRAFT - UNVERIFIED - G1 rev B approved by the owner 2026-10-07 (D-044); files stay DRAFT until each item is verified
 
 # Gate G1 review package - Architecture and parts (rev B)
 
-Rev B answers the owner's 2026-10-07 direction: **fast, agile enough to flip, durable in crashes, and easy to program and fly.** It replaces the brushed 1S rev A (kept at git tag `g1-rev-a`; changes in `REVISIONS.md`). The agent has **stopped at G1 again**: the schematic (M2) waits for `APPROVED G1` or corrections. Nothing here is built or tested; every number is a datasheet value, vendor claim, estimate or assumption, and is labelled.
+Rev B answers the owner's 2026-10-07 direction: **fast, agile enough to flip, durable in crashes, and easy to program and fly.** It replaces the brushed 1S rev A (kept at git tag `g1-rev-a`; changes in `REVISIONS.md`). **Approved by the owner on 2026-10-07** with the agent's recommendation adopted for every open question below (D-044). The schematic work (M2) is in `review/G2/`. Nothing here is built or tested; every number is a datasheet value, vendor claim, estimate or assumption, and is labelled.
 
 ## Contents
 
@@ -36,7 +36,7 @@ Regenerate: `python3 review/G1/calc/budgets.py && python3 review/G1/calc/check_p
 
 ## Open questions for the owner
 
-| # | Question | Agent recommendation |
+| # | Question | Agent recommendation (adopted 2026-10-07) |
 |---|---|---|
 | OQ-1 | Toolchain: KiCad 9 PPA blocked here (KiCad 7.0.11 available); ESP-IDF/Freerouting need repo access. | Same as rev A. |
 | OQ-2 | **Battery and connector:** 2S 550 mAh (29 g) vs 450 mAh (26 g); XT30 is rated 30 A peak vs ~38 A full-throttle estimate. | 550 mAh + XT30 with the 30 A firmware limit; revisit after measuring real current at G6. |

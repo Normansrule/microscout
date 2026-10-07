@@ -28,7 +28,7 @@ def data():
         rails[key] = dict(eff=eff.value, loads=[dict(name=short_load(n), full=n, peak=round(p, 2), avg=round(a, 2), tag=k, src=s)
                                                 for n, p, a, k, s in rail])
     cost = []
-    for r in read_csv_rows(REPO / "bom" / "drone-bom-g1.csv"):
+    for r in read_csv_rows(REPO / "bom" / "drone-bom-g2.csv"):
         if r["status"] in ("SELECTED", "CONDITIONAL") and r["unit_usd"]:
             cost.append(dict(ref=r["ref"], mpn=r["mpn"], qty=int(r["qty"]), unit=float(r["unit_usd"]),
                              line=round(float(r["unit_usd"]) * int(r["qty"]), 4), fn=r["function"], lcsc=r["lcsc"],
@@ -40,7 +40,7 @@ def data():
         pins.append(dict(gpio=g, pin=int(r["module_pin"]), net=r["net"], fn=r["function"], dir=r["direction"],
                          pull=r["external_pull"], notes=r["boot_or_conflict_notes"], group=gi, strap=g in STRAPPING))
     oq = []
-    for line in (REPO / "review" / "G1" / "README.md").read_text().splitlines():
+    for line in (REPO / "review" / "G2" / "README.md").read_text().splitlines():
         m = re.match(r"\| (OQ-\d+) \| (.+?) \| (.+?) \|$", line)
         if m:
             oq.append(dict(id=m.group(1), q=m.group(2), rec=m.group(3)))

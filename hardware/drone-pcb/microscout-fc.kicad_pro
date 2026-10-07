@@ -1,0 +1,53 @@
+{
+  "board": {
+    "design_settings": {
+      "defaults": {},
+      "diff_pair_dimensions": [],
+      "drc_exclusions": [],
+      "rules": {},
+      "track_widths": [],
+      "via_dimensions": []
+    }
+  },
+  "boards": [],
+  "libraries": {
+    "pinned_footprint_libs": [],
+    "pinned_symbol_libs": []
+  },
+  "meta": {
+    "filename": "microscout-fc.kicad_pro",
+    "version": 1
+  },
+  "net_settings": {
+    "classes": [],
+    "meta": {
+      "version": 0
+    }
+  },
+  "pcbnew": {
+    "page_layout_descr_file": ""
+  },
+  "sheets": [
+    [
+      "458c1c79-593d-5087-a27e-647b81f4f773",
+      ""
+    ],
+    [
+      "bdfee0fe-b571-591e-9b9e-7d542383a33e",
+      "Power"
+    ],
+    [
+      "33de04aa-a131-5623-b62d-f1c538248475",
+      "MCU and USB"
+    ],
+    [
+      "c0b2fcc3-0f7f-5b26-9afa-0b5d8aea3f0c",
+      "Sensors and expanders"
+    ],
+    [
+      "9feb70de-1773-5429-8e74-7d63951782ff",
+      "Camera, LEDs, buzzer, receiver"
+    ]
+  ],
+  "text_variables": {}
+}

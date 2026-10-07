@@ -1,10 +1,10 @@
-> STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1 (rev B)
+> STATUS: DRAFT - UNVERIFIED - requires human review at Gate G2
 
 # MicroScout
 
 An open-source, palm-sized (95 mm motor-to-motor) quadcopter designed to be **quick, agile enough to flip, tough in crashes, and easy to fly and to program**: 2S brushless motors in a one-piece ducted nylon frame, soft-mounted electronics on an ESP32-S3, a camera with Wi-Fi streaming, five time-of-flight sensors plus optical flow, and a Python SDK that flies a simulator today and is meant to fly the real drone later.
 
-> **Project state: Gate G1 rev B (architecture and parts) - drafted, awaiting owner review.** No hardware exists yet. Nothing here has been built, powered, tested or flown. The 3D images are a concept model and the flights are simulations with estimated parameters.
+> **Project state: Gate G2 (schematics) - drafted, awaiting owner review.** G1 (architecture and parts) was approved on 2026-10-07. No hardware exists yet. Nothing here has been built, powered, tested or flown. The 3D images are a concept model, the flights are simulations with estimated parameters, and the schematics have not been checked by a human.
 
 <p align="center"><img src="docs/figures/renders/turntable.gif" width="720" alt="Turntable render of the MicroScout rev B concept: four ducted 2-inch props, an orange TPU canopy, the battery strapped on top. Concept model, not a finished design."></p>
 
@@ -14,7 +14,8 @@ An open-source, palm-sized (95 mm motor-to-motor) quadcopter designed to be **qu
 |---|---|
 | Fly it (modes, safety, crashes) | [docs/guide/fly.md](docs/guide/fly.md) |
 | Program it (Python SDK, simulator, your own PID/LQR) | [docs/guide/program.md](docs/guide/program.md) |
-| Review the design | [review/G1/README.md](review/G1/README.md) and [VERIFY.md](VERIFY.md) |
+| Review the schematics (current gate) | [review/G2/README.md](review/G2/README.md) - PDFs, checks, reference-design tables |
+| Architecture and parts (approved G1) | [review/G1/README.md](review/G1/README.md) and [VERIFY.md](VERIFY.md) |
 | See the 3D concept files | [mechanical/concept/](mechanical/concept/) (STEP, STL, 3MF, GLB) |
 
 ## Try it in 30 seconds (simulator)
@@ -59,9 +60,9 @@ This project is drafted with an AI agent and verified by a human at eight gates 
 - Whether esp-drone supports this exact sensor set and simultaneous camera streaming on ESP32-S3 without modification. Treat as UNCONFIRMED until bench-tested.
 - Regulatory compliance (FAA or local aviation rules, radio rules), battery safety certification, and license compatibility across reused code and CAD files. The agent drafts guidance only.
 
-Known risks found at G1 rev B (details in `review/G1/README.md`): takeoff weight 82 g vs the 80 g target; XT30 peak rating below the full-throttle current (firmware limits to 30 A); priced parts ~$137 vs ~$75; optical-flow lens and barometer stock still open; firmware base for acro undecided.
+Known risks (details in `review/G2/README.md`): takeoff weight ~84.5 g against the ~85 g limit; XT30 peak rating below the full-throttle current (firmware limits to 30 A); priced parts ~$205 per drone (the owner accepted a higher cost); gate-driver stock (OQ-13); no fuse and no reverse-polarity protection - unplug after every flight.
 
-## Draft architecture (G1 rev B)
+## Draft architecture (G1 rev B, approved; schematics at G2)
 
 ![Block diagram](review/G1/block-diagram.svg)
 
@@ -69,12 +70,18 @@ Known risks found at G1 rev B (details in `review/G1/README.md`): takeoff weight
 |---|---|
 | Compute + radio | ESP32-S3-WROOM-1-N8R2 (Wi-Fi + BLE) |
 | Propulsion | 4x EX1103 11000KV brushless, 2-inch 3-blade props in ducts, separate 4-in-1 ESC board (AM32, 4x AT32F421) |
-| Power | 2S 550 mAh LiHV on XT30, BQ25887 USB-C 2S charger with balancing, 3.3 V and 5 V bucks, soft switch for logic, INA226 current monitor |
-| Sensors | ICM-42688-P IMU, BMP390 barometer, QMC5883P magnetometer, 4x VL53L1X + VL53L5CX 8x8 ToF, PMW3901 optical flow |
+| Power | 2S 550 mAh LiHV on XT30, BQ25887 USB-C 2S charger with balancing, 3.3 V and 5 V bucks, soft switch, INA226 current monitor, hardware undervoltage cut-off; USB alone can power the logic for flashing |
+| Sensors | ICM-42688-P IMU, BMP388 barometer, QMC5883P magnetometer, 3x VL53L1X + VL53L5CX 8x8 ToF on satellite boards, Bitcraze Flow deck (optical flow + down ToF) |
 | Camera | OV2640, MJPEG over Wi-Fi |
 | Frame | One-piece ducted PA11 frame (PP for production), TPU canopy and strap, boards on grommets |
 | Control links | ExpressLRS (CRSF), Wi-Fi UDP, BLE, Python SDK |
-| Headline estimates | 82 g · thrust-to-weight 4.1-5.9 · 5-7 min hover · ~1000 °/s rates |
+| Headline estimates | ~84.5 g · thrust-to-weight 4.0-5.8 · 5-7 min hover · ~1000 °/s rates |
+
+## Schematics (G2 draft)
+
+Generated from Python by `tools/sch` (D-051): flight controller (4 sheets), 4-in-1 ESC (5 sheets) and ToF satellites. PDFs in [`review/G2/schematics/`](review/G2/schematics/). The checks show 0 errors and identical KiCad netlists, but KiCad's own ERC (KiCad 8/9) has not been run yet.
+
+[![Flight-controller power sheet](docs/figures/schematics/microscout-fc-2.png)](review/G2/schematics/microscout-fc.pdf)
 
 ## Visual overview
 

@@ -5,7 +5,7 @@
 
 Inputs (single sources of truth):
   review/G1/calc/budgets.py      weight, thrust, power, flight-time model
-  bom/drone-bom-g1.csv           prices
+  bom/drone-bom-g2.csv           prices
   review/G1/pin-allocation.csv   GPIO allocation
 Outputs: docs/figures/<name>-light.svg and <name>-dark.svg
 
@@ -43,7 +43,7 @@ def fig_weight(theme):
     tot, lo_t, hi_t = B.weight_totals()
     rows = sorted(items, key=lambda kv: kv[1].value)
     fig = new_fig(t, 9.6, 7.0)
-    title_block(fig, t, f"Takeoff weight: {tot:.1f} g nominal ({lo_t:.0f}–{hi_t:.0f} g range) against an 80 g target",
+    title_block(fig, t, f"Takeoff weight: {tot:.1f} g nominal ({lo_t:.0f}–{hi_t:.0f} g range) against a ~85 g limit (raised from 80 g, D-044)",
                 "Bars are the nominal value per item; thin lines span the low–high range. Colour shows where the number came from.")
     ax = fig.add_axes([0.27, 0.27, 0.66, 0.56])
     style_axes(ax, t, "x")
@@ -66,8 +66,8 @@ def fig_weight(theme):
     style_axes(ax2, t, "x")
     ax2.barh(0, tot, height=0.5, color=t["series"][0], linewidth=0)
     ax2.plot([lo_t, hi_t], [0, 0], color=t["ink2"], linewidth=1.4)
-    ax2.axvline(80, color=t["warn"], linewidth=1.5)
-    ax2.text(80.8, 0.32, "80 g target", color=t["ink2"], fontsize=8.5, va="center")
+    ax2.axvline(85, color=t["warn"], linewidth=1.5)
+    ax2.text(85.8, 0.32, "~85 g limit", color=t["ink2"], fontsize=8.5, va="center")
     ax2.text(tot / 2, 0, f"{tot:.1f} g", color="#ffffff", fontsize=9, va="center", ha="center", fontweight="bold")
     ax2.set_xlim(0, 110)
     ax2.set_yticks([0], ["Total takeoff weight"], fontsize=9)
@@ -90,8 +90,8 @@ def fig_thrust(theme):
     ax.text(lo_t + 0.6, 7.85, "estimated weight range", ha="left", va="top", fontsize=8.5, color=t["ink2"])
     ax.axvline(tot, color=t["ink2"], linewidth=1)
     ax.text(tot + 0.6, 2.1, f"nominal {tot:.1f} g", fontsize=8.5, color=t["ink2"])
-    ax.axvline(80, color=t["warn"], linewidth=1.3)
-    ax.text(80.6, 2.4, "80 g target", fontsize=8.5, color=t["ink2"])
+    ax.axvline(85, color=t["warn"], linewidth=1.3)
+    ax.text(85.6, 2.4, "~85 g limit", fontsize=8.5, color=t["ink2"])
     ax.axhline(4.0, color=t["muted"], linewidth=1, linestyle=(0, (4, 3)))
     ax.text(60.5, 4.05, "T/W = 4 agility target (R-20)", fontsize=8, color=t["ink2"], va="bottom")
     handles = []
@@ -193,7 +193,7 @@ def fig_power(theme):
 def fig_cost(theme):
     t = THEMES[theme]
     rows = []
-    for r in read_csv_rows(REPO / "bom" / "drone-bom-g1.csv"):
+    for r in read_csv_rows(REPO / "bom" / "drone-bom-g2.csv"):
         if r["status"] in ("SELECTED", "CONDITIONAL") and r["unit_usd"]:
             name = f"{r['ref']}  {r['mpn']}" + (f" ×{r['qty']}" if int(r["qty"]) > 1 else "")
             rows.append((name, float(r["unit_usd"]) * int(r["qty"]), r["ref"]))
@@ -213,7 +213,7 @@ def fig_cost(theme):
     ax.set_yticks(range(len(rows)), [n for n, _, _ in rows], fontsize=8.5)
     ax.set_xlabel("US\\$ per drone")
     ax.set_xlim(0, max(v for _, v, _ in rows) * 1.18)
-    stamp(fig, t, "source: bom/drone-bom-g1.csv")
+    stamp(fig, t, "source: bom/drone-bom-g2.csv")
     return save_svg(fig, "cost-breakdown", theme)
 
 

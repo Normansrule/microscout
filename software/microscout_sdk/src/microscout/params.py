@@ -13,12 +13,12 @@ import math
 
 @dataclass
 class DroneParams:
-    mass_kg: float = 0.0824            # budgets.py takeoff weight (rev B nominal, CAD frame mass)
+    mass_kg: float = 0.0845            # budgets.py takeoff weight (rev B nominal at G2, CAD frame mass)
     motor_to_motor_m: float = 0.095    # diagonal motor-to-motor
     # inertia from budgets.inertia_estimate() (point/slab ESTIMATE incl. battery height)
-    ixx: float = 4.63e-5
-    iyy: float = 5.70e-5
-    izz: float = 8.46e-5
+    ixx: float = 4.67e-5
+    iyy: float = 5.74e-5
+    izz: float = 8.51e-5
     t_max_per_motor_n: float = 0.085 * 9.81   # conservative scenario: 85 g (ASSUMPTION, -30 % vs vendor table)
     motor_tau_s: float = 0.030         # first-order motor/prop response (ASSUMPTION)
     yaw_torque_per_thrust_m: float = 0.012     # prop drag torque / thrust (ASSUMPTION)

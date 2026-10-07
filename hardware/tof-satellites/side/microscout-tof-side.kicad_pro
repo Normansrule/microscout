@@ -1,0 +1,41 @@
+{
+  "board": {
+    "design_settings": {
+      "defaults": {},
+      "diff_pair_dimensions": [],
+      "drc_exclusions": [],
+      "rules": {},
+      "track_widths": [],
+      "via_dimensions": []
+    }
+  },
+  "boards": [],
+  "libraries": {
+    "pinned_footprint_libs": [],
+    "pinned_symbol_libs": []
+  },
+  "meta": {
+    "filename": "microscout-tof-side.kicad_pro",
+    "version": 1
+  },
+  "net_settings": {
+    "classes": [],
+    "meta": {
+      "version": 0
+    }
+  },
+  "pcbnew": {
+    "page_layout_descr_file": ""
+  },
+  "sheets": [
+    [
+      "0743421d-8890-5a49-a460-c76999b50d3d",
+      ""
+    ],
+    [
+      "a7bbe7ba-6f87-5db3-a1f7-39fb6781eb2d",
+      "VL53L1X satellite"
+    ]
+  ],
+  "text_variables": {}
+}

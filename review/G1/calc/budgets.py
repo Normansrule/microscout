@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1 (rev B)
+# STATUS: DRAFT - UNVERIFIED - requires human review at Gate G2 (G1 rev B approved 2026-10-07; updated for the G2 schematics)
 # SPDX-License-Identifier: MIT
 """Gate G1 rev B budgets for MicroScout (2S brushless, ducted durable frame).
 
@@ -70,6 +70,7 @@ SRC = {
     "S26": "HP MJF PA11 datasheet: 1.05 g/cm3, elongation 50 % XY / 35 % Z, Izod 5 kJ/m2 https://3dprinting.com/wp-content/uploads/2019/02/HP-PA-11-TDS-4AA7-0715ENE.pdf ; Bambu TPU 95A: 1.20 g/cm3, elongation >700 % https://polyalkemi.no/wp-content/uploads/2023/06/Bambu_TPU_95A_Technical_Data_Sheet.pdf",
     "S27": "Shunt 1 mOhm 2 W 2512 (HoJLR2512-2W-1mR) https://fat.lcsc.com/product-detail/Current-Sense-Resistors-Shunt-Resistors_Milliohm-HoJLR2512-2W-1mR-1-75ppm_C2924520.html",
     "S29": "FD6288Q gate driver: supply 5.0-20 V, 3.3/5 V logic (LCSC listing) https://lcsc.com/product-detail/Others_Fortior-Tech-FD6288Q_C328453.html",
+    "S30": "Bitcraze Flow deck v2: 21x28x4 mm, 1.6 g, USD 55 (product page and datasheet Rev 1) https://www.bitcraze.io/products/flow-deck-v2/",
     "S28": "Academic collision data: FlexiQuad (405 g) undamaged at 3 and 4.5 m/s frontal hits https://arxiv.org/pdf/2511.05426",
 }
 
@@ -144,7 +145,8 @@ def weight_table():
         ("ESC PCB (bare, 2 oz outer)", V(esc, "g", "ESTIMATE", f"{ESC_BOARD_MM[0]}x{ESC_BOARD_MM[1]} mm", esc * 0.85, esc * 1.2)),
         ("ESC components (4 MCU, 4 drivers, 24 FETs)", V(2.0, "g", "ESTIMATE", "commercial 12 A whoop AIOs weigh 2.7-5.1 g complete", 1.5, 3.0)),
         ("Camera + FPC", V(2.0, "g", "ESTIMATE", "UNCONFIRMED; weigh chosen module", 1.0, 3.0)),
-        ("Side/rear ToF daughter boards + flex", V(1.5, "g", "ESTIMATE", "3 small boards", 1.0, 2.5)),
+        ("ToF satellite boards (3 side + 1 front) + wires", V(2.0, "g", "ESTIMATE", "4 small boards (G2: front sensor moved off the FC, D-052)", 1.3, 3.0)),
+        ("Flow deck v2 (optical flow + down ToF)", V(1.6, "g", "SOURCED", "S30 (G2, D-047)", 1.6, 1.8)),
         ("ELRS receiver", V(0.46, "g", "SOURCED", "S17 (Lite 0.46 g; RP1 2.2 g)", 0.46, 2.2)),
         ("XT30 lead + motor wires", V(2.5, "g", "ESTIMATE", "allowance", 1.5, 3.5)),
         ("Soft-mount grommets + screws", V(1.2, "g", "ESTIMATE", "4 grommets, 4 M2 screws", 0.8, 2.0)),
@@ -170,14 +172,13 @@ RATE_TARGET_DPS = 1000         # S20 freestyle range 850-1200 deg/s
 RAIL33 = [
     ("ESP32-S3 module (Wi-Fi TX 802.11b 20.5 dBm peak)", 355, 200, "SOURCED peak / ESTIMATE avg", "S1 peak; average while streaming UNCONFIRMED - measure at G6"),
     ("ICM-42688-P IMU (6-axis low-noise)", 0.88, 0.88, "SOURCED", "S2"),
-    ("BMP390 (drone use case)", 0.57, 0.57, "SOURCED", "S3"),
+    ("BMP388 barometer (BMP390 drone-use-case figure)", 0.57, 0.57, "SOURCED", "S3; BMP388 fitted at G2 (D-045) - current UNCONFIRMED"),
     ("QMC5883P (high-power mode 100 Hz)", 0.6, 0.6, "SOURCED", "S4"),
-    ("4x VL53L1X (16 mA avg, 40 mA peak each)", 160, 64, "SOURCED", "S5"),
+    ("4x VL53L1X: 3 satellites + Flow deck (16 mA avg, 40 mA peak each)", 160, 64, "SOURCED", "S5"),
     ("VL53L5CX (313 mW at 3.3 V AVDD/IOVDD)", 313 / 3.3, 313 / 3.3, "SOURCED + CALC", "S6; I = P/V"),
-    ("PMW3901 run mode (via 1.9 V LDO)", 9, 9, "SOURCED", "S7"),
+    ("PMW3901 run mode (on the Flow deck, deck regulators)", 9, 9, "SOURCED", "S7"),
     ("INA226", 0.33, 0.33, "SOURCED", "S8"),
     ("OV2640 (140 mW compressed) via 2.8 V/1.2 V LDOs", 140 / 1.2, 140 / 1.2, "SOURCED + ESTIMATE", "S9; worst case I = 140 mW / 1.2 V"),
-    ("4x AT32F421 ESC MCUs", 80, 60, "ESTIMATE", "UNCONFIRMED - no datasheet current read yet; 15-20 mA each assumed"),
     ("Buzzer MLT-5020 (intermittent)", 100, 0, "SOURCED", "S11; excluded from average"),
 ]
 LED_MAX_MA = 4 * 3 * 16
@@ -185,7 +186,11 @@ RAIL5 = [
     ("4x WS2812B-2020 at full white", LED_MAX_MA, 50, "SOURCED peak basis / ESTIMATE avg", "S10: 16 mA per colour -> 3 x 16 mA per LED (CALC); dim status average (ESTIMATE)"),
     ("ELRS receiver", 100, 100, "ESTIMATE", "UNCONFIRMED placeholder"),
 ]
+RAILESC = [   # ESC board's own TPS62162 from VDRV since G2 (D-048)
+    ("4x AT32F421 ESC MCUs", 80, 60, "ESTIMATE", "UNCONFIRMED - no datasheet current read yet; 15-20 mA each assumed"),
+]
 EFF33 = V(0.85, "-", "ESTIMATE", "TPS62162 7.4 V -> 3.3 V at ~0.5 A; datasheet curve not read (S12)")
+EFFBOOST = V(0.85, "-", "ESTIMATE", "MT3608 boost VBAT -> 9.6 V VDRV at ~50 mA (G2, D-054); curve not read")
 EFF5 = V(0.88, "-", "ESTIMATE", "TPS62133 7.4 V -> 5 V at 0.1-0.3 A; datasheet curve not read (S13)")
 
 
@@ -197,8 +202,9 @@ def rail_totals(rail):
 
 def electronics_battery_current_a():
     _, av33 = rail_totals(RAIL33)
+    _, aves = rail_totals(RAILESC)
     _, av5 = rail_totals(RAIL5)
-    p = 3.3 * av33 / 1000 / EFF33.value + 5.0 * av5 / 1000 / EFF5.value
+    p = 3.3 * av33 / 1000 / EFF33.value + 3.3 * aves / 1000 / (EFF33.value * EFFBOOST.value) + 5.0 * av5 / 1000 / EFF5.value
     return p / V_NOM.value
 
 
@@ -266,9 +272,12 @@ def top_speed_estimate(weight_g, t_motor_g, cda=0.010, v_pitch=59.0, rho=1.225):
 def main():
     L = []
     w = L.append
-    w("STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1 (rev B)")
+    w("STATUS: DRAFT - UNVERIFIED - requires human review at Gate G2 (G1 rev B approved 2026-10-07)")
     w("")
-    w("# G1 rev B budgets (generated by `review/G1/calc/budgets.py` - do not hand-edit)")
+    w("# Budgets - G1 rev B, updated for the G2 schematics (generated by `review/G1/calc/budgets.py` - do not hand-edit)")
+    w("")
+    w("G2 changes: Flow deck v2 and four ToF satellite boards added to the weight; ESC MCUs moved to the ESC board's own 3.3 V regulator (D-048); "
+      "parts cost now read from `bom/drone-bom-g2.csv`, which is generated from the schematics. The G1-approved numbers are in git history (commit 1ea3e59).")
     w("")
     w("Rev B is the 2S brushless, ducted-frame redesign for agility (flips), speed and crash survival. Rev A (brushed, 1S, PCB-as-frame) is at git tag `g1-rev-a`. "
       "Tags: **SOURCED** = read from the cited page; **ESTIMATE** = engineering estimate (method given); **ASSUMPTION** = design choice or generic constant. Nothing here is measured.")
@@ -330,7 +339,10 @@ def main():
     pk, av = rail_totals(RAIL33)
     w(f"| **Total 3.3 V** | **{pk:.0f}** | **{av:.0f}** | CALC | sum |")
     w("")
-    w(f"TPS62162 is rated 1 A (S12): margin over peak = 1000 / {pk:.0f} = {1000/pk:.2f}x. Tight - G2 checks the datasheet curve and may move the ESC MCUs to their own LDO.")
+    w(f"TPS62162 is rated 1 A (S12): margin over peak = 1000 / {pk:.0f} = {1000/pk:.2f}x. The ESC MCUs moved to the ESC board's own TPS62162 at G2 (D-048):")
+    pke, ave = rail_totals(RAILESC)
+    w("")
+    w(f"| ESC board 3.3 V | {pke:.0f} | {ave:.0f} | ESTIMATE | {RAILESC[0][4]} |")
     w("")
     w("### 3b. 5 V rail (TPS62133 buck from 2S)")
     w("")
@@ -342,7 +354,7 @@ def main():
     w(f"| **Total 5 V** | **{pk5:.0f}** | **{av5:.0f}** | CALC | sum |")
     w("")
     elec = electronics_battery_current_a()
-    w(f"Electronics at the battery: (3.3 x {av:.0f} mA / {EFF33.value} + 5 x {av5:.0f} mA / {EFF5.value}) / {V_NOM.value} V = **{elec*1000:.0f} mA**.")
+    w(f"Electronics at the battery: (3.3 x {av:.0f} mA / {EFF33.value} + 3.3 x {ave:.0f} mA / ({EFF33.value} x {EFFBOOST.value} boost) + 5 x {av5:.0f} mA / {EFF5.value}) / {V_NOM.value} V = **{elec*1000:.0f} mA**.")
     w("")
     w("### 3c. Hover current and hover time")
     w("")
@@ -360,7 +372,7 @@ def main():
     w("")
     w("### 3d. Peak current")
     w("")
-    ipk = 4 * I_MAX_TABLE_A + (pk / 1000 * 3.3 / EFF33.value + pk5 / 1000 * 5 / EFF5.value) / 6.0
+    ipk = 4 * I_MAX_TABLE_A + (pk / 1000 * 3.3 / EFF33.value + pke / 1000 * 3.3 / (EFF33.value * EFFBOOST.value) + pk5 / 1000 * 5 / EFF5.value) / 6.0
     w(f"I_peak = 4 x {I_MAX_TABLE_A} A (S15 full throttle) + electronics at a sagged 6.0 V = **{ipk:.1f} A**. "
       f"XT30 is rated 15 A continuous / 30 A peak (S23): full-throttle bursts exceed the peak rating, so firmware limits motor output to keep battery current <= 30 A "
       f"(DR-06), and the connector choice stays an open question (OQ-2). Hover ({hover_total_current_a(tot, 3.0):.1f} A) is well inside the 15 A continuous rating; sustained hard acro "
@@ -381,8 +393,9 @@ def main():
     r_fet = 0.0047
     i_m = I_MAX_TABLE_A
     w(f"**4c. ESC conduction loss per channel.** Two FETs conduct at a time: P = I^2 x 2R = {i_m}^2 x 2 x 4.7 mOhm = {i_m**2*2*r_fet:.2f} W peak per channel "
-      "(switching loss checked at G2). FD6288Q-class drivers need a 5-20 V supply (S29): their supply comes from VBAT through a small switch (Q4, part TBD) enabled by the logic "
-      "soft switch (D-036), so drivers are unpowered when the drone is off.")
+      "(switching loss checked at G6). FD6288Q drivers need a 5-20 V supply (S29): at G2 their supply VDRV comes from VBAT through the TPS22810 switch (U24, enabled by the logic "
+      "soft switch, D-036) and an MT3608 boost to 9.6 V (U25, D-054), so drivers are unpowered when the drone is off and keep margin above their 5 V UVLO when the pack sags. "
+      "With 10 V-class gate drive the 4.7 mOhm (typ) figure applies; 6 mOhm max gives 1.0 W.")
     w("")
     w(f"**4d. Charger (S21).** BQ25887 boosts 5 V USB to the 2S pack and balances cells (needs the pack's JST-XH balance lead). At 0.5C = {CAP_MAH.value/2:.0f} mA into 7.6 V "
       f"the USB draw is 7.6 x {CAP_MAH.value/2/1000:.3f} / (0.934 x 5.0) = {7.6*CAP_MAH.value/2/1000/(0.934*5):.2f} A - inside the 0.5 A any USB port supplies, so the input limit "
@@ -413,9 +426,9 @@ def main():
       "faster crashes may break replaceable parts. An academic 405 g quad survived 4.5 m/s frontal hits undamaged (S28) - different scale, for orientation only.")
     w("")
 
-    w("## 6. Parts cost (per drone, from bom/drone-bom-g1.csv)")
+    w("## 6. Parts cost (per drone, from bom/drone-bom-g2.csv)")
     w("")
-    rows = [l for l in (REPO / "bom" / "drone-bom-g1.csv").read_text().splitlines() if not l.startswith("#")]
+    rows = [l for l in (REPO / "bom" / "drone-bom-g2.csv").read_text().splitlines() if not l.startswith("#")]
     known, missing = 0.0, []
     w("| Ref | Part | Qty | Unit USD | Line USD |")
     w("|---|---|---:|---:|---:|")
@@ -434,7 +447,8 @@ def main():
     w(f"Prices: LCSC/vendor pages seen 2026-10-04 to 2026-10-07 at the break covering five drones (BOM `price_break` column); no shipping or tariffs. "
       f"Not priced (UNCONFIRMED): {'; '.join(missing)}; plus passives, PCBs, assembly and the printed frame.")
     w("")
-    w(f"**Finding:** brushless 2S costs more - priced lines are ${known:.0f} per drone, above the ~$75 target before PCBs and assembly (OQ-5).")
+    w(f"**Finding:** priced lines are ${known:.0f} per drone at G2 (G1: $137), before PCBs and assembly. The owner accepted a higher cost than the ~$75 target (D-044, OQ-5). "
+      "Largest G2 additions: the Bitcraze Flow deck ($55, D-047), the BMP388 and the Fortior FD6288Q drivers, and the ESC passives now that every part is listed.")
     w("")
     w("## Sources")
     w("")

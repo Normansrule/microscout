@@ -7,7 +7,7 @@ Rev B adds the owner's 2026-10-07 direction: **high performance (speed, controls
 | ID | Requirement | Source | Status at G1 rev B | Verify at |
 |---|---|---|---|---|
 | R-01 | Quadcopter, ~90-100 mm motor-to-motor | brief 3 | 95 mm, ducted (overall ~126 mm across the ducts) | G3, G5 |
-| R-02 | Takeoff weight < 80 g (well under 250 g) | brief 3, 13 | Estimate **82.4 g** nominal, 72-98 g range - **over target** (budgets 1, OQ-11) | G5 estimate, human weighs |
+| R-02 | Takeoff weight < 80 g, **raised to ~85 g by the owner** (D-044, OQ-11) | brief 3, 13 | Estimate **82.4 g** nominal at G1, 72-98 g range (budgets 1) | G5 estimate, human weighs |
 | R-03 (rev B) | ~~Main PCB doubles as the frame~~ → one-piece ducted frame carries all crash loads; boards are soft-mounted inside it | brief 3 + owner (durability) | Concept CAD in `mechanical/concept/` (D-030) | G5 |
 | R-04 | Printed canopy with integrated prop guards | brief 3, 6 | Ducts are the prop guards; TPU canopy (D-031) | G5 |
 | R-05 (rev B) | ~~1S, JST-PH 2.0~~ → 2S LiHV 450-550 mAh, XT30, with balance lead | brief 3 + owner (performance) | GNB 2S 550 selected; XT30 peak rating exceeded at full throttle (OQ-2) | G1 decision |
@@ -42,3 +42,7 @@ Derived requirements:
 | DR-05 | 5 V rail for the ELRS receiver and LEDs | Both need ≥ 3.7 V / 5 V |
 | DR-06 (rev B) | Firmware limits battery current to ≤ 30 A | XT30 peak rating vs 37.7 A full-throttle estimate (budgets 3d) |
 | DR-07 (rev B) | Flips only above 1.0 m, and only in a mode the pilot selected | Recovery needs height |
+| DR-08 (G2) | No DShot frames unless the battery is present (INA226 VBUS ≥ 6.0 V) | With USB alone the ESC MCUs are unpowered; 1 k series resistors limit injection (D-055) |
+| DR-09 (G2) | On USB alone, firmware caps the load (Wi-Fi TX power, camera off, LEDs dim) to stay near 500 mA | USB-C sink with Rd only; D-046 |
+| DR-10 (G2) | Unused expander pins (U10 P0/P7, U11 P4/P6/P7) are set as outputs, low, at boot | Floating inputs cause spurious EXP_INT_N interrupts (TCA6408A datasheet Fig. 9-1) |
+| DR-11 (G2) | GPIO48 only ever drives low (open-drain style) | D5 already stops it holding KILL high; keeps the KILL logic simple |

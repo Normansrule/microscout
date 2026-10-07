@@ -1,11 +1,12 @@
-# STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1 (rev B)
-# Runs the simulator test suite and the G1 consistency checks on every push.
+# STATUS: DRAFT - UNVERIFIED - requires human review at Gate G2
+# Runs the simulator tests, the budget/pin consistency checks and the schematic checks on every push.
+# Checks consistency only - not correctness of the design (D-043, D-051).
 name: checks
 on:
   push:
   pull_request:
 jobs:
-  sdk-and-g1:
+  sdk-and-budgets:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,9 +17,21 @@ jobs:
         run: pip install -e "software/microscout_sdk[dev]"
       - name: Simulator tests
         run: cd software/microscout_sdk && pytest -q
-      - name: G1 budget regenerates without changes
+      - name: Budgets regenerate without changes
         run: |
           python3 review/G1/calc/budgets.py
           git diff --exit-code review/G1/budgets.md
       - name: Pin table check
         run: python3 review/G1/calc/check_pins.py
+  schematics:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install KiCad 7 (Ubuntu 24.04 archive)
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends kicad kicad-symbols kicad-footprints
+      - name: Regenerate schematics, ERC + netlist comparison (fails on any error)
+        run: python3 tools/sch/build_all.py
+      - name: Costed BOM regenerates without changes
+        run: |
+          python3 tools/sch/costed_bom.py
+          git diff --exit-code bom/drone-bom-g2.csv

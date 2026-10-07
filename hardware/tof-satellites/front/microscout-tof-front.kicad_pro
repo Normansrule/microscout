@@ -1,0 +1,41 @@
+{
+  "board": {
+    "design_settings": {
+      "defaults": {},
+      "diff_pair_dimensions": [],
+      "drc_exclusions": [],
+      "rules": {},
+      "track_widths": [],
+      "via_dimensions": []
+    }
+  },
+  "boards": [],
+  "libraries": {
+    "pinned_footprint_libs": [],
+    "pinned_symbol_libs": []
+  },
+  "meta": {
+    "filename": "microscout-tof-front.kicad_pro",
+    "version": 1
+  },
+  "net_settings": {
+    "classes": [],
+    "meta": {
+      "version": 0
+    }
+  },
+  "pcbnew": {
+    "page_layout_descr_file": ""
+  },
+  "sheets": [
+    [
+      "cedec251-2e91-51dc-88b0-365fc686bd60",
+      ""
+    ],
+    [
+      "6cd3c956-44f3-53b2-90f0-ecfc041dd844",
+      "VL53L5CX satellite"
+    ]
+  ],
+  "text_variables": {}
+}

@@ -1,0 +1,57 @@
+{
+  "board": {
+    "design_settings": {
+      "defaults": {},
+      "diff_pair_dimensions": [],
+      "drc_exclusions": [],
+      "rules": {},
+      "track_widths": [],
+      "via_dimensions": []
+    }
+  },
+  "boards": [],
+  "libraries": {
+    "pinned_footprint_libs": [],
+    "pinned_symbol_libs": []
+  },
+  "meta": {
+    "filename": "microscout-esc.kicad_pro",
+    "version": 1
+  },
+  "net_settings": {
+    "classes": [],
+    "meta": {
+      "version": 0
+    }
+  },
+  "pcbnew": {
+    "page_layout_descr_file": ""
+  },
+  "sheets": [
+    [
+      "9c44b0fb-5375-540c-8018-d91da8dcdfe6",
+      ""
+    ],
+    [
+      "39d01246-ef37-5752-9a1d-e07d5c16a9d5",
+      "Power and link"
+    ],
+    [
+      "cfe01f49-de8f-565f-89b3-c2d84a199d83",
+      "Motor 1"
+    ],
+    [
+      "f793d6dd-5d8d-5b95-8585-1576b44f5eb7",
+      "Motor 2"
+    ],
+    [
+      "4d559207-0af5-5513-bff6-7a33940aed8f",
+      "Motor 3"
+    ],
+    [
+      "ae256ad8-83c6-5d29-ab16-d8a522b3af26",
+      "Motor 4"
+    ]
+  ],
+  "text_variables": {}
+}
