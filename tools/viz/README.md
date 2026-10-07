@@ -1,16 +1,18 @@
-> STATUS: DRAFT - UNVERIFIED - requires human review at Gate G1 (rev B)
+> STATUS: DRAFT - UNVERIFIED - requires human review at Gate G2
 
 # tools/viz - figures, animations and the design explorer
 
-Everything visual in this repo is generated from the G1 data, so the pictures change when the numbers change (decision D-027). Nothing here is a measurement. The 3D renders come from the concept CAD in `mechanical/concept/` (D-039), not a finished design, and the flights are simulations with estimated parameters.
+Everything visual in this repo is generated from the design data (budget model, BOMs, pin table, schematics), so the pictures change when the numbers change (decision D-027). Nothing here is a measurement. The 3D renders come from the concept CAD in `mechanical/concept/` (D-039), not a finished design, and the flights are simulations with estimated parameters.
 
 | Script | Reads | Writes |
 |---|---|---|
-| `figures.py` | `review/G1/calc/budgets.py`, `bom/drone-bom-g1.csv`, `review/G1/pin-allocation.csv`, the SDK simulator (flip chart) | `docs/figures/<name>-light.svg` and `-dark.svg` (8 charts) |
+| `figures.py` | `review/G1/calc/budgets.py`, `bom/drone-bom-g2.csv`, `review/G1/pin-allocation.csv`, the SDK simulator (flip chart) | `docs/figures/<name>-light.svg` and `-dark.svg` (8 charts) |
 | `animations.py` | `budgets.py` | `docs/figures/anim/*.gif` (concept top view, ToF re-addressing, power-on sequence) |
 | `export_sim.py` | the SDK simulator | `docs/data/sim_flip.json`, `docs/data/sim_demo.json` (pose tracks) |
 | `render3d/render.py` | `mechanical/concept/out/microscout_concept.glb`, `docs/viewer/scene.js`, `docs/data/sim_flip.json` | `docs/figures/renders/*.png`, `turntable.gif`, `sim-backflip.gif` |
-| `build_site.py` | the same data + `site_template.html` + the open questions in `review/G1/README.md` | `docs/index.html` (GitHub Pages explorer with the 3D viewer) |
+| `banner.py` | `budgets.py`, `renders/hero-cutout.png` (from `render3d/render.py --banner`) | `docs/figures/banner-*.png`, `roadmap-*.png`, `social-preview.png` |
+| `blockdiagram.py` | the template inside the script (G2 architecture) | `docs/figures/block-diagram-*.png`, `review/G2/block-diagram.{dot,svg}` |
+| `build_site.py` | the same data + `site_template.html` + the open questions in `review/G2/README.md` | `docs/index.html` (GitHub Pages explorer with the 3D viewer) |
 
 ## Rebuild (in this order)
 
@@ -24,6 +26,7 @@ python3 tools/viz/export_sim.py
 cd tools/viz && python3 figures.py && python3 animations.py && python3 build_site.py && cd ../..
 (cd tools/viz/render3d && npm install)                # three.js for the renderer
 python3 tools/viz/render3d/render.py                 # set CHROMIUM=/path/to/chrome if Playwright has no browser
+python3 tools/viz/render3d/render.py --banner && python3 tools/viz/banner.py && python3 tools/viz/blockdiagram.py
 ```
 
 ## Conventions

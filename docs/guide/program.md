@@ -2,6 +2,9 @@
 
 # Programming MicroScout
 
+> [!TIP]
+> New machine? [setup-ubuntu.md](../setup-ubuntu.md) has every command from a fresh Ubuntu terminal.
+
 The Python SDK talks to a simulator today and is meant to talk to the real drone over Wi-Fi once the firmware exists (milestone M7) - **same code, different `connect()` string.** The simulator uses estimated parameters from `review/G1/calc/budgets.py`; it shows the control design working in principle, not how the real drone will fly.
 
 ## Install

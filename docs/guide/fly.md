@@ -2,6 +2,9 @@
 
 # Flying MicroScout
 
+> [!WARNING]
+> No MicroScout has been built yet. Everything below can be tried today only in the simulator, and every safety behaviour is bench-checked with the props off at Gate G6 before anyone flies.
+
 This is how MicroScout is **designed** to be flown. There is no hardware yet, so everything below can be tried today only in the simulator (see [program.md](program.md)), and every safety behaviour is checked on the bench with props off at Gate G6 before anyone flies.
 
 ## Three ways to control it

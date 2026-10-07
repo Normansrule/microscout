@@ -2,6 +2,28 @@
 
 # Gate G2 review package - Schematics
 
+<p align="center">
+  <img src="https://img.shields.io/badge/G1-approved%202026--10--07-008300" alt="G1 approved">
+  <img src="https://img.shields.io/badge/G2-awaiting%20review-b07000" alt="G2 awaiting review">
+  <img src="https://img.shields.io/badge/agent%20ERC-0%20errors-2a78d6" alt="Agent ERC 0 errors">
+  <img src="https://img.shields.io/badge/KiCad%20ERC-to%20run%20in%208%2F9-8a8a8a" alt="KiCad ERC still to run">
+</p>
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="../../docs/figures/block-diagram-dark.png">
+    <img src="../../docs/figures/block-diagram-light.png" width="100%" alt="G2 block diagram">
+  </picture>
+</p>
+
+> [!IMPORTANT]
+> **To approve:** reply `APPROVED G2`, or send corrections and answers to OQ-13 to OQ-18 below. To run KiCad's own ERC from a fresh Ubuntu terminal, follow [docs/setup-ubuntu.md](../../docs/setup-ubuntu.md#6-regenerate-the-schematics-and-run-kicads-own-erc-g2-checklist), step 6.
+
+| Flight controller | 4-in-1 ESC | ToF satellites |
+|---|---|---|
+| <a href="schematics/microscout-fc.pdf"><img src="../../docs/figures/schematics/microscout-fc-2.png" alt="FC power sheet"></a> | <a href="schematics/microscout-esc.pdf"><img src="../../docs/figures/schematics/microscout-esc-3.png" alt="ESC motor 1 sheet"></a> | <a href="schematics/microscout-tof-front.pdf"><img src="../../docs/figures/schematics/microscout-tof-front-2.png" alt="ToF front satellite"></a> |
+| [PDF, 4 sheets](schematics/microscout-fc.pdf) | [PDF, 5 sheets](schematics/microscout-esc.pdf) | [front](schematics/microscout-tof-front.pdf) · [side](schematics/microscout-tof-side.pdf) |
+
 G1 rev B was approved on 2026-10-07 (D-044), and milestone M2 is drafted.
 
 The agent has **stopped at G2**. The PCB layout (M3) waits for `APPROVED G2` or corrections.

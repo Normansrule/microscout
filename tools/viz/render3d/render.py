@@ -63,12 +63,12 @@ async def main():
             kw["executable_path"] = exe
         b = await p.chromium.launch(**kw)
 
-        async def page(w, h, bg="#eef0f2"):
+        async def page(w, h, bg="#eef0f2", transparent=False):
             pg = await b.new_page(viewport={"width": w, "height": h})
             errs = []
             pg.on("pageerror", lambda e: errs.append(str(e)))
             pg.on("console", lambda m: errs.append(m.text) if m.type == "error" else None)
-            await pg.goto(f"{base}?w={w}&h={h}&bg={bg.replace('#', '%23')}")
+            await pg.goto(f"{base}?w={w}&h={h}&bg={bg.replace('#', '%23')}" + ("&t=1" if transparent else ""))
             await pg.wait_for_function("window.ready === true", timeout=120000)
             if errs:
                 print("page errors:", errs)
@@ -79,6 +79,17 @@ async def main():
             png = await (await pg.query_selector("#c")).screenshot()
             return Image.open(io.BytesIO(png)).convert("RGB")
 
+        if "--banner" in sys.argv:      # transparent cut-out of the hero view for the README banner
+            pgt = await page(1400, 900, transparent=True)
+            await pgt.evaluate("o => window.renderView(o)", dict(view="hero", dist=300, prop=0.4))
+            png = await (await pgt.query_selector("#c")).screenshot(omit_background=True)
+            img = Image.open(io.BytesIO(png)).convert("RGBA")
+            img = img.crop(img.getbbox())
+            img.save(OUT / "hero-cutout.png", optimize=True)
+            print("wrote", (OUT / "hero-cutout.png").relative_to(REPO), img.size)
+            await b.close()
+            srv.shutdown()
+            return
         only_flip = "--flip-only" in sys.argv
         pg = await page(1600, 1000)
         stills = [] if only_flip else [

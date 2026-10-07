@@ -10,9 +10,10 @@ import { createViewer } from "/docs/viewer/scene.js";
 const q = new URLSearchParams(location.search);
 const W = +(q.get("w") || 1600), H = +(q.get("h") || 1000);
 const canvas = document.getElementById("c");
+if (q.get("t") === "1") { document.documentElement.style.background = "transparent"; document.body.style.background = "transparent"; }
 canvas.style.width = W + "px"; canvas.style.height = H + "px";
 const v = await createViewer(canvas, { glbUrl: "/mechanical/concept/out/microscout_concept.glb", pixelRatio: 1,
-  background: q.get("bg") || "#eef0f2", fov: 28 });
+  background: q.get("bg") || "#eef0f2", transparent: q.get("t") === "1", fov: 28 });
 v.resize(W, H);
 window.v = v;
 window.renderView = async (o) => {
