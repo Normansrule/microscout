@@ -3,32 +3,41 @@
   (generator microscout_customsyms)
   (symbol "VBAT"
     (power)
-    (pin_names (offset 0))
+    (pin_numbers (hide yes))
+    (pin_names
+      (offset 0)
+      (hide yes))
+    (exclude_from_sim no)
     (in_bom yes)
     (on_board yes)
     (property "Reference" "#PWR"
       (at 0 -3.81 0)
       (effects
-        (font (size 1.27 1.27)) hide))
+        (font (size 1.27 1.27))
+        (hide yes)))
     (property "Value" "VBAT"
       (at 0 3.556 0)
       (effects (font (size 1.27 1.27))))
     (property "Footprint" ""
       (at 0 0 0)
       (effects
-        (font (size 1.27 1.27)) hide))
+        (font (size 1.27 1.27))
+        (hide yes)))
     (property "Datasheet" ""
       (at 0 0 0)
       (effects
-        (font (size 1.27 1.27)) hide))
+        (font (size 1.27 1.27))
+        (hide yes)))
+    (property "Description" "Power symbol creates a global label with name \"+3V3\""
+      (at 0 0 0)
+      (effects
+        (font (size 1.27 1.27))
+        (hide yes)))
     (property "ki_keywords" "global power"
       (at 0 0 0)
       (effects
-        (font (size 1.27 1.27)) hide))
-    (property "ki_description" "Power symbol creates a global label with name \"VBAT\""
-      (at 0 0 0)
-      (effects
-        (font (size 1.27 1.27)) hide))
+        (font (size 1.27 1.27))
+        (hide yes)))
     (symbol "VBAT_0_1"
       (polyline
         (pts
@@ -40,16 +49,16 @@
         (fill (type none)))
       (polyline
         (pts
-          (xy 0 0)
-          (xy 0 2.54))
+          (xy 0 2.54)
+          (xy 0.762 1.27))
         (stroke
           (width 0)
           (type default))
         (fill (type none)))
       (polyline
         (pts
-          (xy 0 2.54)
-          (xy 0.762 1.27))
+          (xy 0 0)
+          (xy 0 2.54))
         (stroke
           (width 0)
           (type default))
@@ -57,39 +66,49 @@
     (symbol "VBAT_1_1"
       (pin power_in line
         (at 0 0 90)
-        (length 0) hide
+        (length 0)
         (name "VBAT"
           (effects (font (size 1.27 1.27))))
         (number "1"
-          (effects (font (size 1.27 1.27)))))))
+          (effects (font (size 1.27 1.27))))))
+    (embedded_fonts no))
   (symbol "VLOGIC"
     (power)
-    (pin_names (offset 0))
+    (pin_numbers (hide yes))
+    (pin_names
+      (offset 0)
+      (hide yes))
+    (exclude_from_sim no)
     (in_bom yes)
     (on_board yes)
     (property "Reference" "#PWR"
       (at 0 -3.81 0)
       (effects
-        (font (size 1.27 1.27)) hide))
+        (font (size 1.27 1.27))
+        (hide yes)))
     (property "Value" "VLOGIC"
       (at 0 3.556 0)
       (effects (font (size 1.27 1.27))))
     (property "Footprint" ""
       (at 0 0 0)
       (effects
-        (font (size 1.27 1.27)) hide))
+        (font (size 1.27 1.27))
+        (hide yes)))
     (property "Datasheet" ""
       (at 0 0 0)
       (effects
-        (font (size 1.27 1.27)) hide))
+        (font (size 1.27 1.27))
+        (hide yes)))
+    (property "Description" "Power symbol creates a global label with name \"+3V3\""
+      (at 0 0 0)
+      (effects
+        (font (size 1.27 1.27))
+        (hide yes)))
     (property "ki_keywords" "global power"
       (at 0 0 0)
       (effects
-        (font (size 1.27 1.27)) hide))
-    (property "ki_description" "Power symbol creates a global label with name \"VLOGIC\""
-      (at 0 0 0)
-      (effects
-        (font (size 1.27 1.27)) hide))
+        (font (size 1.27 1.27))
+        (hide yes)))
     (symbol "VLOGIC_0_1"
       (polyline
         (pts
@@ -101,16 +120,16 @@
         (fill (type none)))
       (polyline
         (pts
-          (xy 0 0)
-          (xy 0 2.54))
+          (xy 0 2.54)
+          (xy 0.762 1.27))
         (stroke
           (width 0)
           (type default))
         (fill (type none)))
       (polyline
         (pts
-          (xy 0 2.54)
-          (xy 0.762 1.27))
+          (xy 0 0)
+          (xy 0 2.54))
         (stroke
           (width 0)
           (type default))
@@ -118,39 +137,49 @@
     (symbol "VLOGIC_1_1"
       (pin power_in line
         (at 0 0 90)
-        (length 0) hide
+        (length 0)
         (name "VLOGIC"
           (effects (font (size 1.27 1.27))))
         (number "1"
-          (effects (font (size 1.27 1.27)))))))
+          (effects (font (size 1.27 1.27))))))
+    (embedded_fonts no))
   (symbol "VDRV"
     (power)
-    (pin_names (offset 0))
+    (pin_numbers (hide yes))
+    (pin_names
+      (offset 0)
+      (hide yes))
+    (exclude_from_sim no)
     (in_bom yes)
     (on_board yes)
     (property "Reference" "#PWR"
       (at 0 -3.81 0)
       (effects
-        (font (size 1.27 1.27)) hide))
+        (font (size 1.27 1.27))
+        (hide yes)))
     (property "Value" "VDRV"
       (at 0 3.556 0)
       (effects (font (size 1.27 1.27))))
     (property "Footprint" ""
       (at 0 0 0)
       (effects
-        (font (size 1.27 1.27)) hide))
+        (font (size 1.27 1.27))
+        (hide yes)))
     (property "Datasheet" ""
       (at 0 0 0)
       (effects
-        (font (size 1.27 1.27)) hide))
+        (font (size 1.27 1.27))
+        (hide yes)))
+    (property "Description" "Power symbol creates a global label with name \"+3V3\""
+      (at 0 0 0)
+      (effects
+        (font (size 1.27 1.27))
+        (hide yes)))
     (property "ki_keywords" "global power"
       (at 0 0 0)
       (effects
-        (font (size 1.27 1.27)) hide))
-    (property "ki_description" "Power symbol creates a global label with name \"VDRV\""
-      (at 0 0 0)
-      (effects
-        (font (size 1.27 1.27)) hide))
+        (font (size 1.27 1.27))
+        (hide yes)))
     (symbol "VDRV_0_1"
       (polyline
         (pts
@@ -162,16 +191,16 @@
         (fill (type none)))
       (polyline
         (pts
-          (xy 0 0)
-          (xy 0 2.54))
+          (xy 0 2.54)
+          (xy 0.762 1.27))
         (stroke
           (width 0)
           (type default))
         (fill (type none)))
       (polyline
         (pts
-          (xy 0 2.54)
-          (xy 0.762 1.27))
+          (xy 0 0)
+          (xy 0 2.54))
         (stroke
           (width 0)
           (type default))
@@ -179,39 +208,49 @@
     (symbol "VDRV_1_1"
       (pin power_in line
         (at 0 0 90)
-        (length 0) hide
+        (length 0)
         (name "VDRV"
           (effects (font (size 1.27 1.27))))
         (number "1"
-          (effects (font (size 1.27 1.27)))))))
+          (effects (font (size 1.27 1.27))))))
+    (embedded_fonts no))
   (symbol "+3V3_ESC"
     (power)
-    (pin_names (offset 0))
+    (pin_numbers (hide yes))
+    (pin_names
+      (offset 0)
+      (hide yes))
+    (exclude_from_sim no)
     (in_bom yes)
     (on_board yes)
     (property "Reference" "#PWR"
       (at 0 -3.81 0)
       (effects
-        (font (size 1.27 1.27)) hide))
+        (font (size 1.27 1.27))
+        (hide yes)))
     (property "Value" "+3V3_ESC"
       (at 0 3.556 0)
       (effects (font (size 1.27 1.27))))
     (property "Footprint" ""
       (at 0 0 0)
       (effects
-        (font (size 1.27 1.27)) hide))
+        (font (size 1.27 1.27))
+        (hide yes)))
     (property "Datasheet" ""
       (at 0 0 0)
       (effects
-        (font (size 1.27 1.27)) hide))
+        (font (size 1.27 1.27))
+        (hide yes)))
+    (property "Description" "Power symbol creates a global label with name \"+3V3\""
+      (at 0 0 0)
+      (effects
+        (font (size 1.27 1.27))
+        (hide yes)))
     (property "ki_keywords" "global power"
       (at 0 0 0)
       (effects
-        (font (size 1.27 1.27)) hide))
-    (property "ki_description" "Power symbol creates a global label with name \"+3V3_ESC\""
-      (at 0 0 0)
-      (effects
-        (font (size 1.27 1.27)) hide))
+        (font (size 1.27 1.27))
+        (hide yes)))
     (symbol "+3V3_ESC_0_1"
       (polyline
         (pts
@@ -223,16 +262,16 @@
         (fill (type none)))
       (polyline
         (pts
-          (xy 0 0)
-          (xy 0 2.54))
+          (xy 0 2.54)
+          (xy 0.762 1.27))
         (stroke
           (width 0)
           (type default))
         (fill (type none)))
       (polyline
         (pts
-          (xy 0 2.54)
-          (xy 0.762 1.27))
+          (xy 0 0)
+          (xy 0 2.54))
         (stroke
           (width 0)
           (type default))
@@ -240,11 +279,12 @@
     (symbol "+3V3_ESC_1_1"
       (pin power_in line
         (at 0 0 90)
-        (length 0) hide
+        (length 0)
         (name "+3V3_ESC"
           (effects (font (size 1.27 1.27))))
         (number "1"
-          (effects (font (size 1.27 1.27)))))))
+          (effects (font (size 1.27 1.27))))))
+    (embedded_fonts no))
   (symbol "ME6211Cxx"
     (pin_names (offset 1.016))
     (in_bom yes)

@@ -1,0 +1,1225 @@
+ERC report (2026-10-07T19:29:25-0700, Encoding UTF8)
+Report includes: Errors, Warnings, Exclusions
+
+***** Sheet /
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(25.40 mm, 53.34 mm): Symbol #PWR02001 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(33.02 mm, 50.80 mm): Symbol J2 [Conn_01x02]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(38.10 mm, 60.96 mm): Symbol RS1 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(45.72 mm, 60.96 mm): Symbol R1 [R]
+[lib_symbol_mismatch]: Symbol 'VBAT' doesn't match copy in library 'microscout'
+    ; warning
+    @(38.10 mm, 67.31 mm): Symbol #PWR02002 [VBAT]
+[lib_symbol_mismatch]: Symbol 'VBAT' doesn't match copy in library 'microscout'
+    ; warning
+    @(55.88 mm, 54.61 mm): Symbol #PWR02003 [VBAT]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(55.88 mm, 60.96 mm): Symbol R2 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(63.50 mm, 58.42 mm): Symbol C1 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(27.94 mm, 99.06 mm): Symbol #FLG01 [PWR_FLAG]
+[lib_symbol_mismatch]: Symbol 'VBAT' doesn't match copy in library 'microscout'
+    ; warning
+    @(83.82 mm, 63.50 mm): Symbol #PWR02008 [VBAT]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(27.94 mm, 101.60 mm): Symbol #PWR02011 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(17.78 mm, 105.41 mm): Symbol #PWR02009 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(96.52 mm, 55.88 mm): Symbol #PWR02006 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(17.78 mm, 111.76 mm): Symbol C2 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(17.78 mm, 118.11 mm): Symbol #PWR02010 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Sensor_Energy'
+    ; warning
+    @(96.52 mm, 71.12 mm): Symbol U9 [INA226]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(109.22 mm, 63.50 mm): Symbol #PWR02004 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(109.22 mm, 66.04 mm): Symbol #PWR02005 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(96.52 mm, 86.36 mm): Symbol #PWR02007 [GND]
+[lib_symbol_mismatch]: Symbol 'VLOGIC' doesn't match copy in library 'microscout'
+    ; warning
+    @(156.21 mm, 53.34 mm): Symbol #PWR02012 [VLOGIC]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(162.56 mm, 53.34 mm): Symbol D2 [D_Schottky]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(168.91 mm, 53.34 mm): Symbol #PWR02013 [VBUS]
+[lib_symbol_mismatch]: Symbol 'VLOGIC' doesn't match copy in library 'microscout'
+    ; warning
+    @(194.31 mm, 53.34 mm): Symbol #PWR02014 [VLOGIC]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(200.66 mm, 53.34 mm): Symbol D3 [D_Schottky]
+[lib_symbol_mismatch]: Symbol 'VBAT' doesn't match copy in library 'microscout'
+    ; warning
+    @(207.01 mm, 53.34 mm): Symbol #PWR02015 [VBAT]
+[lib_symbol_mismatch]: Symbol 'VBAT' doesn't match copy in library 'microscout'
+    ; warning
+    @(38.10 mm, 210.82 mm): Symbol #PWR02052 [VBAT]
+[lib_symbol_mismatch]: Symbol 'VBAT' doesn't match copy in library 'microscout'
+    ; warning
+    @(63.50 mm, 212.09 mm): Symbol #PWR02054 [VBAT]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(25.40 mm, 223.52 mm): Symbol #PWR02051 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(63.50 mm, 218.44 mm): Symbol R16 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(73.66 mm, 215.90 mm): Symbol R17 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(220.98 mm, 57.15 mm): Symbol #PWR02016 [VBUS]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(220.98 mm, 63.50 mm): Symbol R20 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(220.98 mm, 69.85 mm): Symbol #PWR02017 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(86.36 mm, 215.90 mm): Symbol C24 [C]
+[lib_symbol_mismatch]: Symbol 'VBAT' doesn't match copy in library 'microscout'
+    ; warning
+    @(96.52 mm, 212.09 mm): Symbol #PWR02057 [VBAT]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(73.66 mm, 222.25 mm): Symbol #PWR02055 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(86.36 mm, 222.25 mm): Symbol #PWR02056 [GND]
+[lib_symbol_mismatch]: Symbol 'VLOGIC' doesn't match copy in library 'microscout'
+    ; warning
+    @(231.14 mm, 59.69 mm): Symbol #PWR02018 [VLOGIC]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(96.52 mm, 218.44 mm): Symbol C14 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(231.14 mm, 66.04 mm): Symbol C3 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(231.14 mm, 72.39 mm): Symbol #PWR02019 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(38.10 mm, 241.30 mm): Symbol #PWR02053 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(96.52 mm, 224.79 mm): Symbol #PWR02058 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(241.30 mm, 50.80 mm): Symbol #FLG03 [PWR_FLAG]
+[lib_symbol_mismatch]: Symbol 'VLOGIC' doesn't match copy in library 'microscout'
+    ; warning
+    @(241.30 mm, 53.34 mm): Symbol #PWR02020 [VLOGIC]
+[lib_symbol_mismatch]: Symbol 'VLOGIC' doesn't match copy in library 'microscout'
+    ; warning
+    @(154.94 mm, 195.58 mm): Symbol #PWR02060 [VLOGIC]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Transistor_FET'
+    ; warning
+    @(127.00 mm, 220.98 mm): Symbol Q5 [AO3400A]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Regulator_Switching'
+    ; warning
+    @(167.64 mm, 203.20 mm): Symbol U3 [TPS62162DSG]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(180.34 mm, 198.12 mm): Symbol #PWR02063 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(180.34 mm, 200.66 mm): Symbol #PWR02062 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(165.10 mm, 215.90 mm): Symbol #PWR02064 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(167.64 mm, 215.90 mm): Symbol #PWR02059 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(170.18 mm, 215.90 mm): Symbol #PWR02061 [GND]
+[lib_symbol_mismatch]: Symbol 'VLOGIC' doesn't match copy in library 'microscout'
+    ; warning
+    @(195.58 mm, 199.39 mm): Symbol #PWR02065 [VLOGIC]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(274.32 mm, 53.34 mm): Symbol #PWR02021 [VBUS]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(274.32 mm, 60.96 mm): Symbol #PWR02022 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(195.58 mm, 205.74 mm): Symbol C15 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(195.58 mm, 212.09 mm): Symbol #PWR02066 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(205.74 mm, 203.20 mm): Symbol L2 [L]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(266.70 mm, 118.11 mm): Symbol #PWR02031 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(205.74 mm, 209.55 mm): Symbol #PWR02067 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(215.90 mm, 199.39 mm): Symbol #PWR02068 [+3V3]
+[lib_symbol_mismatch]: Symbol 'VBAT' doesn't match copy in library 'microscout'
+    ; warning
+    @(276.86 mm, 107.95 mm): Symbol #PWR02032 [VBAT]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(284.48 mm, 86.36 mm): Symbol #PWR02024 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(215.90 mm, 205.74 mm): Symbol C16 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(276.86 mm, 114.30 mm): Symbol C10 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(226.06 mm, 199.39 mm): Symbol #PWR02070 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(276.86 mm, 120.65 mm): Symbol #PWR02033 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(289.56 mm, 86.36 mm): Symbol #PWR02025 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(215.90 mm, 212.09 mm): Symbol #PWR02069 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector'
+    ; warning
+    @(236.22 mm, 193.04 mm): Symbol TP1 [TestPoint]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(226.06 mm, 205.74 mm): Symbol R18 [R]
+[lib_symbol_mismatch]: Symbol 'VBAT' doesn't match copy in library 'microscout'
+    ; warning
+    @(299.72 mm, 63.50 mm): Symbol #PWR02023 [VBAT]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(279.40 mm, 137.16 mm): Symbol D4 [LED]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(289.56 mm, 114.30 mm): Symbol R3 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(246.38 mm, 190.50 mm): Symbol #FLG05 [PWR_FLAG]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(246.38 mm, 193.04 mm): Symbol #PWR02071 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(297.18 mm, 114.30 mm): Symbol R4 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(297.18 mm, 120.65 mm): Symbol #PWR02034 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(317.50 mm, 57.15 mm): Symbol #PWR02026 [VBUS]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(317.50 mm, 63.50 mm): Symbol C4 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(317.50 mm, 69.85 mm): Symbol #PWR02027 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(307.34 mm, 114.30 mm): Symbol R5 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(299.72 mm, 143.51 mm): Symbol #PWR02037 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(327.66 mm, 63.50 mm): Symbol C5 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(327.66 mm, 69.85 mm): Symbol #PWR02028 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(299.72 mm, 149.86 mm): Symbol R11 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(320.04 mm, 111.76 mm): Symbol R6 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(320.04 mm, 118.11 mm): Symbol #PWR02035 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(309.88 mm, 143.51 mm): Symbol #PWR02038 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(337.82 mm, 63.50 mm): Symbol L1 [L]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(309.88 mm, 149.86 mm): Symbol R12 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(332.74 mm, 111.76 mm): Symbol R7 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(276.86 mm, 215.90 mm): Symbol #PWR02077 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(345.44 mm, 63.50 mm): Symbol C6 [C]
+[lib_symbol_mismatch]: Symbol 'VLOGIC' doesn't match copy in library 'microscout'
+    ; warning
+    @(289.56 mm, 200.66 mm): Symbol #PWR02072 [VLOGIC]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(276.86 mm, 218.44 mm): Symbol #PWR02076 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(325.12 mm, 137.16 mm): Symbol #PWR02039 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(332.74 mm, 118.11 mm): Symbol #PWR02036 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(340.36 mm, 111.76 mm): Symbol R8 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(332.74 mm, 139.70 mm): Symbol J6 [Conn_01x03]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Regulator_Switching'
+    ; warning
+    @(289.56 mm, 215.90 mm): Symbol U4 [TPS62130]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(355.60 mm, 63.50 mm): Symbol C7 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(355.60 mm, 69.85 mm): Symbol #PWR02029 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(269.24 mm, 243.84 mm): Symbol #FLG06 [PWR_FLAG]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(337.82 mm, 134.62 mm): Symbol #FLG04 [PWR_FLAG]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(337.82 mm, 137.16 mm): Symbol #PWR02040 [VBUS]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(269.24 mm, 246.38 mm): Symbol #PWR02087 [+5V]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(350.52 mm, 114.30 mm): Symbol R9 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(289.56 mm, 231.14 mm): Symbol #PWR02074 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(302.26 mm, 215.90 mm): Symbol #PWR02073 [+5V]
+[lib_symbol_mismatch]: Symbol 'VLOGIC' doesn't match copy in library 'microscout'
+    ; warning
+    @(314.96 mm, 199.39 mm): Symbol #PWR02078 [VLOGIC]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(368.30 mm, 63.50 mm): Symbol C8 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(302.26 mm, 220.98 mm): Symbol #PWR02075 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(368.30 mm, 69.85 mm): Symbol #PWR02030 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(314.96 mm, 205.74 mm): Symbol C17 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(360.68 mm, 114.30 mm): Symbol R10 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(314.96 mm, 212.09 mm): Symbol #PWR02079 [GND]
+[lib_symbol_mismatch]: Symbol 'VLOGIC' doesn't match copy in library 'microscout'
+    ; warning
+    @(325.12 mm, 199.39 mm): Symbol #PWR02080 [VLOGIC]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(325.12 mm, 205.74 mm): Symbol C18 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(325.12 mm, 212.09 mm): Symbol #PWR02081 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(337.82 mm, 200.66 mm): Symbol L3 [L]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(337.82 mm, 207.01 mm): Symbol #PWR02082 [+5V]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(347.98 mm, 196.85 mm): Symbol #PWR02083 [+5V]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(347.98 mm, 203.20 mm): Symbol C19 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(347.98 mm, 209.55 mm): Symbol #PWR02084 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(358.14 mm, 200.66 mm): Symbol C20 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(358.14 mm, 207.01 mm): Symbol #PWR02085 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(370.84 mm, 196.85 mm): Symbol #PWR02086 [+5V]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(370.84 mm, 203.20 mm): Symbol R19 [R]
+[lib_symbol_mismatch]: Symbol 'VLOGIC' doesn't match copy in library 'microscout'
+    ; warning
+    @(419.10 mm, 60.96 mm): Symbol #PWR02041 [VLOGIC]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector'
+    ; warning
+    @(381.00 mm, 193.04 mm): Symbol TP2 [TestPoint]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(414.02 mm, 111.76 mm): Symbol D5 [D_Schottky]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(419.10 mm, 96.52 mm): Symbol #PWR02042 [GND]
+[lib_symbol_mismatch]: Symbol 'VLOGIC' doesn't match copy in library 'microscout'
+    ; warning
+    @(452.12 mm, 59.69 mm): Symbol #PWR02043 [VLOGIC]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(452.12 mm, 66.04 mm): Symbol C11 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(452.12 mm, 72.39 mm): Symbol #PWR02044 [GND]
+[lib_symbol_mismatch]: Symbol 'VBAT' doesn't match copy in library 'microscout'
+    ; warning
+    @(408.94 mm, 208.28 mm): Symbol #PWR02088 [VBAT]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Switch'
+    ; warning
+    @(449.58 mm, 114.30 mm): Symbol SW3 [SW_Push]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(464.82 mm, 63.50 mm): Symbol C12 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(464.82 mm, 69.85 mm): Symbol #PWR02045 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(457.20 mm, 114.30 mm): Symbol #PWR02050 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(401.32 mm, 251.46 mm): Symbol C25 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(401.32 mm, 257.81 mm): Symbol #PWR02094 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(474.98 mm, 63.50 mm): Symbol C13 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(474.98 mm, 69.85 mm): Symbol #PWR02046 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(424.18 mm, 226.06 mm): Symbol #PWR02089 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(411.48 mm, 251.46 mm): Symbol L4 [L]
+[lib_symbol_mismatch]: Symbol 'VLOGIC' doesn't match copy in library 'microscout'
+    ; warning
+    @(485.14 mm, 59.69 mm): Symbol #PWR02047 [VLOGIC]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(485.14 mm, 66.04 mm): Symbol R13 [R]
+[lib_symbol_mismatch]: Symbol 'VDRV' doesn't match copy in library 'microscout'
+    ; warning
+    @(427.99 mm, 241.30 mm): Symbol #PWR02095 [VDRV]
+[lib_symbol_mismatch]: Symbol 'VDRV' doesn't match copy in library 'microscout'
+    ; warning
+    @(411.48 mm, 274.32 mm): Symbol #PWR02103 [VDRV]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(411.48 mm, 276.86 mm): Symbol #PWR02104 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(434.34 mm, 241.30 mm): Symbol D6 [D_Schottky]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(495.30 mm, 57.15 mm): Symbol #PWR02048 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(495.30 mm, 63.50 mm): Symbol R14 [R]
+[lib_symbol_mismatch]: Symbol 'VBAT' doesn't match copy in library 'microscout'
+    ; warning
+    @(452.12 mm, 212.09 mm): Symbol #PWR02090 [VBAT]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(452.12 mm, 218.44 mm): Symbol C21 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(411.48 mm, 289.56 mm): Symbol #PWR02105 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(452.12 mm, 224.79 mm): Symbol #PWR02091 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic_MountingPin'
+    ; warning
+    @(419.10 mm, 281.94 mm): Symbol J7 [Conn_01x08_MountingPin]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(505.46 mm, 57.15 mm): Symbol #PWR02049 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(505.46 mm, 63.50 mm): Symbol R15 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector'
+    ; warning
+    @(401.32 mm, 314.96 mm): Symbol TP15 [TestPoint]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(462.28 mm, 215.90 mm): Symbol C23 [C]
+[lib_symbol_mismatch]: Symbol 'VBAT' doesn't match copy in library 'microscout'
+    ; warning
+    @(431.80 mm, 274.32 mm): Symbol #PWR02107 [VBAT]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(401.32 mm, 317.50 mm): Symbol #PWR02114 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(462.28 mm, 222.25 mm): Symbol #PWR02092 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(419.10 mm, 299.72 mm): Symbol #PWR02106 [GND]
+[lib_symbol_mismatch]: Symbol 'VDRV' doesn't match copy in library 'microscout'
+    ; warning
+    @(454.66 mm, 245.11 mm): Symbol #PWR02096 [VDRV]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(439.42 mm, 274.32 mm): Symbol J8 [Conn_01x01]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(454.66 mm, 251.46 mm): Symbol R25 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(447.04 mm, 274.32 mm): Symbol #PWR02108 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(464.82 mm, 251.46 mm): Symbol R26 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(454.66 mm, 274.32 mm): Symbol J9 [Conn_01x01]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(464.82 mm, 257.81 mm): Symbol #PWR02097 [GND]
+[lib_symbol_mismatch]: Symbol 'VDRV' doesn't match copy in library 'microscout'
+    ; warning
+    @(474.98 mm, 245.11 mm): Symbol #PWR02098 [VDRV]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector'
+    ; warning
+    @(459.74 mm, 274.32 mm): Symbol TP10 [TestPoint]
+[lib_symbol_mismatch]: Symbol 'VBAT' doesn't match copy in library 'microscout'
+    ; warning
+    @(459.74 mm, 276.86 mm): Symbol #PWR02109 [VBAT]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(474.98 mm, 251.46 mm): Symbol C26 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(474.98 mm, 257.81 mm): Symbol #PWR02099 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(492.76 mm, 226.06 mm): Symbol #PWR02093 [GND]
+[lib_symbol_mismatch]: Symbol 'VDRV' doesn't match copy in library 'microscout'
+    ; warning
+    @(485.14 mm, 245.11 mm): Symbol #PWR02100 [VDRV]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector'
+    ; warning
+    @(469.90 mm, 274.32 mm): Symbol TP11 [TestPoint]
+[lib_symbol_mismatch]: Symbol 'VLOGIC' doesn't match copy in library 'microscout'
+    ; warning
+    @(469.90 mm, 276.86 mm): Symbol #PWR02110 [VLOGIC]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(485.14 mm, 251.46 mm): Symbol C22 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(485.14 mm, 257.81 mm): Symbol #PWR02101 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(497.84 mm, 238.76 mm): Symbol #FLG07 [PWR_FLAG]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector'
+    ; warning
+    @(480.06 mm, 274.32 mm): Symbol TP12 [TestPoint]
+[lib_symbol_mismatch]: Symbol 'VDRV' doesn't match copy in library 'microscout'
+    ; warning
+    @(497.84 mm, 241.30 mm): Symbol #PWR02102 [VDRV]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(480.06 mm, 276.86 mm): Symbol #PWR02111 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector'
+    ; warning
+    @(490.22 mm, 274.32 mm): Symbol TP13 [TestPoint]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(490.22 mm, 276.86 mm): Symbol #PWR02112 [+5V]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector'
+    ; warning
+    @(500.38 mm, 274.32 mm): Symbol TP14 [TestPoint]
+[lib_symbol_mismatch]: Symbol 'VDRV' doesn't match copy in library 'microscout'
+    ; warning
+    @(500.38 mm, 276.86 mm): Symbol #PWR02113 [VDRV]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(45.72 mm, 60.96 mm): Symbol #PWR03002 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'RF_Module'
+    ; warning
+    @(45.72 mm, 91.44 mm): Symbol U1 [ESP32-S3-WROOM-1]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(81.28 mm, 62.23 mm): Symbol #PWR03003 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(81.28 mm, 68.58 mm): Symbol C30 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(81.28 mm, 74.93 mm): Symbol #PWR03004 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(91.44 mm, 62.23 mm): Symbol #PWR03005 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(91.44 mm, 68.58 mm): Symbol C31 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(91.44 mm, 74.93 mm): Symbol #PWR03006 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(104.14 mm, 62.23 mm): Symbol #PWR03007 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(104.14 mm, 68.58 mm): Symbol C32 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(104.14 mm, 74.93 mm): Symbol #PWR03008 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(45.72 mm, 121.92 mm): Symbol #PWR03001 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(116.84 mm, 62.23 mm): Symbol #PWR03009 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(116.84 mm, 68.58 mm): Symbol R30 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Switch'
+    ; warning
+    @(40.64 mm, 139.70 mm): Symbol SW2 [SW_Push]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(48.26 mm, 139.70 mm): Symbol #PWR03011 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(17.78 mm, 147.32 mm): Symbol C33 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(55.88 mm, 143.51 mm): Symbol #PWR03012 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(17.78 mm, 153.67 mm): Symbol #PWR03010 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(55.88 mm, 149.86 mm): Symbol R31 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Switch'
+    ; warning
+    @(78.74 mm, 139.70 mm): Symbol SW1 [SW_Push]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(86.36 mm, 139.70 mm): Symbol #PWR03013 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector'
+    ; warning
+    @(154.94 mm, 63.50 mm): Symbol J1 [USB_C_Receptacle_USB2.0_16P]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(93.98 mm, 143.51 mm): Symbol #PWR03014 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(147.32 mm, 88.90 mm): Symbol #PWR03022 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(93.98 mm, 149.86 mm): Symbol R32 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(154.94 mm, 88.90 mm): Symbol #PWR03020 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(172.72 mm, 48.26 mm): Symbol #PWR03021 [VBUS]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(101.60 mm, 152.40 mm): Symbol R33 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(111.76 mm, 149.86 mm): Symbol R34 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(101.60 mm, 158.75 mm): Symbol #PWR03015 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(17.78 mm, 187.96 mm): Symbol R35 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(27.94 mm, 187.96 mm): Symbol R43 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector'
+    ; warning
+    @(76.20 mm, 175.26 mm): Symbol TP3 [TestPoint]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(38.10 mm, 187.96 mm): Symbol R36 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(111.76 mm, 156.21 mm): Symbol #PWR03016 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(121.92 mm, 149.86 mm): Symbol R42 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(48.26 mm, 187.96 mm): Symbol R44 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(17.78 mm, 194.31 mm): Symbol #PWR03017 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(55.88 mm, 187.96 mm): Symbol R37 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(187.96 mm, 62.23 mm): Symbol #PWR03023 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(38.10 mm, 194.31 mm): Symbol #PWR03018 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(68.58 mm, 187.96 mm): Symbol R45 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(55.88 mm, 194.31 mm): Symbol #PWR03019 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(198.12 mm, 55.88 mm): Symbol R39 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(198.12 mm, 62.23 mm): Symbol #PWR03024 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(223.52 mm, 50.80 mm): Symbol #PWR03026 [VBUS]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Power_Protection'
+    ; warning
+    @(223.52 mm, 58.42 mm): Symbol U22 [USBLC6-2SC6]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(223.52 mm, 68.58 mm): Symbol #PWR03025 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(243.84 mm, 58.42 mm): Symbol R40 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(254.00 mm, 58.42 mm): Symbol R41 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(281.94 mm, 45.72 mm): Symbol #PWR03027 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(281.94 mm, 48.26 mm): Symbol #PWR03028 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(289.56 mm, 50.80 mm): Symbol J5 [Conn_01x06]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(17.78 mm, 57.15 mm): Symbol #PWR04001 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(27.94 mm, 57.15 mm): Symbol #PWR04002 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(17.78 mm, 63.50 mm): Symbol R50 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(27.94 mm, 63.50 mm): Symbol R51 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(38.10 mm, 124.46 mm): Symbol #PWR04025 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(60.96 mm, 127.00 mm): Symbol C55 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(73.66 mm, 123.19 mm): Symbol #PWR04028 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(60.96 mm, 133.35 mm): Symbol #PWR04027 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(73.66 mm, 129.54 mm): Symbol C56 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(73.66 mm, 135.89 mm): Symbol #PWR04029 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(167.64 mm, 50.80 mm): Symbol #PWR04005 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(38.10 mm, 175.26 mm): Symbol #PWR04026 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(172.72 mm, 50.80 mm): Symbol #PWR04006 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(167.64 mm, 86.36 mm): Symbol #PWR04007 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(172.72 mm, 86.36 mm): Symbol #PWR04008 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(187.96 mm, 63.50 mm): Symbol #PWR04003 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(187.96 mm, 66.04 mm): Symbol #PWR04004 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(162.56 mm, 127.00 mm): Symbol #PWR04031 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(203.20 mm, 52.07 mm): Symbol #PWR04009 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(167.64 mm, 127.00 mm): Symbol #PWR04032 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(203.20 mm, 58.42 mm): Symbol C50 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(152.40 mm, 147.32 mm): Symbol #PWR04030 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(30.48 mm, 210.82 mm): Symbol #PWR04047 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(203.20 mm, 64.77 mm): Symbol #PWR04010 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(30.48 mm, 213.36 mm): Symbol #PWR04048 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(58.42 mm, 210.82 mm): Symbol #PWR04049 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(38.10 mm, 215.90 mm): Symbol J11 [Conn_01x05]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(58.42 mm, 213.36 mm): Symbol #PWR04050 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(215.90 mm, 52.07 mm): Symbol #PWR04011 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(215.90 mm, 58.42 mm): Symbol C51 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(215.90 mm, 64.77 mm): Symbol #PWR04012 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(66.04 mm, 215.90 mm): Symbol J12 [Conn_01x05]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(83.82 mm, 210.82 mm): Symbol #PWR04051 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(83.82 mm, 213.36 mm): Symbol #PWR04052 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(226.06 mm, 52.07 mm): Symbol #PWR04013 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(226.06 mm, 58.42 mm): Symbol C52 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(91.44 mm, 215.90 mm): Symbol J13 [Conn_01x05]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(226.06 mm, 64.77 mm): Symbol #PWR04014 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(162.56 mm, 172.72 mm): Symbol #PWR04033 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(109.22 mm, 210.82 mm): Symbol #PWR04053 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(109.22 mm, 213.36 mm): Symbol #PWR04054 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(167.64 mm, 172.72 mm): Symbol #PWR04034 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(236.22 mm, 52.07 mm): Symbol #PWR04015 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(236.22 mm, 58.42 mm): Symbol R52 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(116.84 mm, 215.90 mm): Symbol J14 [Conn_01x06]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(218.44 mm, 127.00 mm): Symbol #PWR04036 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(208.28 mm, 147.32 mm): Symbol #PWR04035 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(223.52 mm, 127.00 mm): Symbol #PWR04037 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(144.78 mm, 213.36 mm): Symbol #PWR04055 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(144.78 mm, 215.90 mm): Symbol #PWR04056 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(266.70 mm, 66.04 mm): Symbol #PWR04016 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(266.70 mm, 68.58 mm): Symbol #PWR04017 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(170.18 mm, 217.17 mm): Symbol #PWR04057 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(218.44 mm, 172.72 mm): Symbol #PWR04038 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(170.18 mm, 223.52 mm): Symbol R56 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(276.86 mm, 50.80 mm): Symbol #PWR04018 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(223.52 mm, 172.72 mm): Symbol #PWR04039 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(254.00 mm, 128.27 mm): Symbol #PWR04040 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(281.94 mm, 50.80 mm): Symbol #PWR04019 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(254.00 mm, 134.62 mm): Symbol C57 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(254.00 mm, 140.97 mm): Symbol #PWR04041 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(279.40 mm, 86.36 mm): Symbol #PWR04020 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(264.16 mm, 128.27 mm): Symbol #PWR04042 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(264.16 mm, 134.62 mm): Symbol C58 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(264.16 mm, 140.97 mm): Symbol #PWR04043 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(276.86 mm, 128.27 mm): Symbol #PWR04044 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(276.86 mm, 134.62 mm): Symbol R53 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(304.80 mm, 52.07 mm): Symbol #PWR04021 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(304.80 mm, 58.42 mm): Symbol C53 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(304.80 mm, 64.77 mm): Symbol #PWR04022 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(287.02 mm, 134.62 mm): Symbol R54 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(287.02 mm, 140.97 mm): Symbol #PWR04045 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(317.50 mm, 52.07 mm): Symbol #PWR04023 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(317.50 mm, 58.42 mm): Symbol C54 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(317.50 mm, 64.77 mm): Symbol #PWR04024 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(297.18 mm, 137.16 mm): Symbol R55 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(297.18 mm, 143.51 mm): Symbol #PWR04046 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(30.48 mm, 53.34 mm): Symbol #PWR05004 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(30.48 mm, 58.42 mm): Symbol #PWR05005 [+2V8]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(50.80 mm, 50.80 mm): Symbol #PWR05007 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(50.80 mm, 53.34 mm): Symbol #PWR05008 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(30.48 mm, 73.66 mm): Symbol #PWR05001 [+1V2]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(30.48 mm, 76.20 mm): Symbol #PWR05002 [+2V8]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic_MountingPin'
+    ; warning
+    @(38.10 mm, 78.74 mm): Symbol J3 [Conn_01x24_MountingPin]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(30.48 mm, 86.36 mm): Symbol #PWR05003 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(63.50 mm, 68.58 mm): Symbol #PWR05010 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(96.52 mm, 50.80 mm): Symbol #PWR05011 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(96.52 mm, 53.34 mm): Symbol #PWR05012 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(38.10 mm, 116.84 mm): Symbol #PWR05006 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(109.22 mm, 68.58 mm): Symbol #PWR05014 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(121.92 mm, 50.80 mm): Symbol #PWR05013 [+1V2]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(17.78 mm, 135.89 mm): Symbol #PWR05015 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(27.94 mm, 135.89 mm): Symbol #PWR05017 [+3V3]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(40.64 mm, 135.89 mm): Symbol #PWR05019 [+2V8]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(17.78 mm, 142.24 mm): Symbol C60 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(27.94 mm, 142.24 mm): Symbol C61 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(50.80 mm, 135.89 mm): Symbol #PWR05021 [+2V8]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(40.64 mm, 142.24 mm): Symbol C62 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(17.78 mm, 148.59 mm): Symbol #PWR05016 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(63.50 mm, 135.89 mm): Symbol #PWR05023 [+1V2]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(50.80 mm, 142.24 mm): Symbol C63 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(27.94 mm, 148.59 mm): Symbol #PWR05018 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(40.64 mm, 148.59 mm): Symbol #PWR05020 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(73.66 mm, 135.89 mm): Symbol #PWR05025 [+1V2]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(63.50 mm, 142.24 mm): Symbol C64 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(50.80 mm, 148.59 mm): Symbol #PWR05022 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(73.66 mm, 142.24 mm): Symbol C65 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(63.50 mm, 148.59 mm): Symbol #PWR05024 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(73.66 mm, 148.59 mm): Symbol #PWR05026 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(172.72 mm, 50.80 mm): Symbol #PWR05029 [+5V]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(177.80 mm, 50.80 mm): Symbol #PWR05027 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(172.72 mm, 76.20 mm): Symbol #PWR05028 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library '74xGxx'
+    ; warning
+    @(177.80 mm, 63.50 mm): Symbol U21 [74AHCT1G125]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(162.56 mm, 96.52 mm): Symbol #PWR05037 [+5V]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(25.40 mm, 190.50 mm): Symbol #PWR05052 [+5V]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'LED'
+    ; warning
+    @(162.56 mm, 106.68 mm): Symbol LED2 [WS2812B-2020]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(25.40 mm, 193.04 mm): Symbol #PWR05053 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Connector_Generic'
+    ; warning
+    @(33.02 mm, 193.04 mm): Symbol J4 [Conn_01x04]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(162.56 mm, 116.84 mm): Symbol #PWR05036 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(185.42 mm, 95.25 mm): Symbol #PWR05038 [+5V]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(203.20 mm, 49.53 mm): Symbol #PWR05030 [+5V]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(203.20 mm, 55.88 mm): Symbol C66 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(162.56 mm, 134.62 mm): Symbol #PWR05045 [+5V]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(185.42 mm, 101.60 mm): Symbol C68 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(203.20 mm, 62.23 mm): Symbol #PWR05031 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(185.42 mm, 107.95 mm): Symbol #PWR05039 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'LED'
+    ; warning
+    @(162.56 mm, 144.78 mm): Symbol LED4 [WS2812B-2020]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(175.26 mm, 135.89 mm): Symbol #PWR05046 [+5V]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(162.56 mm, 154.94 mm): Symbol #PWR05044 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(175.26 mm, 142.24 mm): Symbol C70 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(175.26 mm, 148.59 mm): Symbol #PWR05047 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(210.82 mm, 96.52 mm): Symbol #PWR05041 [+5V]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'LED'
+    ; warning
+    @(210.82 mm, 106.68 mm): Symbol LED3 [WS2812B-2020]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(231.14 mm, 50.80 mm): Symbol #PWR05033 [+5V]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'LED'
+    ; warning
+    @(231.14 mm, 60.96 mm): Symbol LED1 [WS2812B-2020]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(210.82 mm, 116.84 mm): Symbol #PWR05040 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(231.14 mm, 71.12 mm): Symbol #PWR05032 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(233.68 mm, 95.25 mm): Symbol #PWR05042 [+5V]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(233.68 mm, 101.60 mm): Symbol C69 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(233.68 mm, 107.95 mm): Symbol #PWR05043 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(254.00 mm, 49.53 mm): Symbol #PWR05034 [+5V]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(254.00 mm, 55.88 mm): Symbol C67 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(254.00 mm, 62.23 mm): Symbol #PWR05035 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Transistor_FET'
+    ; warning
+    @(292.10 mm, 60.96 mm): Symbol Q3 [AO3400A]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(294.64 mm, 68.58 mm): Symbol #PWR05048 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(299.72 mm, 58.42 mm): Symbol R60 [R]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(299.72 mm, 64.77 mm): Symbol #PWR05049 [GND]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(320.04 mm, 45.72 mm): Symbol #PWR05050 [+5V]
+[footprint_link_issues]: The current configuration does not include the footprint library 'microscout'.
+    ; warning
+    @(325.12 mm, 48.26 mm): Symbol BZ1 [Buzzer]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(325.12 mm, 48.26 mm): Symbol BZ1 [Buzzer]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'power'
+    ; warning
+    @(336.55 mm, 45.72 mm): Symbol #PWR05051 [+5V]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(342.90 mm, 45.72 mm): Symbol D1 [D_Schottky]
+
+***** Sheet /Power/
+
+***** Sheet /MCU and USB/
+
+***** Sheet /Sensors and expanders/
+[pin_to_pin]: Pins of type Bidirectional and Power output are connected
+    ; warning
+    @(185.42 mm, 63.50 mm): Symbol U12 Pin 9 [INT2/FSYNC, Bidirectional, Line]
+    @(27.94 mm, 99.06 mm): Symbol #FLG01 Pin 1 [pwr, Power output, Line]
+[pin_to_pin]: Pins of type Bidirectional and Power output are connected
+    ; warning
+    @(269.24 mm, 68.58 mm): Symbol U13 Pin 5 [SDO, Bidirectional, Line]
+    @(27.94 mm, 99.06 mm): Symbol #FLG01 Pin 1 [pwr, Power output, Line]
+
+***** Sheet /Camera, LEDs, buzzer, receiver/
+
+ ** ERC messages: 403  Errors 0  Warnings 403
