@@ -24,6 +24,13 @@
     "touched": 0,
     "clean": 1
    },
+   "smpc": {
+    "runs": 1,
+    "finished": 1,
+    "meanTime": 17.04800000000143,
+    "touched": 0,
+    "clean": 1
+   },
    "learned": {
     "runs": 1,
     "finished": 1,
@@ -54,6 +61,13 @@
     "touched": 0,
     "clean": 1
    },
+   "smpc": {
+    "runs": 20,
+    "finished": 1,
+    "meanTime": 8.562999999999562,
+    "touched": 0.1,
+    "clean": 0.9
+   },
    "learned": {
     "runs": 20,
     "finished": 0.55,
@@ -81,6 +95,13 @@
     "runs": 20,
     "finished": 1,
     "meanTime": 5.204999999999648,
+    "touched": 0,
+    "clean": 1
+   },
+   "smpc": {
+    "runs": 20,
+    "finished": 1,
+    "meanTime": 7.947499999999375,
     "touched": 0,
     "clean": 1
    },

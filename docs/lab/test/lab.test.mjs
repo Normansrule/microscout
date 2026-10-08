@@ -7,7 +7,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { buildCourse, castRay, COURSES } from "../js/world.js";
+import { buildCourse, castRay, COURSES, sanitizeSpec } from "../js/world.js";
 import { Quad } from "../js/physics.js";
 import { Mission, CONTROLLERS, PilotController, lqrGains } from "../js/control.js";
 import { Policy, OBS_DIM } from "../js/policy.js";
@@ -107,4 +107,39 @@ test("CEM from the PD prior improves the validation return on the gate slalom", 
   assert.ok(Number.isFinite(last.stats.val));
   assert.ok(t.best.ret >= first.stats.val, `best ${t.best.ret} < first ${first.stats.val}`);
   assert.ok(last.stats.success > 0 || t.best.ret > 50, `no progress: ${JSON.stringify(last.stats)}`);
+});
+
+test("sensor-only MPC: builds its map from ToF hits and gets through the gate slalom", () => {
+  const r = fly("smpc", "gates");
+  assert.ok(r.done && r.impact < 0.05, `done ${r.done}, impact ${r.impact}`);
+});
+
+test("sensor-only MPC plans from its ToF hit map, not the course's obstacle list", () => {
+  const c = buildCourse("forest", 2, true);
+  const q = new Quad(c);
+  q.reset([c.start[0], c.start[1], -1.0]);
+  const m = new Mission(c);
+  const ctl = CONTROLLERS.smpc.make(q, m, {});
+  for (let i = 0; i < 1500; i++) q.step(ctl.update(0.002), 0.002);
+  assert.ok(ctl.map.n > 0, "no ToF hits recorded");
+  // Far from anything the rays have hit, its clearance is just height above the floor (capped at one map cell),
+  // even inside a pillar it has not seen.
+  const unseen = c.obstacles.find((o) => o.type !== "box" && ctl.map.near([o.c[0], o.c[1], -1]) >= ctl.map.cell);
+  if (unseen) assert.ok(ctl.clearanceAt([unseen.c[0], unseen.c[1], -1]) > 0, "it knew about an unseen pillar");
+});
+
+test("course editor: specs are clamped, the take-off spot stays clear, and MPC flies the result", () => {
+  const sp = sanitizeSpec({ pillars: [[-5, 0, 0.2], [99, 0, 9], [0, 1.5, 0.2]], crates: [], gates: [[2, -0.5, -1.2]], goal: [5, 0, -1.2] });
+  assert.equal(sp.pillars.length, 2, "pillar on the take-off spot should be dropped");
+  assert.ok(sp.pillars.every(([x, , r]) => Math.abs(x) <= 5.8 && r <= 0.5));
+  const c = buildCourse("custom", 1, false, sp);
+  assert.equal(c.gates.length, 1);
+  assert.equal(c.waypoints.length, 3);          // line up, through the gate, goal
+  const q = new Quad(c);
+  q.reset([c.start[0], c.start[1], -1.0]);
+  q.thrust = [1, 1, 1, 1].map(() => (q.mass * 9.81) / 4);
+  const m = new Mission(c);
+  const ctl = CONTROLLERS.mpc.make(q, m, {});
+  while (q.t < 30 && !m.done) { const prev = [...q.pos]; q.step(ctl.update(0.002), 0.002); m.update(prev, q.pos); }
+  assert.ok(m.done && m.gatesPassed === 1 && q.maxImpact < 0.05, `done ${m.done}, gates ${m.gatesPassed}, impact ${q.maxImpact}`);
 });

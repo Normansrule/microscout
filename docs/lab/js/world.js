@@ -41,7 +41,22 @@ function gateBoxes(g) {
   ];
 }
 
-export function buildCourse(name, seed = 1, randomize = false) {
+/** The starter layout of the course editor (all positions in metres, NED: x forward, y right). */
+export const DEFAULT_SPEC = { pillars: [[-2.5, 0.6, 0.2], [-1, -0.8, 0.2], [0.8, 0.9, 0.25]], crates: [[2.6, -1.4, 0.8, 0.8, 1.0]], gates: [[3.6, 0.6, -1.2]], goal: [5, 0, -1.2] };
+
+/** Clean up an editor spec (from the URL or a file): clamp into the room, keep the start box clear. */
+export function sanitizeSpec(sp) {
+  const num = (v, lo, hi, d) => (Number.isFinite(+v) ? Math.min(hi, Math.max(lo, +v)) : d);
+  const okXY = (x, y) => Math.hypot(x + 5, y) > 0.8;                       // leave the take-off spot free
+  const out = { pillars: [], crates: [], gates: [], goal: [5, 0, -1.2] };
+  for (const p of (sp?.pillars || []).slice(0, 40)) { const a = [num(p[0], -5.8, 5.8, 0), num(p[1], -2.8, 2.8, 0), num(p[2], 0.08, 0.5, 0.2)]; if (okXY(a[0], a[1])) out.pillars.push(a); }
+  for (const b of (sp?.crates || []).slice(0, 20)) { const a = [num(b[0], -5.5, 5.5, 0), num(b[1], -2.6, 2.6, 0), num(b[2], 0.3, 2, 0.8), num(b[3], 0.3, 2, 0.8), num(b[4], 0.2, 2.5, 1)]; if (okXY(a[0], a[1])) out.crates.push(a); }
+  for (const g of (sp?.gates || []).slice(0, 10)) { const a = [num(g[0], -4, 5.5, 0), num(g[1], -2.4, 2.4, 0), num(g[2], -2.2, -0.8, -1.2)]; if (okXY(a[0], a[1])) out.gates.push(a); }
+  if (sp?.goal) out.goal = [num(sp.goal[0], -5.5, 5.8, 5), num(sp.goal[1], -2.8, 2.8, 0), num(sp.goal[2], -2.5, -0.5, -1.2)];
+  return out;
+}
+
+export function buildCourse(name, seed = 1, randomize = false, spec = null) {
   const R = rng(seed);
   const j = (s) => (randomize ? (R() - 0.5) * 2 * s : 0);
   const c = { name, room: [12, 6, 3.2], obstacles: [], gates: [], start: [-5, 0, 0], goal: null, timeLimit: 20, wind: [0, 0, 0] };
@@ -87,6 +102,19 @@ export function buildCourse(name, seed = 1, randomize = false) {
     c.window = { y: wy, z: wz, hw };
     c.goal = [5, j(1.5), -1.2];
     c.waypoints = [[-0.8, wy, wz], [1.0, wy, wz], c.goal];
+  } else if (name === "custom") {   // built in the editor
+    const sp = sanitizeSpec(spec || DEFAULT_SPEC);
+    c.spec = sp;
+    for (const [x, y, r] of sp.pillars) c.obstacles.push({ type: "cyl", c: [x, y], r, h: 3.2 });
+    for (const [x, y, w, d, h] of sp.crates) c.obstacles.push({ type: "box", min: [x - w / 2, y - d / 2, -h], max: [x + w / 2, y + d / 2, 0] });
+    const gs = [...sp.gates].sort((a, b) => a[0] - b[0]);       // flown in order along the room
+    c.waypoints = []; c.wpGate = [];
+    gs.forEach(([x, y, z], k) => {
+      c.gates.push({ c: [x, y, z], yaw: 0, w: 0.9, h: 0.9 });
+      c.waypoints.push([x - 0.7, y, z], [x + 0.5, y, z]); c.wpGate.push(-1, k);
+    });
+    c.goal = sp.goal; c.waypoints.push(sp.goal); c.wpGate.push(-1);
+    c.timeLimit = 40;
   } else {          // "hangar": free flight with a few crates
     c.room = [14, 10, 4];
     c.start = [0, 0, 0];
@@ -111,6 +139,7 @@ export const COURSES = [
   ["window", "Window wall", "Find the window in a wall and fly through it."],
   ["hover", "Hold in gusts", "Hold a point at 1.2 m while the wind gusts."],
   ["hangar", "Open hangar", "Free flight with crates, pillars and two gates."],
+  ["custom", "Your course (editor)", "Place pillars, crates, gates and the goal yourself, then fly, race or train on it."],
 ];
 
 // ------------------------------------------------------------------ geometry

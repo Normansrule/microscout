@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 // Flight Lab app: wires the simulator, controllers, RL worker, 3D view and the controls together.
 
-import { buildCourse, COURSES } from "./world.js";
+import { buildCourse, COURSES, DEFAULT_SPEC, sanitizeSpec } from "./world.js";
 import { Quad } from "./physics.js";
 import { Mission, CONTROLLERS, PilotController, lqrGains, DEFAULT_GAINS } from "./control.js";
 import { Policy, OBS_DIM } from "./policy.js";
@@ -15,7 +15,7 @@ import { toEuler, qrot } from "./math.js";
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
 const DT = 0.002;
-const COLORS = () => ({ pid: cssVar("--c-pid", "#2a78d6"), lqr: cssVar("--c-lqr", "#13865b"), mpc: cssVar("--c-mpc", "#6f52d4"), learned: cssVar("--c-rl", "#d6336c"), pilot: cssVar("--c-you", "#138a9e") });
+const COLORS = () => ({ pid: cssVar("--c-pid", "#2a78d6"), lqr: cssVar("--c-lqr", "#13865b"), mpc: cssVar("--c-mpc", "#6f52d4"), smpc: cssVar("--c-smpc", "#6b7d12"), learned: cssVar("--c-rl", "#d6336c"), pilot: cssVar("--c-you", "#138a9e") });
 const MODES = {
   beginner: "Sticks set speed (up to 2 m/s). Let go and it holds position. It stops about 40 cm short of anything its ToF sensors see.",
   sport: "Sticks set the tilt angle (up to 35°). Let go and it levels itself and holds height.",
@@ -25,10 +25,35 @@ const MODES = {
 const state = {
   tab: "fly", courseName: "gates", seed: 1, course: null, sims: [], speed: 1, rays: true, mode: "beginner",
   env: { wind: 0, dir: 90, gust: 0, motor: 100, payload: 0, noise: 0, battery: 100 },
-  ctrlKind: "pid", ctrlOpts: { pid: { speed: 2, kp: 1 }, lqr: { qp: 4, qv: 1, r: 0.3 }, mpc: { samples: 64, horizon: 16, vmax: 2.5 }, learned: { source: "bundled" } },
+  ctrlKind: "pid", ctrlOpts: { pid: { speed: 2, kp: 1 }, lqr: { qp: 4, qv: 1, r: 0.3 }, mpc: { samples: 64, horizon: 16, vmax: 2.5 }, smpc: { samples: 64, horizon: 16, vmax: 1.3 }, learned: { source: "bundled" } },
+  spec: loadSpec(), tool: "pillar", editing: false,
   bundled: {}, trained: null, results: [], radioDropUntil: -1, lastHud: 0, logged: new Set(),
   train: { worker: null, running: false, hist: [], cfg: null, best: null, previewParams: null, previewT: 0 },
 };
+
+// ------------------------------------------------------------------ course editor storage
+function encodeSpec(sp) {
+  const r = (a) => a.map((v) => Math.round(v * 100) / 100);
+  const j = JSON.stringify({ p: sp.pillars.map(r), c: sp.crates.map(r), g: sp.gates.map(r), o: r(sp.goal) });
+  return btoa(j).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function decodeSpec(str) {
+  try {
+    const j = JSON.parse(atob(str.replace(/-/g, "+").replace(/_/g, "/")));
+    return sanitizeSpec({ pillars: j.p, crates: j.c, gates: j.g, goal: j.o });
+  } catch (e) { return null; }
+}
+function loadSpec() {
+  const h = location.hash.match(/course=([\w-]+)/);
+  if (h) { const s = decodeSpec(h[1]); if (s) return s; }
+  try { const s = decodeSpec(localStorage.getItem("microscout-lab-course") || ""); if (s) return s; } catch (e) { /* storage blocked */ }
+  return sanitizeSpec(DEFAULT_SPEC);
+}
+function saveSpec() {
+  if (state.courseName === "custom" || /course=/.test(location.hash))
+    history.replaceState(null, "", `${location.pathname}?course=custom#course=${encodeSpec(state.spec)}`);   // the address bar is always a share link
+  try { localStorage.setItem("microscout-lab-course", encodeSpec(state.spec)); } catch (e) { /* storage blocked: the layout still lives in the page */ }
+}
 
 const view = new LabView($("#view"));
 const input = new PilotInput($("#touch"));
@@ -83,11 +108,14 @@ function makeSim(kind, color, opts = {}) {
   return { kind, quad, mission, ctrl, drone, color, status: "flying", name: opts.name || ctrl.name, primary: !!opts.primary, evIdx: 0, msgIdx: 0, preview: !!opts.preview };
 }
 
-function clearSims() { view.removeDrones(); view.clearPlan(); state.sims = []; }
+function clearSims() { view.removeDrones(); view.clearPlan(); view.clearHits(); state.sims = []; }
 
 function setCourse(name, seed = state.seed) {
   state.courseName = name; state.seed = seed;
-  state.course = buildCourse(name, seed, name === "forest" || name === "window");
+  if ($("#courseSel")) $("#courseSel").value = name;
+  state.course = buildCourse(name, seed, name === "forest" || name === "window", state.spec);
+  $("#editor").hidden = name !== "custom";
+  if (name !== "custom") setEditing(false);
   view.setCourse(state.course);
   const info = COURSES.find((c) => c[0] === name);
   $("#courseAbout").textContent = info ? info[2] : "";
@@ -168,6 +196,7 @@ function progress(s) {
   if (c.free) return "free flight";
   if (c.hold) return "holding";
   if (c.gates.length && state.courseName === "gates") return `${s.mission.gatesPassed} of ${c.gates.length} gates`;
+  if (state.courseName === "custom") return `${s.mission.gatesPassed} of ${c.gates.length} gates, then the goal`;
   return `${Math.min(s.mission.i, c.waypoints.length)} of ${c.waypoints.length} points`;
 }
 
@@ -230,7 +259,9 @@ function tick(real, now = performance.now()) {
   stepSims(real * state.speed);
   const prim = state.sims.find((x) => x.primary) || state.sims[0];
   for (const s of state.sims) view.updateDrone(s.drone, s.quad, s.primary && state.rays ? s.quad.tof() : null);
-  if (prim && prim.ctrl.lastSamples && state.rays) view.setPlan(prim.ctrl.lastSamples, COLORS().mpc);
+  if (prim && prim.ctrl.lastSamples && state.rays) view.setPlan(prim.ctrl.lastSamples, COLORS()[prim.kind] || COLORS().mpc);
+  const mapper = state.sims.find((x) => x.ctrl.map);
+  if (mapper && mapper.ctrl.map.n !== view.hitsN) view.setHits(mapper.ctrl.map.points(), COLORS().smpc);
   if (state.tab === "train" && state.train.previewParams && state.sims[0] && state.sims[0].status !== "flying" && now - state.train.previewT > 800) startPreview(state.train.previewParams);
   if (now - state.lastHud > 120) { hud(); events(); state.lastHud = now; }
   view.render(prim ? prim.quad : null, real);
@@ -281,7 +312,7 @@ function ctrlParams() {
   if (k === "lqr") items = [slider("lQp", "Q position", 0.5, 30, 0.5, o.qp, (v) => (+v).toFixed(1), (v) => (o.qp = +v)),
     slider("lQv", "Q velocity", 0.1, 6, 0.1, o.qv, (v) => (+v).toFixed(1), (v) => (o.qv = +v)),
     slider("lR", "R effort", 0.05, 3, 0.05, o.r, (v) => (+v).toFixed(2), (v) => (o.r = +v))];
-  if (k === "mpc") items = [slider("mS", "Sampled futures", 16, 160, 8, o.samples, (v) => v, (v) => (o.samples = +v)),
+  if (k === "mpc" || k === "smpc") items = [slider("mS", "Sampled futures", 16, 160, 8, o.samples, (v) => v, (v) => (o.samples = +v)),
     slider("mH", "Look-ahead", 8, 30, 1, o.horizon, (v) => `${(v * 0.05).toFixed(2)} s`, (v) => (o.horizon = +v)),
     slider("mV", "Speed limit", 1, 4, 0.25, o.vmax, (v) => `${(+v).toFixed(2)} m/s`, (v) => (o.vmax = +v))];
   let extra = "";
@@ -299,9 +330,10 @@ function flyAuto() { clearSims(); view.setActiveWaypoint(0); state.sims.push(mak
 function race() {
   clearSims(); view.setActiveWaypoint(0);
   const c = COLORS();
-  ["pid", "lqr", "mpc", "learned"].forEach((k, i) => state.sims.push(makeSim(k, c[k], { primary: i === 3, name: CONTROLLERS[k].label })));
+  const kinds = ["pid", "lqr", "mpc", "smpc", "learned"];
+  kinds.forEach((k) => state.sims.push(makeSim(k, c[k], { primary: k === "learned", name: CONTROLLERS[k].label })));
   setCam("orbit");
-  log("race: PID, LQR, MPC and the learned policy fly the same course at once", "");
+  log("race: every autopilot flies the same course at once", "");
 }
 
 // ------------------------------------------------------------------ train tab
@@ -310,7 +342,7 @@ function trainCfg() {
     ...DEFAULT_TRAIN, trainer: $("#trainerSel").value, course: state.courseName, arch: $("#archSel").value, init: $("#initSel").value,
     actionMode: $("#actSel").value, residual: $("#residualChk").checked, population: +$("#popR").value, sigma: +$("#sigR").value,
     lr: +$("#lrR").value, randomize: $("#randChk").checked, episodes: $("#randChk").checked ? 2 : 1,
-    wind: state.env.wind, gust: state.env.gust,
+    wind: state.env.wind, gust: state.env.gust, spec: state.courseName === "custom" ? state.spec : undefined,
   };
 }
 function startTraining(iterations) {
@@ -425,6 +457,45 @@ async function loadPolicy(file) {
   } catch (e) { toast(`Could not load the policy: ${e.message}`); }
 }
 
+// ------------------------------------------------------------------ course editor
+function setEditing(on) {
+  state.editing = on;
+  document.body.classList.toggle("editing", on);
+  $("#edTools").hidden = !on;
+  $("#edToggle").setAttribute("aria-pressed", on);
+  $("#edToggle").textContent = on ? "Done editing" : "Edit layout";
+  if (on) setCam("top");
+}
+function setTool(t) {
+  state.tool = t;
+  $$("#toolSeg button").forEach((b) => b.setAttribute("aria-checked", b.dataset.tool === t));
+}
+function applySpec(sp, msg) {
+  state.spec = sanitizeSpec(sp);
+  saveSpec();
+  const cam = view.camMode;
+  setCourse("custom", state.seed);
+  if (cam !== view.camMode) setCam(cam);
+  if (msg) log(msg);
+}
+function editAt(x, y) {
+  const sp = JSON.parse(JSON.stringify(state.spec));
+  const r1 = (v) => Math.round(v * 10) / 10;
+  x = r1(x); y = r1(y);
+  if (Math.hypot(x + 5, y) < 0.8) return toast("Keep the take-off spot clear");
+  if (state.tool === "pillar") sp.pillars.push([x, y, 0.2]);
+  else if (state.tool === "crate") sp.crates.push([x, y, 0.8, 0.8, 1.0]);
+  else if (state.tool === "gate") sp.gates.push([x, y, -1.2]);
+  else if (state.tool === "goal") sp.goal = [x, y, -1.2];
+  else {                                               // erase the nearest thing within 0.6 m
+    let best = null, bd = 0.6;
+    for (const k of ["pillars", "crates", "gates"]) sp[k].forEach((o, i) => { const d = Math.hypot(o[0] - x, o[1] - y); if (d < bd) { bd = d; best = [k, i]; } });
+    if (!best) return;
+    sp[best[0]].splice(best[1], 1);
+  }
+  applySpec(sp);
+}
+
 function init() {
   $("#courseSel").innerHTML = COURSES.map(([k, l]) => `<option value="${k}">${l}</option>`).join("");
   $("#courseSel").value = state.courseName;
@@ -462,10 +533,27 @@ function init() {
   $("#raysBtn").addEventListener("click", (e) => { state.rays = !state.rays; e.target.classList.toggle("on", state.rays); e.target.setAttribute("aria-pressed", state.rays); view.drones.forEach((d) => (d.rays.visible = state.rays && d === state.sims.find((s) => s.primary)?.drone)); if (!state.rays) view.clearPlan(); });
   $("#speedBtn").addEventListener("click", (e) => { state.speed = { 1: 2, 2: 0.5, 0.5: 1 }[state.speed]; e.target.textContent = `${state.speed}×`; });
   bindSituations();
+  $("#edToggle").addEventListener("click", () => setEditing(!state.editing));
+  $$("#toolSeg button").forEach((b) => b.addEventListener("click", () => setTool(b.dataset.tool)));
+  $("#edStarter").addEventListener("click", () => applySpec(DEFAULT_SPEC, "starter layout restored"));
+  $("#edClear").addEventListener("click", () => applySpec({ pillars: [], crates: [], gates: [], goal: state.spec.goal }, "layout cleared"));
+  $("#edShare").addEventListener("click", async () => {
+    const url = `${location.origin}${location.pathname}?course=custom#course=${encodeSpec(state.spec)}`;
+    history.replaceState(null, "", url);
+    try { await navigator.clipboard.writeText(url); toast("Link copied"); } catch (e) { toast("Copy the link from the address bar"); }
+  });
+  let down = null;
+  $("#view").addEventListener("pointerdown", (e) => { down = [e.clientX, e.clientY]; });
+  $("#view").addEventListener("pointerup", (e) => {
+    if (!state.editing || !down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 6) return;
+    const p = view.pickFloor(e.clientX, e.clientY);
+    if (p) editAt(p[0], p[1]);
+  });
   buildCtrlList();
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { view.applyTheme(); setCourse(state.courseName, state.seed); buildCtrlList(); });
   const params = new URLSearchParams(location.search);
   if (params.get("course") && COURSES.some((c) => c[0] === params.get("course"))) state.courseName = params.get("course");
+  if (/course=/.test(location.hash)) state.courseName = "custom";
   $("#courseSel").value = state.courseName;
   if (params.has("embed")) document.body.classList.add("embed");      // just the 3D view, for embedding and recordings
   setCourse(state.courseName, 1);

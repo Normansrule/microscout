@@ -52,6 +52,24 @@
         <button id="reseed" title="Generate a new random layout">New layout</button>
       </div>
       <p class="hint" id="courseAbout"></p>
+      <div class="editor" id="editor" hidden>
+        <div class="row wrap">
+          <button id="edToggle" class="primary" aria-pressed="false">Edit layout</button>
+          <button id="edShare" title="Copy a link that opens this layout">Copy link</button>
+          <button id="edStarter">Starter layout</button>
+          <button id="edClear">Clear</button>
+        </div>
+        <div id="edTools" hidden>
+          <div class="seg" role="radiogroup" aria-label="What a click places" id="toolSeg">
+            <button role="radio" aria-checked="true" data-tool="pillar">Pillar</button>
+            <button role="radio" aria-checked="false" data-tool="crate">Crate</button>
+            <button role="radio" aria-checked="false" data-tool="gate">Gate</button>
+            <button role="radio" aria-checked="false" data-tool="goal">Goal</button>
+            <button role="radio" aria-checked="false" data-tool="erase">Erase</button>
+          </div>
+          <p class="hint">Click the floor in the top view to place. Gates face along the room and are flown in order from the take-off spot (left) towards the goal. Changes apply straight away.</p>
+        </div>
+      </div>
     </div>
 
     <div class="tabs" role="tablist">
@@ -95,7 +113,7 @@
       <div id="ctrlParams" class="params"></div>
       <div class="row wrap">
         <button class="primary" id="flyAuto">Fly the course</button>
-        <button id="raceBtn">Race all four</button>
+        <button id="raceBtn">Race them all</button>
       </div>
       <table class="results" id="results"><thead><tr><th>Controller</th><th>Result</th><th>Time</th><th>Worst hit</th></tr></thead><tbody></tbody></table>
     </section>

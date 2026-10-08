@@ -36,12 +36,15 @@ export class LabView {
     this.camera = new THREE.PerspectiveCamera(55, 1, 0.02, 200);
     this.camera.position.set(-8, 4, 6);
     this.controls = new OrbitControls(this.camera, canvas);
+    this.top = new THREE.OrthographicCamera(-6, 6, 3, -3, 0.1, 100);   // plan view: no perspective lean on tall pillars
+    this.top.up.set(0, 0, -1);                                          // +x (along the course) runs left to right
+    this.top.position.set(0, 6, 0); this.top.lookAt(0, 0, 0);          // low enough that the fog leaves it alone
     this.controls.enableDamping = true;
     this.camMode = "chase";
     this.hemi = new THREE.HemisphereLight(0xffffff, 0x6b7480, 1.6);
     this.scene.add(this.hemi);
     const sun = new THREE.DirectionalLight(0xffffff, 1.8);
-    sun.position.set(-4, 10, 3);
+    sun.position.set(-1.2, 14, 1);        // nearly overhead: short shadows read as drop shadows, and the top view stays clear
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
     Object.assign(sun.shadow.camera, { left: -10, right: 10, top: 10, bottom: -10, near: 1, far: 30 });
@@ -250,6 +253,38 @@ export class LabView {
   }
   clearGhosts() { while (this.ghostGroup.children.length) { const o = this.ghostGroup.children.pop(); o.geometry.dispose(); o.material.dispose(); } }
 
+  /** Where a click on the canvas meets the floor, in NED metres [x, y]; null if it misses. */
+  pickFloor(clientX, clientY) {
+    const r = this.canvas.getBoundingClientRect();
+    const ndc = new THREE.Vector2(((clientX - r.left) / r.width) * 2 - 1, -((clientY - r.top) / r.height) * 2 + 1);
+    const ray = new THREE.Raycaster();
+    ray.setFromCamera(ndc, this.camMode === "top" ? this.top : this.camera);
+    const hit = new THREE.Vector3();
+    if (!ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit)) return null;
+    return [hit.x, hit.z];
+  }
+
+  /** Points the sensor-only MPC has seen with its ToF rays (its whole map). */
+  setHits(points, color) {
+    if (!this.hits) {
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(3000 * 3), 3));
+      this.hits = new THREE.Points(geo, new THREE.PointsMaterial({ color, size: 4, sizeAttenuation: false }));
+      this.hits.frustumCulled = false;
+      this.scene.add(this.hits);
+    }
+    if (points.length === this.hitsN) return;
+    this.hitsN = points.length;
+    this.hits.material.color.set(color);
+    const a = this.hits.geometry.attributes.position.array;
+    const n = Math.min(points.length, 3000);
+    for (let i = 0; i < n; i++) { const p = points[i]; a[i * 3] = p[0]; a[i * 3 + 1] = -p[2]; a[i * 3 + 2] = p[1]; }
+    this.hits.geometry.setDrawRange(0, n);
+    this.hits.geometry.attributes.position.needsUpdate = true;
+    this.hits.visible = true;
+  }
+  clearHits() { if (this.hits) { this.hits.visible = false; this.hitsN = -1; this.hits.geometry.setDrawRange(0, 0); } }
+
   /** MPC sample trajectories, drawn as one reusable line-segment buffer. */
   setPlan(trajs, color) {
     if (trajs === this.planSrc) return;
@@ -305,14 +340,17 @@ export class LabView {
       this.controls.target.lerp(look, Math.min(1, k * 2));
       this.camera.lookAt(this.controls.target);
     } else if (this.camMode === "top" && this.course) {
-      const [L, W] = this.course.room;
-      this.camera.position.set(0.001, Math.max(L, W) * 0.95, 0);
-      this.camera.lookAt(0, 0, 0);
+      const [L, W] = this.course.room, a = this.canvas.clientWidth / Math.max(1, this.canvas.clientHeight);
+      const hh = Math.max(W, L / a) / 2 * 1.06;                         // half-height that fits the whole room
+      if (this.top.top !== hh || this.top.right !== hh * a) {
+        Object.assign(this.top, { left: -hh * a, right: hh * a, top: hh, bottom: -hh });
+        this.top.updateProjectionMatrix();
+      }
       this.controls.target.set(0, 0, 0);
     } else {
       this.controls.update();
     }
-    this.renderer.render(this.scene, this.camera);
+    this.renderer.render(this.scene, this.camMode === "top" && this.course ? this.top : this.camera);
   }
 
   setCamera(mode) {

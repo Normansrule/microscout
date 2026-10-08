@@ -6,6 +6,7 @@
 //   PID cascade  - the reference controller (position -> velocity -> acceleration)
 //   LQR          - optimal gains for a double-integrator model, solved here by Riccati iteration
 //   MPC (MPPI)   - sampling model-predictive control that knows the obstacle map
+//   MPC (sensors) - the same planner, but it only knows what its ToF rays have hit so far
 //   Learned      - a neural-network policy trained by reinforcement learning (rl.js); it only
 //                  sees its own ToF rays, the target direction and its velocity
 //   Pilot        - free flight with beginner / sport / acro modes, flips and the safety rules
@@ -216,13 +217,14 @@ export class MPCController extends PIDController {
     this.vmax = opts.vmax ?? 2.5;
     this.lastSamples = [];
   }
+  clearanceAt(p) { return clearance(this.mission.course, p); }
   cost(p, v, u, t) {
     const d = Math.hypot(p[0] - t[0], p[1] - t[1], p[2] - t[2]);
     let c = d < 2 ? d * d : 4 * d - 4;
     const sp = Math.hypot(v[0], v[1], v[2]);
     if (sp > this.vmax) c += 4 * (sp - this.vmax) ** 2;
     c += 0.01 * (u[0] * u[0] + u[1] * u[1] + u[2] * u[2]);
-    const cl = clearance(this.mission.course, p) - DRONE_RADIUS;
+    const cl = this.clearanceAt(p) - DRONE_RADIUS;
     if (cl < 0.35) c += 120 * (0.35 - cl) ** 2;
     if (cl < 0) c += 400;
     return c;
@@ -260,6 +262,60 @@ export class MPCController extends PIDController {
     this.lastSamples = keep;
     return u0;
   }
+}
+
+/**
+ * Sparse memory of ToF hit points in a 3D hash grid, for the sensor-only planner. Space the rays
+ * have not hit is treated as free (optimistic), the floor is known from the down ray / barometer.
+ */
+export class HitMap {
+  constructor(cell = 0.4, cap = 3000) { this.cell = cell; this.cap = cap; this.grid = new Map(); this.n = 0; this.order = []; }
+  key(ix, iy, iz) { return ix * 73856093 ^ iy * 19349663 ^ iz * 83492791; }
+  add(p) {
+    const c = this.cell, ix = Math.floor(p[0] / c), iy = Math.floor(p[1] / c), iz = Math.floor(p[2] / c);
+    const k = this.key(ix, iy, iz);
+    let b = this.grid.get(k);
+    if (!b) { b = []; this.grid.set(k, b); }
+    for (const q of b) if (Math.abs(q[0] - p[0]) + Math.abs(q[1] - p[1]) + Math.abs(q[2] - p[2]) < 0.05) return;   // already known
+    b.push(p); this.order.push([k, p]); this.n++;
+    if (this.n > this.cap) {                                         // forget the oldest point
+      const [ok, op] = this.order.shift(), ob = this.grid.get(ok);
+      ob.splice(ob.indexOf(op), 1); this.n--;
+    }
+  }
+  /** Distance to the nearest remembered point, capped at one cell. */
+  near(p) {
+    const c = this.cell, ix = Math.floor(p[0] / c), iy = Math.floor(p[1] / c), iz = Math.floor(p[2] / c);
+    let best = c;
+    for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) for (let d = -1; d <= 1; d++) {
+      const B = this.grid.get(this.key(ix + a, iy + b, iz + d));
+      if (B) for (const q of B) { const e = Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]); if (e < best) best = e; }
+    }
+    return best;
+  }
+  points() { return this.order.map((o) => o[1]); }
+}
+
+/** MPPI that plans only around what its own ToF rays have seen (no map). */
+export class SensorMPCController extends MPCController {
+  constructor(quad, mission, opts = {}) {
+    super(quad, mission, opts);
+    this.name = "MPC (sensors only)";
+    this.map = new HitMap();
+    this.vmax = opts.vmax ?? 1.3;      // slower than the map-based MPC: it only sees +-22.5 deg ahead (sweep in docs/guide/lab.md)
+  }
+  sense() {
+    const q = this.quad, R = qrot(q.q), tof = q.tof();
+    RAYS.forEach((r, i) => {
+      if (r.name === "down" || tof[i] >= TOF_RANGE - 1e-6) return;     // the floor is handled separately; no hit
+      const d = [R[0] * r.d[0] + R[1] * r.d[1] + R[2] * r.d[2], R[3] * r.d[0] + R[4] * r.d[1] + R[5] * r.d[2], R[6] * r.d[0] + R[7] * r.d[1] + R[8] * r.d[2]];
+      const hit = [q.pos[0] + d[0] * tof[i], q.pos[1] + d[1] * tof[i], q.pos[2] + d[2] * tof[i]];
+      if (hit[2] > -0.08) return;                                       // a tilted ray hitting the floor: already known
+      this.map.add(hit);
+    });
+  }
+  clearanceAt(p) { return Math.min(-p[2], this.map.near(p)); }
+  outer() { this.sense(); return super.outer(); }
 }
 
 /** A trained neural-network (or linear) policy from rl.js; optionally residual on top of PID. */
@@ -401,5 +457,6 @@ export const CONTROLLERS = {
   pid: { label: "PID cascade", make: (q, m, o) => new PIDController(q, m, o), about: "The reference controller from the SDK: position error sets a velocity, velocity error sets an acceleration. Simple and robust, but it flies straight at the target - it has no idea obstacles exist." },
   lqr: { label: "LQR", make: (q, m, o) => new LQRController(q, m, o), about: "Linear-quadratic regulator: gains come from solving a Riccati equation for a double-integrator model, trading position error (Q) against effort (R). Smooth and optimal for that model, still blind to obstacles." },
   mpc: { label: "MPC (MPPI)", make: (q, m, o) => new MPCController(q, m, o), about: "Model-predictive control: every 40 ms it simulates 64 random futures 0.8 s ahead, scores them against the target and the obstacle map, and blends the best. Plans around obstacles - but it is given the map." },
+  smpc: { label: "MPC (sensors only)", make: (q, m, o) => new SensorMPCController(q, m, o), about: "The same sampling planner, but with no map: it remembers the points its 12 ToF rays have hit and plans around those. Anything the rays have not seen yet counts as empty space - the fair comparison with the learned policy." },
   learned: { label: "Learned policy (RL)", make: (q, m, o) => new LearnedController(q, m, o), about: "A small neural network trained by reinforcement learning on the Train tab. It sees only what the drone's sensors see: 12 ToF rays, its velocity and the direction to the next target." },
 };

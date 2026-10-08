@@ -3,7 +3,7 @@
 :root {
   --bg: #e9edf0; --panel: #f7f8f9; --ink: #17202a; --muted: #56616d; --line: #d3d9df; --field: #ffffff;
   --accent: #f28c28; --accent-ink: #2b1503; --link: #a9500a; --ok: #13865b; --bad: #c4362f; --warn: #a86a00;
-  --c-pid: #2a78d6; --c-lqr: #13865b; --c-mpc: #6f52d4; --c-rl: #d6336c; --c-you: #138a9e;
+  --c-pid: #2a78d6; --c-lqr: #13865b; --c-mpc: #6f52d4; --c-smpc: #6b7d12; --c-rl: #d6336c; --c-you: #138a9e;
   --view-bg: #dce2e7; --view-floor: #cbd3da; --view-grid: #b2bcc5; --view-obstacle: #8e99a5; --view-wall: #98a2ac;
   --ray: #e5484d; --ray-far: #7f8a95;
   --radius-s: 6px; --radius-l: 10px;
@@ -13,7 +13,7 @@
   :root:not([data-theme="light"]) {
     --bg: #10151b; --panel: #171e26; --ink: #e6ebf0; --muted: #9ba6b2; --line: #2a333d; --field: #0f141a;
     --accent: #f59a45; --accent-ink: #1e0f02; --link: #f5a65c; --ok: #3cc28a; --bad: #f0645c; --warn: #e2a33a;
-    --c-pid: #5b9be6; --c-lqr: #3cc28a; --c-mpc: #a08cf0; --c-rl: #f06595; --c-you: #3fc6d8;
+    --c-pid: #5b9be6; --c-lqr: #3cc28a; --c-mpc: #a08cf0; --c-smpc: #b5c94a; --c-rl: #f06595; --c-you: #3fc6d8;
     --view-bg: #131920; --view-floor: #1b232c; --view-grid: #2a3541; --view-obstacle: #56616e; --view-wall: #3d4855;
     --ray: #ff6b6b; --ray-far: #5b6774;
     color-scheme: dark;
@@ -98,6 +98,10 @@ button.primary { background: var(--accent); color: var(--accent-ink); border-col
 button:disabled { opacity: 0.45; cursor: not-allowed; }
 .hint { color: var(--muted); font-size: 13.5px; margin: 6px 0 10px; }
 
+.editor { margin: 4px 0 12px; padding: 10px; border: 1px dashed var(--line); border-radius: var(--radius-s); }
+.editor .row { margin: 0 0 8px; }
+.editor .seg button { padding: 6px 4px; font-size: 13.5px; }
+body.editing #view { cursor: crosshair; }
 .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin: 4px 0 14px; border: 1px solid var(--line); border-radius: var(--radius-s); overflow: hidden; }
 .tabs button { border: 0; border-radius: 0; border-right: 1px solid var(--line); padding: 8px 4px; font-weight: 600; font-variation-settings: "wdth" 104; }
 .tabs button:last-child { border-right: 0; }

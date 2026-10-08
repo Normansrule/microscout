@@ -28,7 +28,7 @@ export const DEFAULT_TRAIN = {
  * + 20 on finishing - 0.02 per step - 20 for a crash (impact > 0.6 m/s or > 70 deg tilt).
  */
 export function runEpisode(policy, params, opt, seed, record = false, noise = null) {
-  const course = buildCourse(opt.course, seed, opt.randomize);
+  const course = buildCourse(opt.course, seed, opt.randomize, opt.spec);
   const R = rng(seed * 7919 + 13);
   const env = {
     wind: [opt.wind * (opt.randomize ? R() * 2 - 1 : 1), opt.wind * (opt.randomize ? R() * 2 - 1 : 0), 0],

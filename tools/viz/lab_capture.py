@@ -180,6 +180,17 @@ async def still_ui(browser, port, scheme):
     await ctx.close()
 
 
+async def still_editor(browser, port):
+    """The course editor with a custom layout, sensor-only MPC flying it in the top view."""
+    ctx, page = await open_lab(browser, port, "?course=custom", (1360, 820))
+    await page.evaluate("""() => { lab.selectTab('auto'); document.querySelector('#ctrlList input[value=smpc]').click();
+      document.querySelector('#edToggle').click(); lab.flyAuto(); lab.setCam('top');
+      for (let i = 0; i < 240; i++) lab.tick(1/30, (window._now = (window._now || 1e6) + 33)); }""")
+    await page.screenshot(path=str(OUT / "lab-editor.png"))
+    print("  docs/figures/lab/lab-editor.png")
+    await ctx.close()
+
+
 CLIPS = {"race": clip_race, "forest": clip_forest, "pilot": clip_pilot, "train": clip_train}
 
 
@@ -191,7 +202,9 @@ async def main(names):
                                     args=["--use-gl=swiftshader", "--enable-webgl", "--ignore-gpu-blocklist"])
         for n in names:
             print(n)
-            if n == "ui":
+            if n == "editor":
+                await still_editor(b, port)
+            elif n == "ui":
                 await still_ui(b, port, "light"); await still_ui(b, port, "dark")
             else:
                 await CLIPS[n](b, port)
@@ -199,4 +212,4 @@ async def main(names):
 
 
 if __name__ == "__main__":
-    asyncio.run(main(sys.argv[1:] or [*CLIPS, "ui"]))
+    asyncio.run(main(sys.argv[1:] or [*CLIPS, "ui", "editor"]))

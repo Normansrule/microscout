@@ -40,13 +40,14 @@
 ## Fly it in your browser: the Flight Lab
 
 <p align="center">
-  <a href="https://normansrule.github.io/microscout/lab/?demo=race"><img src="docs/figures/lab/lab-race.gif" width="100%" alt="Recording from the Flight Lab: four simulated MicroScouts, flown by a PID cascade, an LQR controller, an MPC controller and a reinforcement-learned policy, race through five gates. A leaderboard in the corner shows each one's gates passed and time."></a>
+  <a href="https://normansrule.github.io/microscout/lab/?demo=race"><img src="docs/figures/lab/lab-race.gif" width="100%" alt="Recording from the Flight Lab: five simulated MicroScouts, flown by a PID cascade, an LQR controller, an MPC controller given the map, an MPC controller using only its sensors and a reinforcement-learned policy, race through five gates. A leaderboard in the corner shows each one's gates passed and time."></a>
 </p>
 
 The **[Flight Lab](https://normansrule.github.io/microscout/lab/)** runs MicroScout's simulator in a web page, with nothing to install:
 
 - **Fly it yourself** with the keyboard, a gamepad or touch sticks, in beginner, sport or acro mode, with one-button flips.
-- **Race four autopilots** through obstacle courses: PID, LQR, model-predictive control and a learned policy.
+- **Race five autopilots** through obstacle courses: PID, LQR (Linear-Quadratic Regulator), MPC (Model Predictive Control) given the map, MPC using only its own sensors, and a learned policy.
+- **Build your own course** in a top-down editor, then share it as a link.
 - **Train it with reinforcement learning** using CEM, evolution strategies, ARS or REINFORCE, and watch every attempt as it learns.
 - **Make it hard:** add wind, gusts, a weak motor, a payload, noisy sensors or a flat battery.
 
@@ -67,7 +68,7 @@ The **[Flight Lab](https://normansrule.github.io/microscout/lab/)** runs MicroSc
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/figures/lab-controllers-dark.svg">
-  <img src="docs/figures/lab-controllers-light.svg" width="100%" alt="Left: share of 20 random pillar-forest layouts each autopilot finished. MPC 100 % with no contact; PID 20 %; LQR 55 %, mostly after touching a pillar; the learned policy 55 %. Right: mean time to finish on three courses.">
+  <img src="docs/figures/lab-controllers-light.svg" width="100%" alt="Left: share of 20 random pillar-forest layouts each autopilot finished. MPC given the map 100 % with no contact; MPC with sensors only 100 %, 90 % without contact; PID 20 %; LQR 55 %, mostly after touching a pillar; the learned policy 55 %. Right: mean time to finish on three courses.">
 </picture>
 
 <picture>
@@ -75,7 +76,7 @@ The **[Flight Lab](https://normansrule.github.io/microscout/lab/)** runs MicroSc
   <img src="docs/figures/lab-learning-light.svg" width="100%" alt="Learning curves for CEM, ES, ARS and REINFORCE trained from random weights on the window course, three runs each. ARS ends highest; results vary a lot between seeds.">
 </picture>
 
-MPC wins the forest partly because it is given the obstacle map. The learned policy sees only its 12 ToF rays. Details and caveats are in **[docs/guide/lab.md](docs/guide/lab.md)**.
+The map-based MPC is handed the obstacle map. The fair comparison is the sensor-only MPC, which sees only its 12 ToF (Time-of-Flight) rays, like the learned policy: it also finished every forest layout, but at 1.3 m/s instead of 2.5 m/s. Details and caveats are in **[docs/guide/lab.md](docs/guide/lab.md)**.
 
 </details>
 

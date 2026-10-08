@@ -12,7 +12,7 @@ import json
 from theme import REPO, THEMES, new_fig, save_svg, stamp, style_axes, title_block
 
 LAB = REPO / "docs" / "lab"
-CTRL = [("pid", "PID cascade"), ("lqr", "LQR"), ("mpc", "MPC (MPPI)"), ("learned", "Learned policy (CEM)")]
+CTRL = [("pid", "PID cascade"), ("lqr", "LQR"), ("mpc", "MPC, given the map"), ("smpc", "MPC, sensors only"), ("learned", "Learned policy (CEM)")]
 SIM = "Flight Lab simulation, estimated parameters"
 
 
@@ -54,7 +54,7 @@ def fig_controllers(theme):
             if mt:
                 ax2.plot(mt, y, marker=m, color=col, markersize=7, linestyle="none")
     ax2.set_yticks(range(len(CTRL))); ax2.set_yticklabels([])
-    ax2.set_xlim(0, 18); ax2.set_ylim(-0.5, len(CTRL) - 0.5); ax.set_ylim(-0.5, len(CTRL) - 0.5)
+    ax2.set_xlim(0, 20); ax2.set_ylim(-0.5, len(CTRL) - 0.5); ax.set_ylim(-0.5, len(CTRL) - 0.5)
     ax2.set_xlabel("seconds (lower is faster)", fontsize=9)
     ax2.set_title("Time to finish", loc="left", color=t["ink"], fontsize=11)
     x = 0.64

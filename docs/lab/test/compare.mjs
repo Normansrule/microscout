@@ -12,7 +12,7 @@ import { toEuler } from "../js/math.js";
 
 const N = +(process.argv[2] || 20);
 const courses = ["gates", "forest", "window"];
-const kinds = ["pid", "lqr", "mpc", "learned"];
+const kinds = ["pid", "lqr", "mpc", "smpc", "learned"];
 const policy = (c) => { const j = JSON.parse(readFileSync(new URL(`../policies/${c}-cem-linear.json`, import.meta.url))); const p = Policy.fromJSON(j); p.meta = j; return p; };
 
 function run(kind, cname, seed) {
