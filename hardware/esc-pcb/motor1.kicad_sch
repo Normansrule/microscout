@@ -5,7 +5,7 @@
   (paper "A3")
   (title_block
     (title "MicroScout 4-in-1 ESC - Motor 1")
-    (date "2026-10-07")
+    (date "2026-10-08")
     (rev "G2-draft-1")
     (company "MicroScout (open hardware, CERN-OHL-S-2.0)")
     (comment 1 "STATUS: DRAFT - UNVERIFIED - requires human review at Gate G2")

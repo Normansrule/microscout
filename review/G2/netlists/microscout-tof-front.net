@@ -1,14 +1,14 @@
 (export (version "E")
   (design
     (source "/home/claude/microscout/hardware/tof-satellites/front/microscout-tof-front.kicad_sch")
-    (date "Wed Oct  7 20:52:45 2026")
+    (date "Thu Oct  8 03:23:29 2026")
     (tool "Eeschema 7.0.11+dfsg-1build4")
     (sheet (number "1") (name "/") (tstamps "/")
       (title_block
         (title "MicroScout ToF front satellite - root")
         (company "MicroScout (open hardware, CERN-OHL-S-2.0)")
         (rev "G2-draft-1")
-        (date "2026-10-07")
+        (date "2026-10-08")
         (source "microscout-tof-front.kicad_sch")
         (comment (number "1") (value "STATUS: DRAFT - UNVERIFIED - requires human review at Gate G2"))
         (comment (number "2") (value "Generated schematic - not reviewed. Values are first-pass G2 choices."))
@@ -24,7 +24,7 @@
         (title "MicroScout ToF front satellite - VL53L5CX satellite")
         (company "MicroScout (open hardware, CERN-OHL-S-2.0)")
         (rev "G2-draft-1")
-        (date "2026-10-07")
+        (date "2026-10-08")
         (source "tof.kicad_sch")
         (comment (number "1") (value "STATUS: DRAFT - UNVERIFIED - requires human review at Gate G2"))
         (comment (number "2") (value "Generated schematic - not reviewed. Values are first-pass G2 choices."))
@@ -285,6 +285,10 @@
         (pin (num "C6") (name "RSVD") (type "passive"))
         (pin (num "C7") (name "GND") (type "passive")))))
   (libraries
+    (library (logical "Connector_Generic")
+      (uri "/home/claude/microscout/hardware/tof-satellites/front/../../libraries/kicad7-symbols/Connector_Generic.kicad_sym"))
+    (library (logical "Device")
+      (uri "/home/claude/microscout/hardware/tof-satellites/front/../../libraries/kicad7-symbols/Device.kicad_sym"))
     (library (logical "microscout")
       (uri "/home/claude/microscout/hardware/tof-satellites/front/../../libraries/microscout.kicad_sym")))
   (nets

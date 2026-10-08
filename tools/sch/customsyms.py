@@ -45,14 +45,14 @@ SYMBOLS = [
      [("8", "VDD", "power_in", "T"), ("5", "VDDIO", "power_in", "T"),
       ("12", "AP_CS", "input", "L"), ("13", "AP_SCLK", "input", "L"), ("14", "AP_SDI", "input", "L"),
       ("1", "AP_SDO", "output", "L"),
-      ("4", "INT1", "output", "R"), ("9", "INT2/FSYNC", "bidirectional", "R"),
+      ("4", "INT1", "output", "R"), ("9", "INT2/FSYNC", "input", "R"),
       ("2", "RESV", "passive", "R"), ("3", "RESV", "passive", "R"), ("10", "RESV", "passive", "R"), ("11", "RESV", "passive", "R"),
       ("6", "GND", "power_in", "B"), ("7", "RESV_GND", "passive", "B")]),
     ("BMP388", "U", "Bosch BMP388/BMP390 barometer (same pinout), LGA-10 2x2",
      "https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmp390-ds002.pdf",
      "Package_LGA:ST_HLGA-10_2x2mm_P0.5mm_LayoutBorder3x2y",
      [("10", "VDD", "power_in", "T"), ("1", "VDDIO", "power_in", "T"),
-      ("4", "SDI", "bidirectional", "L"), ("2", "SCK", "input", "L"), ("6", "CSB", "input", "L"), ("5", "SDO", "bidirectional", "L"),
+      ("4", "SDI", "bidirectional", "L"), ("2", "SCK", "input", "L"), ("6", "CSB", "input", "L"), ("5", "SDO", "passive", "L"),
       ("7", "INT", "output", "R"),
       ("3", "VSS", "power_in", "B"), ("8", "VSS", "power_in", "B"), ("9", "VSS", "power_in", "B")]),
     ("QMC5883P", "U", "QST QMC5883P 3-axis magnetometer, LGA-16 3x3",
@@ -198,7 +198,8 @@ def build_symbol(name, refp, desc, ds, fp, pinspec):
 
 
 def power_symbol(net):
-    tree = parse(pathlib.Path("/usr/share/kicad/symbols/power.kicad_sym").read_text())[0]
+    vend = REPO / "hardware" / "libraries" / "kicad7-symbols" / "power.kicad_sym"
+    tree = parse((vend if vend.exists() else pathlib.Path("/usr/share/kicad/symbols/power.kicad_sym")).read_text())[0]
     base = next(e for e in find_all(tree, "symbol") if e[1] == "+3V3")
     s = copy.deepcopy(base)
     s[1] = net

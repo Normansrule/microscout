@@ -89,6 +89,24 @@ microscout demo --plot demo.png    # take off, square, turn, back flip, side fli
 deactivate
 ```
 
+### 5b. The Flight Lab (browser simulator)
+
+The lab is online at <https://normansrule.github.io/microscout/lab/>. To run your own copy, for example after editing `docs/lab/js/*.js`:
+
+```bash
+cd ~/microscout/docs && python3 -m http.server 8000     # then open http://localhost:8000/lab/ ; Ctrl+C to stop
+```
+
+To run its tests, or to retrain the bundled policies (Node 18 or later):
+
+```bash
+sudo apt install -y nodejs
+cd ~/microscout
+node --test docs/lab/test/lab.test.mjs                  # 10 simulation regression tests (also run in CI)
+node docs/lab/test/compare.mjs 20                       # every autopilot on 20 layouts -> docs/data/lab_controllers.json
+node docs/lab/train.mjs '{"course":"window","trainer":"cem","arch":"linear","init":"pd","population":32,"episodes":2,"randomize":true}' 140 docs/lab/policies/window-cem-linear.json
+```
+
 ## 6. Regenerate the schematics and run KiCad's own ERC (G2 checklist)
 
 KiCad 7 from Ubuntu's archive is enough to regenerate the schematics. KiCad's command-line ERC needs **KiCad 8 or later**, so this step installs KiCad 9 from the official PPA:
@@ -135,9 +153,13 @@ This needs CadQuery, Playwright and Node; see `tools/viz/README.md` for the full
 cd ~/microscout
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r tools/viz/requirements.txt cadquery playwright && python3 -m playwright install chromium
-sudo apt install -y nodejs npm graphviz poppler-utils
+sudo apt install -y nodejs npm graphviz poppler-utils ffmpeg
 (cd tools/viz/render3d && npm install)
 python3 mechanical/concept/microscout_concept.py && python3 review/G1/calc/budgets.py && python3 tools/viz/export_sim.py
 (cd tools/viz && python3 figures.py && python3 animations.py && python3 build_site.py)
 python3 tools/viz/render3d/render.py && python3 tools/viz/render3d/render.py --banner && python3 tools/viz/banner.py
+# Flight Lab charts and recordings
+node docs/lab/test/compare.mjs 20 && node docs/lab/test/curves.mjs 80 3
+(cd tools/viz && python3 lab_charts.py)
+python3 tools/viz/lab_capture.py                 # several minutes: drives the lab frame by frame
 ```

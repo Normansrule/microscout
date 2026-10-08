@@ -1,0 +1,149 @@
+<!doctype html>
+<!-- STATUS: DRAFT - UNVERIFIED - requires human review at Gate G6 (simulation only) -->
+<!-- SPDX-License-Identifier: MIT -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MicroScout Flight Lab</title>
+<meta name="description" content="Fly the MicroScout micro drone in your browser, compare PID, LQR and MPC autopilots, and train it with reinforcement learning to get through obstacle courses. Simulation with estimated parameters.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..750&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="lab.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
+</head>
+<body>
+<header class="bar">
+  <a class="brand" href="../">MicroScout</a>
+  <h1>Flight Lab</h1>
+  <p class="truth">A simulation with estimated parameters. No MicroScout has been built or flown yet.</p>
+  <nav aria-label="Project">
+    <a href="../">Design explorer</a>
+    <a href="https://github.com/Normansrule/microscout/blob/main/docs/guide/lab.md">How the lab works</a>
+    <a href="https://github.com/Normansrule/microscout">Source</a>
+  </nav>
+</header>
+
+<main class="lab">
+  <section class="stage" aria-label="3D flight view">
+    <canvas id="view" tabindex="0" aria-label="3D view of the drone and the course"></canvas>
+    <div class="hud readout" id="readout" aria-live="off"></div>
+    <div class="hud cams" role="group" aria-label="View">
+      <button data-cam="chase" class="on">Chase</button><button data-cam="orbit">Orbit</button><button data-cam="top">Top</button>
+      <button id="raysBtn" class="on" aria-pressed="true" title="Show the ToF sensor rays">Rays</button>
+      <button id="speedBtn" title="Simulation speed">1×</button>
+    </div>
+    <ol class="hud log" id="log" aria-live="polite"></ol>
+    <div class="hud toast" id="toast" role="status"></div>
+    <div class="touch" id="touch" aria-hidden="true">
+      <div class="pad" data-stick="l"><span class="knob"></span><small>throttle · yaw</small></div>
+      <div class="pad" data-stick="r"><span class="knob"></span><small>pitch · roll</small></div>
+    </div>
+    <p class="hud stamp">MicroScout Flight Lab - simulation with estimated parameters - DRAFT, UNVERIFIED</p>
+    <p class="loading" id="loading">Loading the 3D model…</p>
+  </section>
+
+  <aside class="rail" aria-label="Controls">
+    <div class="course">
+      <label for="courseSel">Course</label>
+      <div class="row">
+        <select id="courseSel"></select>
+        <button id="reseed" title="Generate a new random layout">New layout</button>
+      </div>
+      <p class="hint" id="courseAbout"></p>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" aria-controls="p-fly" id="t-fly">Fly</button>
+      <button role="tab" aria-selected="false" aria-controls="p-auto" id="t-auto">Autopilot</button>
+      <button role="tab" aria-selected="false" aria-controls="p-train" id="t-train">Train</button>
+      <button role="tab" aria-selected="false" aria-controls="p-sit" id="t-sit">Situations</button>
+    </div>
+
+    <section class="panel" id="p-fly" role="tabpanel" aria-labelledby="t-fly">
+      <div class="seg" role="radiogroup" aria-label="Flight mode" id="modeSeg">
+        <button role="radio" aria-checked="true" data-mode="beginner">Beginner</button>
+        <button role="radio" aria-checked="false" data-mode="sport">Sport</button>
+        <button role="radio" aria-checked="false" data-mode="acro">Acro</button>
+      </div>
+      <p class="hint" id="modeAbout"></p>
+      <div class="row wrap">
+        <button class="primary" id="takeoffBtn">Take off</button>
+        <button id="landBtn">Land</button>
+        <button id="flipBtn">Back flip</button>
+        <button id="radioBtn" title="Simulate losing the radio for 5 s">Drop the radio</button>
+      </div>
+      <dl class="keys">
+        <div><dt><kbd>W</kbd><kbd>S</kbd></dt><dd>forward, back</dd></div>
+        <div><dt><kbd>A</kbd><kbd>D</kbd></dt><dd>left, right</dd></div>
+        <div><dt><kbd>Space</kbd><kbd>⇧</kbd></dt><dd>up, down</dd></div>
+        <div><dt><kbd>Q</kbd><kbd>E</kbd></dt><dd>turn</dd></div>
+        <div><dt><kbd>T</kbd></dt><dd>take off</dd></div>
+        <div><dt><kbd>L</kbd></dt><dd>land</dd></div>
+        <div><dt><kbd>X</kbd></dt><dd>flip toward the stick</dd></div>
+        <div><dt><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd></dt><dd>flight mode</dd></div>
+        <div><dt><kbd>C</kbd></dt><dd>camera</dd></div>
+        <div><dt><kbd>K</kbd></dt><dd>motors off</dd></div>
+      </dl>
+      <p class="hint">A gamepad works too: left stick throttle and yaw, right stick pitch and roll. On a phone, two touch sticks appear once you take off.</p>
+    </section>
+
+    <section class="panel" id="p-auto" role="tabpanel" aria-labelledby="t-auto" hidden>
+      <fieldset class="ctrls" id="ctrlList"><legend>Controller</legend></fieldset>
+      <p class="hint" id="ctrlAbout"></p>
+      <div id="ctrlParams" class="params"></div>
+      <div class="row wrap">
+        <button class="primary" id="flyAuto">Fly the course</button>
+        <button id="raceBtn">Race all four</button>
+      </div>
+      <table class="results" id="results"><thead><tr><th>Controller</th><th>Result</th><th>Time</th><th>Worst hit</th></tr></thead><tbody></tbody></table>
+    </section>
+
+    <section class="panel" id="p-train" role="tabpanel" aria-labelledby="t-train" hidden>
+      <label for="trainerSel">Learning algorithm</label>
+      <select id="trainerSel"></select>
+      <p class="hint" id="trainerAbout"></p>
+      <div class="grid2">
+        <label>Policy <select id="archSel"><option value="linear">Linear (57 weights)</option><option value="mlp">Neural net 18-24-3</option></select></label>
+        <label>Start from <select id="initSel"><option value="pd">Simple PD steering</option><option value="random">Random weights</option></select></label>
+        <label>Policy commands <select id="actSel"><option value="velocity">Velocity</option><option value="accel">Acceleration (harder)</option></select></label>
+        <label class="check"><input type="checkbox" id="residualChk"> Add to the PID autopilot</label>
+        <label>Population <input type="range" id="popR" min="8" max="64" step="4" value="24"><output id="popO">24</output></label>
+        <label>Exploration σ <input type="range" id="sigR" min="0.02" max="0.5" step="0.01" value="0.1"><output id="sigO">0.10</output></label>
+        <label>Learning rate <input type="range" id="lrR" min="0.005" max="0.2" step="0.005" value="0.05"><output id="lrO">0.050</output></label>
+        <label class="check"><input type="checkbox" id="randChk"> New random course every iteration</label>
+      </div>
+      <div class="row wrap">
+        <button class="primary" id="trainBtn">Start training</button>
+        <button id="trainReset">Reset</button>
+        <button id="useBest" disabled>Fly the best policy</button>
+      </div>
+      <canvas class="chart" id="curve" aria-label="Learning curve"></canvas>
+      <p class="legend"><span class="sw mean"></span>population mean <span class="sw band"></span>min–max <span class="sw val"></span>current policy on test courses</p>
+      <p class="stats" id="trainStats">Pick an algorithm and press Start. Faint lines in the view are this iteration's attempts.</p>
+      <div class="row wrap">
+        <button id="savePol" disabled>Download policy</button>
+        <label class="file">Load policy <input type="file" id="loadPol" accept="application/json"></label>
+      </div>
+    </section>
+
+    <section class="panel" id="p-sit" role="tabpanel" aria-labelledby="t-sit" hidden>
+      <p class="hint">Situations apply to every tab from the next reset. They test how each controller copes.</p>
+      <div class="grid2">
+        <label>Wind <input type="range" id="windR" min="0" max="5" step="0.25" value="0"><output id="windO">0 m/s</output></label>
+        <label>From <input type="range" id="dirR" min="0" max="345" step="15" value="90"><output id="dirO">90°</output></label>
+        <label>Gusts <input type="range" id="gustR" min="0" max="3" step="0.25" value="0"><output id="gustO">0 m/s</output></label>
+        <label>Motor 3 health <input type="range" id="motorR" min="40" max="100" step="5" value="100"><output id="motorO">100 %</output></label>
+        <label>Payload <input type="range" id="payR" min="0" max="30" step="1" value="0"><output id="payO">0 g</output></label>
+        <label>ToF noise <input type="range" id="noiseR" min="0" max="0.2" step="0.01" value="0"><output id="noiseO">0 cm</output></label>
+        <label>Battery at start <input type="range" id="batR" min="5" max="100" step="5" value="100"><output id="batO">100 %</output></label>
+      </div>
+      <div class="row wrap"><button class="primary" id="applySit">Apply and reset</button><button id="clearSit">Calm conditions</button></div>
+      <p class="hint">Try: 3 m/s wind with 1.5 m/s gusts on the gate course, motor 3 at 60 %, or a battery at 15 % (the pilot controller lands by itself).</p>
+    </section>
+  </aside>
+</main>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

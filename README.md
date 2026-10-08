@@ -8,6 +8,7 @@
 </p>
 
 <p align="center">
+  <a href="https://normansrule.github.io/microscout/lab/"><img src="https://img.shields.io/badge/Flight%20Lab-fly%20it%20in%20your%20browser-f28c28" alt="Flight Lab: fly it in your browser"></a>
   <img src="https://img.shields.io/badge/status-draft%20%C2%B7%20not%20built-b07000" alt="Status: draft, not built">
   <img src="https://img.shields.io/badge/gate-G2%20schematics%20in%20review-2a78d6" alt="Gate G2 schematics in review">
   <a href="https://github.com/Normansrule/microscout/actions/workflows/checks.yml"><img src="https://github.com/Normansrule/microscout/actions/workflows/checks.yml/badge.svg" alt="CI checks"></a>
@@ -18,6 +19,7 @@
 </p>
 
 <p align="center">
+  <b><a href="https://normansrule.github.io/microscout/lab/">Flight Lab</a></b> ·
   <b><a href="https://normansrule.github.io/microscout/">Design explorer</a></b> ·
   <a href="docs/guide/fly.md">Fly it</a> ·
   <a href="docs/guide/program.md">Program it</a> ·
@@ -33,7 +35,51 @@
 > - Gate G1 (architecture and parts) was approved on 2026-10-07.
 > - Gate G2 (schematics) is drafted and waiting for review.
 >
-> The 3D images are a concept model, the flights are simulations with estimated parameters, and every number is a datasheet value or an estimate.
+> The 3D images are a concept model, the flights and the Flight Lab are simulations with estimated parameters, and every number is a datasheet value or an estimate.
+
+## Fly it in your browser: the Flight Lab
+
+<p align="center">
+  <a href="https://normansrule.github.io/microscout/lab/?demo=race"><img src="docs/figures/lab/lab-race.gif" width="100%" alt="Recording from the Flight Lab: four simulated MicroScouts, flown by a PID cascade, an LQR controller, an MPC controller and a reinforcement-learned policy, race through five gates. A leaderboard in the corner shows each one's gates passed and time."></a>
+</p>
+
+The **[Flight Lab](https://normansrule.github.io/microscout/lab/)** runs MicroScout's simulator in a web page, with nothing to install:
+
+- **Fly it yourself** with the keyboard, a gamepad or touch sticks, in beginner, sport or acro mode, with one-button flips.
+- **Race four autopilots** through obstacle courses: PID, LQR, model-predictive control and a learned policy.
+- **Train it with reinforcement learning** using CEM, evolution strategies, ARS or REINFORCE, and watch every attempt as it learns.
+- **Make it hard:** add wind, gusts, a weak motor, a payload, noisy sensors or a flat battery.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/figures/lab/lab-pilot.gif" alt="Free flight in beginner mode: the drone takes off, slides sideways, flies through the first gate with its distance-sensor rays fanning out ahead, does a back flip and carries on."><br><sub><b>Free pilot:</b> take off, thread a gate, back flip. The red and grey lines are the 12 simulated ToF rays.</sub></td>
+    <td width="50%"><img src="docs/figures/lab/lab-forest-mpc.gif" alt="The MPC autopilot weaving between pillars; faint purple lines show the random future paths it samples every 40 ms."><br><sub><b>MPC in the pillar forest:</b> the faint purple lines are the 64 futures it samples every 40 ms.</sub></td>
+  </tr>
+</table>
+
+<p align="center">
+  <img src="docs/figures/lab/lab-train.gif" width="100%" alt="The whole Flight Lab while the cross-entropy method trains a policy from random weights: faint pink ghost paths show each iteration's attempts converging on the gates, while the learning curve in the side panel rises.">
+  <br><sub><b>Learning from scratch:</b> the first ~240 iterations of CEM, two per frame. Each faint line is one attempt by a member of the population; the curve on the right is the score.</sub>
+</p>
+
+<details>
+<summary><b>How the autopilots and the learning algorithms compare</b> (simulation, estimated parameters)</summary>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/lab-controllers-dark.svg">
+  <img src="docs/figures/lab-controllers-light.svg" width="100%" alt="Left: share of 20 random pillar-forest layouts each autopilot finished. MPC 100 % with no contact; PID 20 %; LQR 55 %, mostly after touching a pillar; the learned policy 55 %. Right: mean time to finish on three courses.">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/lab-learning-dark.svg">
+  <img src="docs/figures/lab-learning-light.svg" width="100%" alt="Learning curves for CEM, ES, ARS and REINFORCE trained from random weights on the window course, three runs each. ARS ends highest; results vary a lot between seeds.">
+</picture>
+
+MPC wins the forest partly because it is given the obstacle map. The learned policy sees only its 12 ToF rays. Details and caveats are in **[docs/guide/lab.md](docs/guide/lab.md)**.
+
+</details>
+
+## Where the project is
 
 <p align="center">
   <picture>
@@ -60,6 +106,8 @@
 - **Motor control:** an open 4-in-1 ESC (electronic speed controller) running AM32 firmware.
 
 ## Try it in 30 seconds (simulator)
+
+No install: open the **[Flight Lab](https://normansrule.github.io/microscout/lab/)**. To program it from Python instead:
 
 ```bash
 git clone https://github.com/Normansrule/microscout.git
@@ -122,7 +170,8 @@ New machine? **[docs/setup-ubuntu.md](docs/setup-ubuntu.md)** covers every comma
 
 The schematics are generated from Python by [`tools/sch`](tools/sch/) as KiCad 7 files: the flight controller (4 sheets), the ESC (5 sheets) and two ToF satellite boards.
 
-- **Checks:** the agent's checks report 0 errors, and KiCad's exported netlists are identical to the source. KiCad's own ERC (KiCad 8/9) is still to run.
+- **Checks:** the agent's checks report 0 errors, and KiCad's exported netlists are identical to the source.
+- **KiCad 9 ERC (run by the owner):** 0 errors. The warnings came from library differences between KiCad versions, so the library parts are now bundled with the project (D-056). Re-running step 6 of the [setup guide](docs/setup-ubuntu.md) should show far fewer.
 - **Review:** an independent review pass found 7 serious issues, and all are fixed. They are listed in [review/G2/README.md](review/G2/README.md).
 
 ## The numbers (estimates, regenerated from the budget model)
@@ -151,7 +200,7 @@ The schematics are generated from Python by [`tools/sch`](tools/sch/) as KiCad 7
 | G2 | Schematics, ERC, reference-design checks - [review/G2](review/G2/README.md) | 🟡 Awaiting review (OQ-13 to OQ-18) |
 | G3-G4 | PCB layout, fabrication outputs | ⚪ Not started |
 | G5 | Mechanical design | ⚪ Concept CAD only |
-| G6-G7 | Firmware, bench bring-up, first flight | ⚪ SDK and simulator built early |
+| G6-G7 | Firmware, bench bring-up, first flight | ⚪ SDK, simulator and Flight Lab built early |
 | G8 | Release | ⚪ Not started |
 
 Progress log: [PROGRESS.md](PROGRESS.md). Every design choice and its alternatives: [docs/decisions.md](docs/decisions.md).
@@ -193,6 +242,7 @@ Known risks:
 | `software/microscout_sdk/` | Python SDK, simulator, reference flight controller, examples, tests | MIT |
 | `bom/` | Bills of materials (`drone-bom-g2.csv` is generated from the schematics) | CERN-OHL-S-2.0 |
 | `docs/` | Guides, decisions, protocol, figures, renders, the GitHub Pages explorer, setup guide | CC-BY-SA-4.0 (scripts MIT) |
+| `docs/lab/` | The Flight Lab: browser simulator, controllers, RL trainers, bundled policies, tests | MIT |
 | `tools/sch/`, `tools/viz/` | Schematic generator and checks; every figure, render and the explorer | MIT |
 | `review/G1`…`G8` | Gate review packages | CC-BY-SA-4.0 |
 | `VERIFY.md`, `PROGRESS.md`, `LICENSES.md` | Gate checklists, progress, licence summary | CC-BY-SA-4.0 |

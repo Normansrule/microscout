@@ -1,0 +1,96 @@
+{
+ "note": "Simulation with estimated parameters (docs/lab). Not a measurement.",
+ "layouts": 20,
+ "results": {
+  "gates": {
+   "pid": {
+    "runs": 1,
+    "finished": 1,
+    "meanTime": 13.914000000001316,
+    "touched": 0,
+    "clean": 1
+   },
+   "lqr": {
+    "runs": 1,
+    "finished": 1,
+    "meanTime": 15.546000000001861,
+    "touched": 0,
+    "clean": 1
+   },
+   "mpc": {
+    "runs": 1,
+    "finished": 1,
+    "meanTime": 9.847999999999958,
+    "touched": 0,
+    "clean": 1
+   },
+   "learned": {
+    "runs": 1,
+    "finished": 1,
+    "meanTime": 12.386000000000806,
+    "touched": 0,
+    "clean": 1
+   }
+  },
+  "forest": {
+   "pid": {
+    "runs": 20,
+    "finished": 0.2,
+    "meanTime": 4.642999999999711,
+    "touched": 0.9,
+    "clean": 0.1
+   },
+   "lqr": {
+    "runs": 20,
+    "finished": 0.55,
+    "meanTime": 9.946545454545028,
+    "touched": 0.95,
+    "clean": 0.05
+   },
+   "mpc": {
+    "runs": 20,
+    "finished": 1,
+    "meanTime": 6.720799999999608,
+    "touched": 0,
+    "clean": 1
+   },
+   "learned": {
+    "runs": 20,
+    "finished": 0.55,
+    "meanTime": 3.9058181818179736,
+    "touched": 0.5,
+    "clean": 0.5
+   }
+  },
+  "window": {
+   "pid": {
+    "runs": 20,
+    "finished": 1,
+    "meanTime": 6.947399999999457,
+    "touched": 0,
+    "clean": 1
+   },
+   "lqr": {
+    "runs": 20,
+    "finished": 1,
+    "meanTime": 8.74989999999959,
+    "touched": 0,
+    "clean": 1
+   },
+   "mpc": {
+    "runs": 20,
+    "finished": 1,
+    "meanTime": 5.204999999999648,
+    "touched": 0,
+    "clean": 1
+   },
+   "learned": {
+    "runs": 20,
+    "finished": 1,
+    "meanTime": 3.9976999999997807,
+    "touched": 0,
+    "clean": 1
+   }
+  }
+ }
+}

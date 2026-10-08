@@ -137,7 +137,8 @@ def footprints(project):
         if lib == "microscout":
             custom.append(f"{p.ref}: {name}")
             continue
-        if not (FP_ROOT / f"{lib}.pretty" / f"{name}.kicad_mod").exists():
+        vend = pathlib.Path(__file__).resolve().parents[2] / "hardware" / "libraries" / "kicad7-footprints"
+        if not (vend / f"{lib}.pretty" / f"{name}.kicad_mod").exists() and not (FP_ROOT / f"{lib}.pretty" / f"{name}.kicad_mod").exists():
             missing.append(f"{p.ref}: {fp}")
     return missing, custom
 

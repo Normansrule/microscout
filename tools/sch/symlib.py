@@ -6,6 +6,10 @@ import pathlib
 from sexpr import Sym, find, find_all, parse
 
 STOCK = pathlib.Path("/usr/share/kicad/symbols")
+# Copies of the KiCad 7 library symbols this project uses (tools/sch/vendor.py), so the
+# schematics regenerate identically with KiCad 7, 8 or 9 installed.
+VENDOR = pathlib.Path(__file__).resolve().parents[2] / "hardware" / "libraries" / "kicad7-symbols"
+USE_VENDOR = True
 _cache = {}
 
 
@@ -16,9 +20,12 @@ def _load_lib(path):
     return _cache[path]
 
 
-def lib_path(lib, extra_libs):
+def lib_path(lib, extra_libs, name=None):
     if lib in extra_libs:
         return extra_libs[lib]
+    v = VENDOR / f"{lib}.kicad_sym"
+    if USE_VENDOR and v.exists() and (name is None or name in _load_lib(v)):
+        return v
     p = STOCK / f"{lib}.kicad_sym"
     if not p.exists():
         raise FileNotFoundError(f"symbol library {lib} not found")
@@ -29,7 +36,7 @@ def get_symbol(lib_id, extra_libs=None):
     """Return a flattened copy of the symbol named 'Lib:Name' with its top name set to lib_id."""
     extra_libs = extra_libs or {}
     lib, name = lib_id.split(":", 1)
-    syms = _load_lib(lib_path(lib, extra_libs))
+    syms = _load_lib(lib_path(lib, extra_libs, name))
     if name not in syms:
         raise KeyError(f"{lib_id} not in library")
     s = copy.deepcopy(syms[name])

@@ -148,7 +148,7 @@ pre.code { background: var(--page); border: 1px solid var(--border); border-radi
       <div><strong>Draft, unverified.</strong> No hardware has been built, powered or flown. Every number here is a datasheet value, a vendor claim, an estimate or an assumption, and the design is waiting for review at Gate G1. Sources and formulas are in <a href="https://github.com/Normansrule/microscout/blob/main/review/G1/budgets.md">review/G1/budgets.md</a>.</div>
     </div>
     <nav class="toc" aria-label="Sections">
-      <a href="#model3d">3D concept</a><a href="#use">Fly &amp; program</a><a href="#whatif">What-if calculator</a><a href="#weight">Weight</a><a href="#pins">Pin map</a><a href="#schematics">Schematics</a>
+      <a href="#model3d">3D concept</a><a href="lab/"><b>Flight Lab</b></a><a href="#use">Fly &amp; program</a><a href="#whatif">What-if calculator</a><a href="#weight">Weight</a><a href="#pins">Pin map</a><a href="#schematics">Schematics</a>
       <a href="#power">Power &amp; cost</a><a href="#animations">Animations</a><a href="#figures">Figures</a><a href="#open">Open questions</a>
       <a href="https://github.com/Normansrule/microscout">GitHub repo ↗</a>
     </nav>
@@ -213,6 +213,11 @@ with microscout.connect("sim") as drone:
     drone.land()</pre>
         <p class="sub" style="margin:8px 0 0">Same API for the simulator now and the drone later. Drop down to rates, attitude or velocity setpoints and run your own PID, LQR or MPC at 100 Hz. <a href="https://github.com/Normansrule/microscout/blob/main/docs/guide/program.md">Programming guide →</a></p>
       </div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h3>Or try it right here: the Flight Lab</h3>
+      <a href="lab/"><img src="figures/lab/lab-race.gif" alt="PID, LQR, MPC and a learned policy racing through the gate slalom in the Flight Lab" style="width:100%;border-radius:8px;display:block;margin:6px 0 8px" loading="lazy"></a>
+      <p class="sub" style="margin:0">Fly MicroScout yourself in your browser (keyboard, gamepad or touch), race four autopilots through obstacle courses, and train it with reinforcement learning while you watch. Simulation with estimated parameters. <a href="lab/">Open the Flight Lab</a> · <a href="https://github.com/Normansrule/microscout/blob/main/docs/guide/lab.md">How it works</a></p>
     </div>
   </section>
 

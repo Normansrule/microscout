@@ -1,5 +1,5 @@
 # STATUS: DRAFT - UNVERIFIED - requires human review at Gate G2
-# Runs the simulator tests, the budget/pin consistency checks and the schematic checks on every push.
+# Runs the simulator tests, the budget/pin consistency checks, the schematic checks and the Flight Lab tests on every push.
 # Checks consistency only - not correctness of the design (D-043, D-051).
 name: checks
 on:
@@ -35,3 +35,12 @@ jobs:
         run: |
           python3 tools/sch/costed_bom.py
           git diff --exit-code bom/drone-bom-g2.csv
+  flight-lab:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Flight Lab simulation regression tests (simulation only, says nothing about real flight)
+        run: node --test docs/lab/test/lab.test.mjs

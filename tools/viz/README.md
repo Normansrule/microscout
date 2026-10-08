@@ -12,6 +12,8 @@ Everything visual in this repo is generated from the design data (budget model, 
 | `render3d/render.py` | `mechanical/concept/out/microscout_concept.glb`, `docs/viewer/scene.js`, `docs/data/sim_flip.json` | `docs/figures/renders/*.png`, `turntable.gif`, `sim-backflip.gif` |
 | `banner.py` | `budgets.py`, `renders/hero-cutout.png` (from `render3d/render.py --banner`) | `docs/figures/banner-*.png`, `roadmap-*.png`, `social-preview.png` |
 | `blockdiagram.py` | the template inside the script (G2 architecture) | `docs/figures/block-diagram-*.png`, `review/G2/block-diagram.{dot,svg}` |
+| `lab_charts.py` | `docs/data/lab_controllers.json` (`node docs/lab/test/compare.mjs`), `docs/data/lab_learning.json` (`node docs/lab/test/curves.mjs`) | `docs/figures/lab-controllers-*.svg`, `lab-learning-*.svg` |
+| `lab_capture.py` | the Flight Lab in `docs/lab/` (driven frame by frame in headless Chromium; three.js from `render3d/node_modules`) | `docs/figures/lab/*.gif` and stills |
 | `build_site.py` | the same data + `site_template.html` + the open questions in `review/G2/README.md` | `docs/index.html` (GitHub Pages explorer with the 3D viewer) |
 
 ## Rebuild (in this order)
@@ -27,6 +29,8 @@ cd tools/viz && python3 figures.py && python3 animations.py && python3 build_sit
 (cd tools/viz/render3d && npm install)                # three.js for the renderer
 python3 tools/viz/render3d/render.py                 # set CHROMIUM=/path/to/chrome if Playwright has no browser
 python3 tools/viz/render3d/render.py --banner && python3 tools/viz/banner.py && python3 tools/viz/blockdiagram.py
+node docs/lab/test/compare.mjs 20 && node docs/lab/test/curves.mjs 80 3 && (cd tools/viz && python3 lab_charts.py)
+python3 tools/viz/lab_capture.py                     # Flight Lab GIFs; needs ffmpeg
 ```
 
 ## Conventions
@@ -34,6 +38,6 @@ python3 tools/viz/render3d/render.py --banner && python3 tools/viz/banner.py && 
 - Colours: a fixed categorical order, checked for colour-vision deficiency with a palette validator; slots 3-5 are low-contrast on white, so those charts always carry direct labels.
 - Every chart has a light and a dark SVG; the README uses `<picture>` so GitHub shows the one matching your theme.
 - SVG text is converted to outlines so it renders the same everywhere.
-- GIF frames cannot hold a file header, so each frame carries a DRAFT - UNVERIFIED footer and says which values are sourced, calculated or illustrative.
+- GIF frames cannot hold a file header, so each frame carries a DRAFT - UNVERIFIED footer and says which values are sourced, calculated or illustrative. Flight Lab recordings carry it as an on-screen stamp (`?embed` mode).
 - The explorer page embeds its numbers; the 3D viewer loads three.js from jsDelivr and the model from `docs/models/`, so serve `docs/` over HTTP (GitHub Pages does) to use it.
 - Renders say CONCEPT on every frame: the frame and canopy are parametric CAD, everything else is an envelope.

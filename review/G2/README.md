@@ -66,7 +66,20 @@ Part counts include test points and wire pads. PNG previews of every sheet are i
 - **A netlist comparison.** KiCad's own exported netlist must group exactly the same pins as the source.
 - **Footprint and capacitor checks.** Footprints must exist in the KiCad library, and capacitors on 2S nets must be rated at least 16 V.
 
-All four boards report **0 errors, 0 warnings, and identical netlists**. **Please also run ERC in KiCad 8 or 9.**
+All four boards report **0 errors, 0 warnings, and identical netlists**.
+
+**KiCad 9 ERC, run by the owner on 2026-10-07** (`kicad-erc/*.rpt`): **0 errors** on all four boards. There were 820 warnings, sorted below.
+
+| Warning | Count | Cause | Status |
+|---|---:|---|---|
+| `lib_symbol_issues` | 702 | A fresh KiCad 9 install had no global library table, so it could not find `Device`, `power` and the other libraries | Fixed: the project now ships its own `sym-lib-table` pointing at bundled copies of the KiCad 7 symbols (`hardware/libraries/kicad7-symbols`, D-056) |
+| `lib_symbol_mismatch` | 110 | `microscout.kicad_sym` was regenerated on the owner's machine from KiCad 9's power library, so it no longer matched the symbols embedded in the schematics | Fixed: the custom power symbols are now built from the bundled KiCad 7 copy, so they are identical everywhere |
+| `footprint_link_issues` | 6 | 4 × `QFN-28-1EP_4x4mm_P0.4mm_EP2.6x2.6mm` (AT32F421) is not in KiCad 9's library; 2 × footprints marked TBD (buzzer, VL53L5CX) | QFN-28: fixed with bundled footprints and a project `fp-lib-table`. The 2 TBD footprints remain until G3 |
+| `pin_to_pin` | 2 | ICM-42688-P INT2/FSYNC and BMP388 SDO are tied to GND but were typed bidirectional | Fixed: the pins are now typed input and passive |
+
+The same KiCad 9 install also crashed `build_all.py`, because KiCad 9 renamed the ESP32-S3 module's GPIO19/20 pins to `USB_D-`/`USB_D+`. The bundled libraries fix this as well.
+
+**Please re-run step 6 of `docs/setup-ubuntu.md`.** The 2 TBD-footprint warnings are expected to remain. KiCad 9 has not been run here, so any other warning it raises is new information. Please commit the new `.rpt` files.
 
 Regenerate everything with:
 

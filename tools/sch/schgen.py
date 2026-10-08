@@ -242,7 +242,9 @@ class Project:
         (self.outdir / f"{self.name}.kicad_sch").write_text(header() + dump(doc) + "\n")
 
     def _write_project_files(self):
-        tpl = pathlib.Path("/usr/share/kicad/template/kicad.kicad_pro")
+        tpl = LIBDIR / "kicad7-template.kicad_pro"
+        if not tpl.exists():
+            tpl = pathlib.Path("/usr/share/kicad/template/kicad.kicad_pro")
         pro = json.loads(tpl.read_text()) if tpl.exists() else {}
         pro.setdefault("meta", {})["filename"] = f"{self.name}.kicad_pro"
         sheets = [[self.root_uuid, ""]] + [[U(self.name, "sheet", s.name), s.title] for s in self.sheets]
@@ -252,8 +254,18 @@ class Project:
         lines = ["(sym_lib_table"]
         for k, v in rel.items():
             lines.append(f'  (lib (name "{k}")(type "KiCad")(uri "${{KIPRJMOD}}/{relpath(v, self.outdir)}")(options "")(descr "MicroScout project symbols"))')
+        for f in sorted((LIBDIR / "kicad7-symbols").glob("*.kicad_sym")):
+            lines.append(f'  (lib (name "{f.stem}")(type "KiCad")(uri "${{KIPRJMOD}}/{relpath(f, self.outdir)}")(options "")(descr "KiCad 7 library subset vendored by tools/sch/vendor.py"))')
         lines.append(")")
         (self.outdir / "sym-lib-table").write_text("\n".join(lines) + "\n")
+        fl = ["(fp_lib_table"]
+        for d in sorted((LIBDIR / "kicad7-footprints").glob("*.pretty")):
+            fl.append(f'  (lib (name "{d.stem}")(type "KiCad")(uri "${{KIPRJMOD}}/{relpath(d, self.outdir)}")(options "")(descr "KiCad 7 footprint subset vendored by tools/sch/vendor.py"))')
+        fl.append(")")
+        (self.outdir / "fp-lib-table").write_text("\n".join(fl) + "\n")
+
+
+LIBDIR = pathlib.Path(__file__).resolve().parents[2] / "hardware" / "libraries"
 
 
 def relpath(target, start):
