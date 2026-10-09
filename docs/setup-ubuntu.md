@@ -1,4 +1,4 @@
-> STATUS: DRAFT - UNVERIFIED - requires human review at Gate G2 (owner actions; D-002, OQ-7)
+> STATUS: DRAFT - UNVERIFIED - requires human review at Gate G3 (owner actions; D-002, OQ-7)
 
 # From a fresh Ubuntu terminal: update GitHub, publish, and run everything
 
@@ -130,7 +130,38 @@ grep -h "ERC messages\|Errors\|Warnings" review/G2/kicad-erc/*.rpt
 
 To browse a schematic in KiCad, open the project file (for example `hardware/drone-pcb/microscout-fc.kicad_pro`). KiCad 9 will ask to upgrade the files when you save. That is fine, but the source of truth is the Python in `hardware/*/design/` until G3.
 
-## 7. Send your own changes or review notes back to GitHub
+## 7. Rebuild the PCB layouts, DRC reports and renders (G3 checklist)
+
+The board scripts use **KiCad 7's Python module** (`pcbnew`), as the agent did. KiCad 9's module has a different API, so install KiCad 7 next to it or use a KiCad 7 container if `python3 -c "import pcbnew; print(pcbnew.Version())"` does not print 7.x. Autorouting uses **Freerouting 1.9.0** (Java 21) through a virtual display.
+
+```bash
+sudo apt install -y openjdk-21-jre-headless xvfb imagemagick build-essential
+mkdir -p ~/tools-ext && curl -L -o ~/tools-ext/fr.jar \
+  https://github.com/freerouting/freerouting/releases/download/v1.9.0/freerouting-1.9.0.jar
+export FREEROUTING_JAR=~/tools-ext/fr.jar        # tools/pcb/layout.py reads this
+pip install --break-system-packages shapely numpy cairosvg
+
+cd ~/microscout
+python3 tools/pcb/footprints.py                   # project footprints (hardware/libraries/microscout.pretty)
+python3 -u tools/pcb/tof.py                       # both ToF satellites, a few minutes
+python3 -u tools/pcb/fc.py --passes=30            # flight controller, 1-2 hours (Freerouting + finisher)
+python3 -u tools/pcb/esc.py --passes=25           # ESC, 1-2 hours
+python3 tools/pcb/currents.py && python3 tools/pcb/copper.py && python3 tools/pcb/g3_report.py
+for b in hardware/drone-pcb/microscout-fc hardware/esc-pcb/microscout-esc \
+         hardware/tof-satellites/side/microscout-tof-side hardware/tof-satellites/front/microscout-tof-front; do
+  python3 tools/pcb/export.py $b.kicad_pcb review/G3/$(basename $b | sed 's/microscout-//')
+done
+```
+
+Autorouting is not deterministic, so a re-run gives different copper. To check a board in **KiCad 9's own DRC**, open the `.kicad_pcb` file, let KiCad upgrade it, then run *Inspect, Design Rules Checker* with *Refill all zones* ticked, or from a terminal:
+
+```bash
+kicad-cli pcb drc --severity-all --refill-zones -o review/G3/kicad9-drc-fc.rpt hardware/drone-pcb/microscout-fc.kicad_pcb
+```
+
+The 3D renders need the step 9 tools plus KiCad's 3D models: `python tools/pcb/render3d.py <board>.kicad_pcb review/G3/<name>` (set `KICAD_3D` to your `3dmodels` folder).
+
+## 8. Send your own changes or review notes back to GitHub
 
 ```bash
 cd ~/microscout
@@ -143,9 +174,9 @@ git push -u origin review-g2             # or: git push origin main
 gh pr create --fill                      # only if you used a branch
 ```
 
-Then tell the agent `APPROVED G2`, or send corrections and answers to OQ-13 to OQ-18 (`review/G2/README.md`).
+Then tell the agent `APPROVED G3`, or send corrections and answers to the open questions in `review/G3/README.md`.
 
-## 8. Optional: rebuild every figure, render and the explorer
+## 9. Optional: rebuild every figure, render and the explorer
 
 This needs CadQuery, Playwright and Node; see `tools/viz/README.md` for the full order.
 

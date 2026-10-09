@@ -5,7 +5,7 @@
   (paper "A3")
   (title_block
     (title "MicroScout flight controller - Sensors and expanders")
-    (date "2026-10-08")
+    (date "2026-10-09")
     (rev "G2-draft-1")
     (company "MicroScout (open hardware, CERN-OHL-S-2.0)")
     (comment 1 "STATUS: DRAFT - UNVERIFIED - requires human review at Gate G2")
@@ -4841,7 +4841,7 @@
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
-    (property "Footprint" "Connector_PinHeader_1.27mm:PinHeader_1x05_P1.27mm_Vertical"
+    (property "Footprint" "microscout:PadRow_1x05_P1.50mm_SMD"
       (at 38.1 215.9 0)
       (effects
         (font (size 1.27 1.27)) hide))
@@ -4849,7 +4849,7 @@
       (at 38.1 215.9 0)
       (effects
         (font (size 1.27 1.27)) hide))
-    (property "Note" "Solder pads for a 5-wire flex/cable; footprint set at G3"
+    (property "Note" "SMD solder pads, 1.5 mm pitch (D-061)"
       (at 38.1 215.9 0)
       (effects
         (font (size 1.27 1.27)) hide))
@@ -5020,7 +5020,7 @@
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
-    (property "Footprint" "Connector_PinHeader_1.27mm:PinHeader_1x05_P1.27mm_Vertical"
+    (property "Footprint" "microscout:PadRow_1x05_P1.50mm_SMD"
       (at 66.04 215.9 0)
       (effects
         (font (size 1.27 1.27)) hide))
@@ -5028,7 +5028,7 @@
       (at 66.04 215.9 0)
       (effects
         (font (size 1.27 1.27)) hide))
-    (property "Note" "Solder pads for a 5-wire flex/cable; footprint set at G3"
+    (property "Note" "SMD solder pads, 1.5 mm pitch (D-061)"
       (at 66.04 215.9 0)
       (effects
         (font (size 1.27 1.27)) hide))
@@ -5199,7 +5199,7 @@
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
-    (property "Footprint" "Connector_PinHeader_1.27mm:PinHeader_1x05_P1.27mm_Vertical"
+    (property "Footprint" "microscout:PadRow_1x05_P1.50mm_SMD"
       (at 91.44 215.9 0)
       (effects
         (font (size 1.27 1.27)) hide))
@@ -5207,7 +5207,7 @@
       (at 91.44 215.9 0)
       (effects
         (font (size 1.27 1.27)) hide))
-    (property "Note" "Solder pads for a 5-wire flex/cable; footprint set at G3"
+    (property "Note" "SMD solder pads, 1.5 mm pitch (D-061)"
       (at 91.44 215.9 0)
       (effects
         (font (size 1.27 1.27)) hide))
@@ -5378,7 +5378,7 @@
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
-    (property "Footprint" "Connector_PinHeader_1.27mm:PinHeader_1x06_P1.27mm_Vertical"
+    (property "Footprint" "microscout:PadRow_1x06_P1.50mm_SMD"
       (at 116.84 215.9 0)
       (effects
         (font (size 1.27 1.27)) hide))
@@ -5386,7 +5386,7 @@
       (at 116.84 215.9 0)
       (effects
         (font (size 1.27 1.27)) hide))
-    (property "Note" "Solder pads for a 6-wire flex/cable; footprint set at G3"
+    (property "Note" "SMD solder pads, 1.5 mm pitch (D-061)"
       (at 116.84 215.9 0)
       (effects
         (font (size 1.27 1.27)) hide))
@@ -5598,7 +5598,7 @@
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
-    (property "Footprint" "Connector_PinHeader_1.27mm:PinHeader_1x08_P1.27mm_Vertical"
+    (property "Footprint" "microscout:PadRow_1x08_P1.50mm_SMD"
       (at 157.48 223.52 0)
       (effects
         (font (size 1.27 1.27)) hide))

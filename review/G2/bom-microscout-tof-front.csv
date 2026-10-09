@@ -3,6 +3,6 @@
 refs,qty,value,footprint,lcsc,mpn,manufacturer,rating,dnp,note
 C1 C3,2,4.7u,C_0402_1005Metric,C23733,CL05A475MP5NRNC,,10 V X5R,,
 C2 C4,2,100n,C_0402_1005Metric,C1525,CL05B104KO5NNNC,,16 V X7R,,
-J1,1,to FC,PinHeader_1x06_P1.27mm_Vertical,,,,,,Solder pads; mirrors FC J14
+J1,1,to FC,PadRow_1x06_P1.50mm_SMD,,,,,,Solder pads; mirrors FC J14
 R1 R2 R3 R4,4,47k,R_0402_1005Metric,C25792,0402WGF4702TCE,,1%,,
 U1,1,VL53L5CX,ST_VL53L5CX_LGA16_TBD,C3178303,VL53L5CXV0GC/1,STMicroelectronics,,,

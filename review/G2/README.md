@@ -4,7 +4,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/G1-approved%202026--10--07-008300" alt="G1 approved">
-  <img src="https://img.shields.io/badge/G2-awaiting%20review-b07000" alt="G2 awaiting review">
+  <img src="https://img.shields.io/badge/G2-approved%202026--10--08-008300" alt="G2 approved">
   <img src="https://img.shields.io/badge/agent%20ERC-0%20errors-2a78d6" alt="Agent ERC 0 errors">
   <img src="https://img.shields.io/badge/KiCad%20ERC-to%20run%20in%208%2F9-8a8a8a" alt="KiCad ERC still to run">
 </p>
@@ -26,7 +26,8 @@
 
 G1 rev B was approved on 2026-10-07 (D-044), and milestone M2 is drafted.
 
-The agent has **stopped at G2**. The PCB layout (M3) waits for `APPROVED G2` or corrections.
+> [!NOTE]
+> **G2 was approved on 2026-10-08 (D-059).** During layout (G3) the schematics were revised by D-061: battery and balance connectors became pigtail pads, the three buttons became KMR2-footprint switches, the ESC power pads shrank, and the 1.27 mm headers became SMD pad rows. The schematic PDFs and netlists in this folder were regenerated with those changes; the list is in [`review/G3/README.md`](../G3/README.md).
 
 Nothing here has been built, powered or tested. Every value is a first-pass choice checked against a datasheet, or it is marked UNCONFIRMED.
 

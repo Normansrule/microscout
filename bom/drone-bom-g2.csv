@@ -3,7 +3,7 @@
 # Prices seen 2026-10-04..07; EMPTY unit_usd = not priced (UNCONFIRMED). Board multiplicity: FC 1, ESC 1, ToF side 3, ToF front 1.
 # status PCB = copper pads/test points (no purchased part); DNP = footprint left empty.
 ref,status,qty,function,mpn,manufacturer,package,lcsc,lcsc_check,unit_usd,price_break,stock_seen,fetched_utc,datasheet_url,notes
-FC:J2,SELECTED,1,XT30PW-M (Conn_01x02),XT30PW-M30.G.Y,Changzhou Amass,AMASS_XT30PW-M_1x02_P2.50mm_Horizontal,C431092,page,0.3761,1+,20518,2026-10-07 (time not logged),,J2
+FC:J2,SELECTED,1,Battery pigtail (XT30) (Conn_01x02),"XT30 male plug on 18 AWG silicone lead, ~40 mm (bought, hand-soldered)",,Pigtail_2x_SMD_3x6mm_P4.5mm,,,,,,,,J2; D-061: pads instead of a board-mount XT30 (saves ~190 mm2)
 FC:RS1,SELECTED,1,1m (R),HoJLR2512-2W-1mR-1%,,R_2512_6332Metric,C2924520,page,0.0646,5+,3265,2026-10-07 (time not logged),,RS1
 FC:R1 R2,SELECTED,2,10 (R),0402WGF100JTCE,,R_0402_1005Metric,C25077,page,0.0011,1 (jlcsearch),JLCPCB Basic,2026-10-07,,R1 R2
 FC:C1..C70,SELECTED,21,100n (C),CL05B104KO5NNNC,,C_0402_1005Metric,C1525,page,0.0046,100+,16.4M (JLCPCB),2026-10-07,,C1 C2 C11 C14 C18 C22 C31 C32 C50 C53 C54 C56 C57 C58 C63 C65 C66 C67 C68 C69 C70
@@ -25,11 +25,11 @@ FC:R8,SELECTED,1,300 (R),0402WGF3000TCE,,R_0402_1005Metric,C25102,page,0.0021,10
 FC:R9,SELECTED,1,150 (R),1206W4F1500T5E,,R_1206_3216Metric,C17917,page,0.0047,100+,194200,2026-10-07,,R9
 FC:R10..R45,SELECTED,5,1k (R),0402WGF1001TCE,,R_0402_1005Metric,C11702,page,0.0011,1 (jlcsearch),JLCPCB Basic,2026-10-07,,R10 R42 R43 R44 R45
 FC:D4,SELECTED,1,red (LED),KT-0603R,,LED_0603_1608Metric,C2286,page,0.0076,100+,2586400,2026-10-07,,D4
-FC:J6,SELECTED,1,JST-XH 3 (balance) (Conn_01x03),S3B-XH-A(LF)(SN),,JST_XH_S3B-XH-A_1x03_P2.50mm_Horizontal,C157928,page,0.0741,10+,134440,2026-10-07,,"J6; Pin 1 pack -, pin 2 mid, pin 3 pack + left open (UNCONFIRMED pack wiring)"
+FC:J6,SELECTED,1,Balance pigtail (JST-XH) (Conn_01x03),"JST-XH 3-pin socket on 26 AWG lead, ~40 mm (bought, hand-soldered)",,Pigtail_3x_SMD_1.5x3mm_P2.5mm,,,,,,,,"J6; D-061: pads instead of a board-mount JST-XH. Pad 1 pack -, pad 2 mid, pad 3 pack + left open (UNCONFIRMED pack wiring)"
 FC:U8,SELECTED,1,LTC2954-1 (LTC2954-1),LTC2954CTS8-1#TRPBF,Analog Devices,TSOT-23-8,C683782,page,6.67,1+,2538,2026-10-07,,U8
 FC:C12,SELECTED,1,33n (C),CC0402KRX7R9BB333,,C_0402_1005Metric,C106862,page,0.0048,100+,697700,2026-10-07,,C12
 FC:D1..D6,SELECTED,3,1N5819WS (D_Schottky),1N5819WS,,D_SOD-323,C191023,page,0.0133,50+,4023500,2026-10-07,,D1 D5 D6
-FC:SW3,SELECTED,1,POWER (SW_Push),TS-1187A-B-A-B,,SW_Push_1P1T_XKB_TS-1187A,C318884,page,0.0207,20+,211640,2026-10-07,,SW3
+FC:SW3,SELECTED,1,POWER (SW_Push),KMR211NGLFS (C&K) or KMR2-footprint equivalent,,SW_Push_1P1T_NO_CK_KMR2,,,,,,,,SW3; D-061: 4.2x2.8 mm switch; LCSC number UNCONFIRMED
 FC:U23,SELECTED,1,TLV6700 (TLV6700DDC),TLV6700DDCR,Texas Instruments,TSOT-23-6,C2868382,page,0.95,1+,1611,2026-10-07,,U23
 FC:R16,SELECTED,1,1.5M (R),0402WGF1504TCE,,R_0402_1005Metric,C22276,page,0.0026,100+,49800,2026-10-07,,R16
 FC:R17,SELECTED,1,110k (R),0402WGF1103TCE,,R_0402_1005Metric,C25745,page,0.0005,1 (jlcsearch),198299 (JLCPCB),2026-10-07,,R17
@@ -45,27 +45,27 @@ FC:U25,SELECTED,1,MT3608 (MT3608),MT3608,Aerosemi,SOT-23-6,C84817,page,0.0958,1+
 FC:L4,SELECTED,1,10u (L),FTC252012S100MGCA,,L_Changjiang_FNR252012S,C48888313,page,0.0587,1+,2270,2026-10-07,,L4
 FC:R25,SELECTED,1,150k (R),0402WGF1503TCE,,R_0402_1005Metric,C25755,page,0.0005,1 (jlcsearch),720091 (JLCPCB),2026-10-07,,R25
 FC:J7,SELECTED,1,ESC link (JST-SH 8) (Conn_01x08_MountingPin),SM08B-SRSS-TB(LF)(SN),,JST_SH_SM08B-SRSS-TB_1x08-1MP_P1.00mm_Horizontal,C160407,page,0.3343,5+,116705,2026-10-07,,J7
-FC:J8,PCB,1,ESC VBAT pad (Conn_01x01),ESC VBAT pad,,SolderWirePad_1x01_SMD_5x10mm,,,,,,,,J8; 20 AWG wire to ESC board; pad size set at G3
-FC:J9,PCB,1,ESC GND pad (Conn_01x01),ESC GND pad,,SolderWirePad_1x01_SMD_5x10mm,,,,,,,,J9; 20 AWG wire to ESC board; pad size set at G3
+FC:J8,PCB,1,ESC VBAT pad (Conn_01x01),ESC VBAT pad,,Pad_SMD_3x6mm,,,,,,,,"J8; 20 AWG wire to ESC board (3x6 mm pad, D-061)"
+FC:J9,PCB,1,ESC GND pad (Conn_01x01),ESC GND pad,,Pad_SMD_3x6mm,,,,,,,,"J9; 20 AWG wire to ESC board (3x6 mm pad, D-061)"
 FC:U1,SELECTED,1,ESP32-S3-WROOM-1-N8R2 (ESP32-S3-WROOM-1),ESP32-S3-WROOM-1-N8R2,Espressif,ESP32-S3-WROOM-1,C2913204,page,4.6784,1+,2922,2026-10-04T03:57Z,,U1
-FC:SW2,SELECTED,1,RESET (SW_Push),TS-1187A-B-A-B,,SW_Push_1P1T_XKB_TS-1187A,C318884,page,0.0207,20+,211640,2026-10-07,,SW2
-FC:SW1,SELECTED,1,BOOT (SW_Push),TS-1187A-B-A-B,,SW_Push_1P1T_XKB_TS-1187A,C318884,page,0.0207,20+,211640,2026-10-07,,SW1
+FC:SW2,SELECTED,1,RESET (SW_Push),KMR211NGLFS (C&K) or KMR2-footprint equivalent,,SW_Push_1P1T_NO_CK_KMR2,,,,,,,,SW2; D-061: 4.2x2.8 mm switch; LCSC number UNCONFIRMED
+FC:SW1,SELECTED,1,BOOT (SW_Push),KMR211NGLFS (C&K) or KMR2-footprint equivalent,,SW_Push_1P1T_NO_CK_KMR2,,,,,,,,SW1; D-061: 4.2x2.8 mm switch; LCSC number UNCONFIRMED
 FC:J1,SELECTED,1,USB-C (USB_C_Receptacle_USB2.0_16P),TYPE-C-31-M-12,,USB_C_Receptacle_HRO_TYPE-C-31-M-12,C165948,page,0.1727,5+,417215,2026-10-04T03:59Z,,J1
 FC:R38 R39,SELECTED,2,5.1k (R),0402WGF5101TCE,,R_0402_1005Metric,C25905,page,0.0011,1 (jlcsearch),JLCPCB Basic,2026-10-07,,R38 R39
 FC:U22,SELECTED,1,USBLC6-2SC6 (USBLC6-2SC6),USBLC6-2SC6,,SOT-23-6,C7519,page,0.1784,5+,45000,2026-10-04T03:59Z,,U22
 FC:R40 R41,SELECTED,2,22 (R),0402WGF220JTCE,,R_0402_1005Metric,C25092,page,0.0011,1 (jlcsearch),JLCPCB Basic,2026-10-07,,R40 R41
-FC:J5,DNP,0,DEBUG (Conn_01x06),DEBUG,,PinHeader_1x06_P1.27mm_Vertical,,,,,,,,J5
+FC:J5,DNP,0,DEBUG (Conn_01x06),DEBUG,,PadRow_1x06_P1.50mm_SMD,,,,,,,,J5
 FC:U12,SELECTED,1,ICM-42688-P (ICM-42688-P),ICM-42688-P,TDK InvenSense,LGA-14_3x2.5mm_P0.5mm_LayoutBorder3x4y,C1850418,page,3.3875,1+,5562,2026-10-07 (time not logged),,U12
 FC:C51,SELECTED,1,2.2u (C),CL10A225KO8NNNC,,C_0603_1608Metric,C23630,page,0.0182,50+,615000,2026-10-07,,C51
 FC:C52,SELECTED,1,10n (C),CL05B103KB5NNNC,,C_0402_1005Metric,C15195,page,0.005,100+,248100,2026-10-07,,C52
 FC:U13,SELECTED,1,BMP388 (BMP388),BMP388,Bosch Sensortec,ST_HLGA-10_2x2mm_P0.5mm_LayoutBorder3x2y,C779278,page,5.8269,1+,~5000,2026-10-07,,U13; alt BMP390 C5124834 (same pinout)
 FC:U14,SELECTED,1,QMC5883P (QMC5883P),QMC5883P,QST,LGA-16_3x3mm_P0.5mm_LayoutBorder3x5y,C2847467,page,1.5538,1+,4930,2026-10-04T03:59Z,,U14
 FC:U10 U11,SELECTED,2,TCA6408A (TCA6408A_RGT),TCA6408ARGTR,Texas Instruments,VQFN-16-1EP_3x3mm_P0.5mm_EP1.68x1.68mm,C181499,page,0.6651,10+,7008,2026-10-04T03:59Z,,U10 U11
-FC:J11,PCB,1,ToF left (Conn_01x05),ToF left,,PinHeader_1x05_P1.27mm_Vertical,,,,,,,,J11; Solder pads for a 5-wire flex/cable; footprint set at G3
-FC:J12,PCB,1,ToF right (Conn_01x05),ToF right,,PinHeader_1x05_P1.27mm_Vertical,,,,,,,,J12; Solder pads for a 5-wire flex/cable; footprint set at G3
-FC:J13,PCB,1,ToF rear (Conn_01x05),ToF rear,,PinHeader_1x05_P1.27mm_Vertical,,,,,,,,J13; Solder pads for a 5-wire flex/cable; footprint set at G3
-FC:J14,PCB,1,ToF front (Conn_01x06),ToF front,,PinHeader_1x06_P1.27mm_Vertical,,,,,,,,J14; Solder pads for a 6-wire flex/cable; footprint set at G3
-FC:J10,PCB,1,Flow deck v2 (FlowDeck_Link),Flow deck v2,,PinHeader_1x08_P1.27mm_Vertical,,,,,,,,J10; Pads; module bought from Bitcraze (~$55)
+FC:J11,PCB,1,ToF left (Conn_01x05),ToF left,,PadRow_1x05_P1.50mm_SMD,,,,,,,,"J11; SMD solder pads, 1.5 mm pitch (D-061)"
+FC:J12,PCB,1,ToF right (Conn_01x05),ToF right,,PadRow_1x05_P1.50mm_SMD,,,,,,,,"J12; SMD solder pads, 1.5 mm pitch (D-061)"
+FC:J13,PCB,1,ToF rear (Conn_01x05),ToF rear,,PadRow_1x05_P1.50mm_SMD,,,,,,,,"J13; SMD solder pads, 1.5 mm pitch (D-061)"
+FC:J14,PCB,1,ToF front (Conn_01x06),ToF front,,PadRow_1x06_P1.50mm_SMD,,,,,,,,"J14; SMD solder pads, 1.5 mm pitch (D-061)"
+FC:J10,PCB,1,Flow deck v2 (FlowDeck_Link),Flow deck v2,,PadRow_1x08_P1.50mm_SMD,,,,,,,,J10; Pads; module bought from Bitcraze (~$55)
 FC:J3,SELECTED,1,OV2640 FPC 24P (Conn_01x24_MountingPin),FPC-05F-24PH20,,Hirose_FH12-24S-0.5SH_1x24-1MP_P0.50mm_Horizontal,C2856805,page,0.1053,5+,108380,2026-10-04T03:59Z,,J3; Footprint is a Hirose FH12 stand-in; pin-1 side to confirm at G3
 FC:U6,SELECTED,1,ME6211C28 (ME6211Cxx),ME6211C28M5G-N,,SOT-23-5,C53099,page,0.0663,10+ (MOQ 10),29520,2026-10-04T03:59Z,,U6
 FC:U7,SELECTED,1,ME6211C12 (ME6211Cxx),ME6211C12M5G-N,,SOT-23-5,C236672,page,0.0626,10+ (MOQ 10),10910,2026-10-04T03:59Z,,U7
@@ -73,10 +73,10 @@ FC:C62 C64,SELECTED,2,10u (C),CL10A106KP8NNNC,,C_0603_1608Metric,C19702,page,0.0
 FC:U21,SELECTED,1,SN74AHCT1G125 (74AHCT1G125),SN74AHCT1G125DBVR,,SOT-23-5,C7484,page,0.1009,5+,32145,2026-10-04T03:59Z,,U21
 FC:LED1..LED4,SELECTED,4,WS2812B-2020 (WS2812B-2020),WS2812B-2020,,LED_WS2812B-2020_PLCC4_2.0x2.0mm,C965555,page,0.092,5+,35115,2026-10-04T03:59Z,,LED1 LED2 LED3 LED4
 FC:BZ1,SELECTED,1,MLT-5020 (Buzzer),MLT-5020,,Buzzer_MLT-5020_TBD,C94598,page,0.4435,1+,23685,2026-10-04T03:59Z,,BZ1
-FC:J4,PCB,1,ELRS RX (Conn_01x04),ELRS RX,,PinHeader_1x04_P1.27mm_Vertical,,,,,,,,J4; Solder pads; footprint set at G3
+FC:J4,PCB,1,ELRS RX (Conn_01x04),ELRS RX,,PadRow_1x04_P1.50mm_SMD,,,,,,,,"J4; SMD solder pads, 1.5 mm pitch (D-061)"
 ESC:J1,SELECTED,1,FC link (JST-SH 8) (Conn_01x08_MountingPin),SM08B-SRSS-TB(LF)(SN),,JST_SH_SM08B-SRSS-TB_1x08-1MP_P1.00mm_Horizontal,C160407,page,0.3343,5+,116705,2026-10-07,,J1
-ESC:J2,PCB,1,VBAT pad (Conn_01x01),VBAT pad,,SolderWirePad_1x01_SMD_5x10mm,,,,,,,,J2
-ESC:J3,PCB,1,GND pad (Conn_01x01),GND pad,,SolderWirePad_1x01_SMD_5x10mm,,,,,,,,J3
+ESC:J2,PCB,1,VBAT pad (Conn_01x01),VBAT pad,,Pad_SMD_3x6mm,,,,,,,,J2
+ESC:J3,PCB,1,GND pad (Conn_01x01),GND pad,,Pad_SMD_3x6mm,,,,,,,,J3
 ESC:C1,SELECTED,1,100u 25V (C_Polarized),SVS1EM101E06E00RAXXX,,CP_Elec_6.3x5.9,C2939798,page,0.1819,5+,16645,2026-10-07,,C1
 ESC:U1,SELECTED,1,TPS62162 (TPS62162DSG),TPS62162DSGR,Texas Instruments,WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm,C40256,page,1.2933,1+,6383,2026-10-07 (time not logged),,U1
 ESC:C2..C411,SELECTED,9,10u (C),CL21A106KAYNNNE,,C_0805_2012Metric,C15850,page,0.0657,20+,12.67M (JLCPCB),2026-10-07,,C2 C110 C111 C210 C211 C310 C311 C410 C411
@@ -98,12 +98,12 @@ TOF-SIDE:U1,SELECTED,3,VL53L1X (VL53L1CXV0FY1),VL53L1CXV0FY/1,STMicroelectronics
 TOF-SIDE:C1,SELECTED,3,4.7u (C),CL05A475MP5NRNC,,C_0402_1005Metric,C23733,page,0.0167,50+,1299850,2026-10-07,,x3 boards; C1
 TOF-SIDE:C2,SELECTED,3,100n (C),CL05B104KO5NNNC,,C_0402_1005Metric,C1525,page,0.0046,100+,16.4M (JLCPCB),2026-10-07,,x3 boards; C2
 TOF-SIDE:R1,SELECTED,3,10k (R),0402WGF1002TCE,,R_0402_1005Metric,C25744,page,0.0011,1 (jlcsearch),JLCPCB Basic,2026-10-07,,x3 boards; R1
-TOF-SIDE:J1,PCB,3,to FC (Conn_01x05),to FC,,PinHeader_1x05_P1.27mm_Vertical,,,,,,,,x3 boards; J1; Solder pads; mirrors FC J11-J13
+TOF-SIDE:J1,PCB,3,to FC (Conn_01x05),to FC,,PadRow_1x05_P1.50mm_SMD,,,,,,,,x3 boards; J1; Solder pads; mirrors FC J11-J13
 TOF-FRONT:U1,SELECTED,1,VL53L5CX (VL53L5CX),VL53L5CXV0GC/1,STMicroelectronics,ST_VL53L5CX_LGA16_TBD,C3178303,page,7.2383,1+,3441,2026-10-04T03:59Z,,U1
 TOF-FRONT:C1 C3,SELECTED,2,4.7u (C),CL05A475MP5NRNC,,C_0402_1005Metric,C23733,page,0.0167,50+,1299850,2026-10-07,,C1 C3
 TOF-FRONT:C2 C4,SELECTED,2,100n (C),CL05B104KO5NNNC,,C_0402_1005Metric,C1525,page,0.0046,100+,16.4M (JLCPCB),2026-10-07,,C2 C4
 TOF-FRONT:R1..R4,SELECTED,4,47k (R),0402WGF4702TCE,,R_0402_1005Metric,C25792,page,0.0011,1 (jlcsearch),JLCPCB Basic,2026-10-07,,R1 R2 R3 R4
-TOF-FRONT:J1,PCB,1,to FC (Conn_01x06),to FC,,PinHeader_1x06_P1.27mm_Vertical,,,,,,,,J1; Solder pads; mirrors FC J14
+TOF-FRONT:J1,PCB,1,to FC (Conn_01x06),to FC,,PadRow_1x06_P1.50mm_SMD,,,,,,,,J1; Solder pads; mirrors FC J14
 RX1,SELECTED,1,ExpressLRS 2.4 GHz receiver (CRSF),ELRS Lite (flat antenna),BetaFPV,11x10x3 mm 0.46 g,,n/a,8.99,1,4676,2026-10-04T03:58Z,https://betafpv.com/collections/rx/products/elrs-lite-receiver,Off-board. 5 V supply per vendor.
 CAM1,SELECTED,1,OV2640 camera module 24-pin 0.5 mm FPC (~66 deg),OV2640 FPC module (vendor TBD),various,FPC 24-pin,,n/a,,,,,https://kunkune.co.uk/shop/esp32-esp8266/ov2640-camera-upgrade-2mp-length-75mm/,Off-board. Example listing 5.90 GBP (68 deg). Exact module pinout and rails UNCONFIRMED until a specific module is chosen.
 M1-M4,SELECTED,4,"Brushless motor 1103 11000KV, 1.5 mm shaft (2S)",Happymodel EX1103 11000KV,Happymodel,1103,,n/a,14.99,1 motor,in stock,2026-10-07 (time not logged),https://druav.com/en-us/products/happymodel-ex1103-brushless-motor,Off-board. Price: https://pyrodrone.com/collections/in-stock-items-only/products/happymodel-ex1103-11000kv-brushless-fpv-drone-motor-for-happymodel-baseline-1-pc . Vendor thrust table: 121.9 g max at 9.2 A on 7.4 V.

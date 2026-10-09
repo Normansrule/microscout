@@ -1,0 +1,25 @@
+{
+ "status": "DRAFT - UNVERIFIED - requires human review at Gate G3",
+ "board": "tof-side",
+ "pcb": "hardware/tof-satellites/side/microscout-tof-side.kicad_pcb",
+ "footprints": 5,
+ "nets": 7,
+ "drc": {
+  "DRC violations": 0,
+  "unconnected pads": 0,
+  "Footprint errors": 0
+ },
+ "autorouted_nets": [
+  "+3V3",
+  "/VL53L1X satellite/SCL",
+  "/VL53L1X satellite/SDA",
+  "/VL53L1X satellite/XSHUT",
+  "GND"
+ ],
+ "notes": [
+  "imported 44 track segments and 5 vias from tof-side.ses",
+  "freerouting: 0, work dir /tmp/fr-tof-side-n75kji20",
+  "freerouting attempt 1 (('PRIORITIZED', 'GREEDY')): 0 connections open",
+  "kept the attempt with 0 open connections"
+ ]
+}

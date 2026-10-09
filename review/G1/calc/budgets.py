@@ -91,12 +91,12 @@ CU_DENSITY = 8.96         # g/cm3
 PA11_DENSITY = 1.05       # S26
 TPU_DENSITY = 1.20        # S26
 
-FC_BOARD_MM = (40, 40)    # flight-controller board (ASSUMPTION; settled at G3)
-ESC_BOARD_MM = (30, 30)   # 4-in-1 ESC board (ASSUMPTION; settled at G3)
+FC_BOARD_AREA_MM2 = 1653.0   # G3 outline (D-060): 52 x 52 mm minus duct notches r 27.1, rear cut at the antenna
+ESC_BOARD_AREA_MM2 = 1318.0  # G3 outline (D-060): 40 x 40 mm minus duct notches r 28.0
 
 
-def board_mass(dims, thk_cm=0.10, cu_um=105, cover=0.6):
-    a = dims[0] * dims[1] / 100.0
+def board_mass(area_mm2, thk_cm=0.10, cu_um=105, cover=0.6):
+    a = area_mm2 / 100.0
     return a, a * thk_cm * FR4_DENSITY + a * cu_um * 1e-4 * cover * CU_DENSITY
 
 
@@ -124,8 +124,8 @@ def cad_masses():
 
 
 def weight_table():
-    _, fc = board_mass(FC_BOARD_MM)
-    _, esc = board_mass(ESC_BOARD_MM, cu_um=2 * 70 + 2 * 35)   # 2 oz outer for motor current (ASSUMPTION)
+    _, fc = board_mass(FC_BOARD_AREA_MM2, cu_um=2 * 35 + 4 * 17.5)   # 6 layers (D-062)
+    _, esc = board_mass(ESC_BOARD_AREA_MM2, cu_um=2 * 70 + 2 * 35)   # 2 oz outer for motor current (ASSUMPTION)
     fvol, frame = duct_frame_mass()
     cad = cad_masses()
     frame_basis = f"{fvol/1000:.1f} cm3 x {PA11_DENSITY} g/cm3 (hand estimate); commercial 80 mm PP frames 5.8-7.8 g (S19)"
@@ -140,9 +140,9 @@ def weight_table():
         ("Props 4x 2-inch 3-blade", V(2.6, "g", "ESTIMATE", "S16: 0.5 g (2-blade) to 0.75 g (3-blade) per prop", 2.0, 3.0)),
         ("Ducted frame (one piece, PA11)", V(frame, "g", "ESTIMATE", frame_basis, frame * 0.8, frame * 1.2)),
         ("Canopy + battery strap (TPU 95A)", V(canopy, "g", "ESTIMATE", canopy_basis, canopy * 0.8, canopy * 1.5)),
-        ("Flight-controller PCB (bare, 4-layer)", V(fc, "g", "ESTIMATE", f"{FC_BOARD_MM[0]}x{FC_BOARD_MM[1]} mm x 1.0 mm FR-4 + copper", fc * 0.85, fc * 1.2)),
+        ("Flight-controller PCB (bare, 6-layer)", V(fc, "g", "ESTIMATE", f"{FC_BOARD_AREA_MM2:.0f} mm2 (G3 outline) x 1.0 mm FR-4 + copper", fc * 0.85, fc * 1.2)),
         ("FC components incl. ESP32 module", V(5.0, "g", "ESTIMATE", "module + sensors + charger + passives; weigh at G6", 3.5, 7.0)),
-        ("ESC PCB (bare, 2 oz outer)", V(esc, "g", "ESTIMATE", f"{ESC_BOARD_MM[0]}x{ESC_BOARD_MM[1]} mm", esc * 0.85, esc * 1.2)),
+        ("ESC PCB (bare, 2 oz outer)", V(esc, "g", "ESTIMATE", f"{ESC_BOARD_AREA_MM2:.0f} mm2 (G3 outline) x 1.0 mm", esc * 0.85, esc * 1.2)),
         ("ESC components (4 MCU, 4 drivers, 24 FETs)", V(2.0, "g", "ESTIMATE", "commercial 12 A whoop AIOs weigh 2.7-5.1 g complete", 1.5, 3.0)),
         ("Camera + FPC", V(2.0, "g", "ESTIMATE", "UNCONFIRMED; weigh chosen module", 1.0, 3.0)),
         ("ToF satellite boards (3 side + 1 front) + wires", V(2.0, "g", "ESTIMATE", "4 small boards (G2: front sensor moved off the FC, D-052)", 1.3, 3.0)),
@@ -294,7 +294,7 @@ def main():
         w(f"| {name} | {v.value:.1f} | {lo:.1f}-{hi:.1f} | {v.kind} | {v.source} |")
     w(f"| **Takeoff weight** | **{tot:.1f}** | **{tlo:.1f}-{thi:.1f}** | CALC | sum |")
     w("")
-    w(f"Formula: W = sum(items). Nominal {tot:.1f} g against the < 80 g target. Reference: Mobula8 (85 mm, 2S, same motor, with camera) is 43 g dry, ~72 g with a 29 g pack (S18). "
+    w(f"Formula: W = sum(items). Nominal {tot:.1f} g against the ~85 g limit set at G1 (D-044; the original target was < 80 g). Reference: Mobula8 (85 mm, 2S, same motor, with camera) is 43 g dry, ~72 g with a 29 g pack (S18). "
       "Ours carries five ToF sensors, optical flow, a larger frame and on-board charging.")
     w("")
 

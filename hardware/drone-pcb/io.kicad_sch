@@ -5,7 +5,7 @@
   (paper "A3")
   (title_block
     (title "MicroScout flight controller - Camera, LEDs, buzzer, receiver")
-    (date "2026-10-08")
+    (date "2026-10-09")
     (rev "G2-draft-1")
     (company "MicroScout (open hardware, CERN-OHL-S-2.0)")
     (comment 1 "STATUS: DRAFT - UNVERIFIED - requires human review at Gate G2")
@@ -5338,7 +5338,7 @@
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
-    (property "Footprint" "Connector_PinHeader_1.27mm:PinHeader_1x04_P1.27mm_Vertical"
+    (property "Footprint" "microscout:PadRow_1x04_P1.50mm_SMD"
       (at 33.02 193.04 0)
       (effects
         (font (size 1.27 1.27)) hide))
@@ -5346,7 +5346,7 @@
       (at 33.02 193.04 0)
       (effects
         (font (size 1.27 1.27)) hide))
-    (property "Note" "Solder pads; footprint set at G3"
+    (property "Note" "SMD solder pads, 1.5 mm pitch (D-061)"
       (at 33.02 193.04 0)
       (effects
         (font (size 1.27 1.27)) hide))

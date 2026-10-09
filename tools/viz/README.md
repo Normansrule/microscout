@@ -1,4 +1,4 @@
-> STATUS: DRAFT - UNVERIFIED - requires human review at Gate G2
+> STATUS: DRAFT - UNVERIFIED - requires human review at Gate G3
 
 # tools/viz - figures, animations and the design explorer
 
@@ -14,7 +14,7 @@ Everything visual in this repo is generated from the design data (budget model, 
 | `blockdiagram.py` | the template inside the script (G2 architecture) | `docs/figures/block-diagram-*.png`, `review/G2/block-diagram.{dot,svg}` |
 | `lab_charts.py` | `docs/data/lab_controllers.json` (`node docs/lab/test/compare.mjs`), `docs/data/lab_learning.json` (`node docs/lab/test/curves.mjs`) | `docs/figures/lab-controllers-*.svg`, `lab-learning-*.svg` |
 | `lab_capture.py` | the Flight Lab in `docs/lab/` (driven frame by frame in headless Chromium; three.js from `render3d/node_modules`) | `docs/figures/lab/*.gif` and stills |
-| `build_site.py` | the same data + `site_template.html` + the open questions in `review/G2/README.md` | `docs/index.html` (GitHub Pages explorer with the 3D viewer) |
+| `build_site.py` | the same data + `site_template.html` + the open questions in `review/G3/README.md` | `docs/index.html` (GitHub Pages explorer with the 3D viewer) |
 
 ## Rebuild (in this order)
 
@@ -41,3 +41,5 @@ python3 tools/viz/lab_capture.py                     # Flight Lab GIFs; needs ff
 - GIF frames cannot hold a file header, so each frame carries a DRAFT - UNVERIFIED footer and says which values are sourced, calculated or illustrative. Flight Lab recordings carry it as an on-screen stamp (`?embed` mode).
 - The explorer page embeds its numbers; the 3D viewer loads three.js from jsDelivr and the model from `docs/models/`, so serve `docs/` over HTTP (GitHub Pages does) to use it.
 - Renders say CONCEPT on every frame: the frame and canopy are parametric CAD, everything else is an envelope.
+
+The PCB layer plots and 3D board renders for G3 are made by `tools/pcb/export.py` and `tools/pcb/render3d.py` (see `tools/pcb/README.md`); `render3d.py` reuses the three.js copy in `render3d/node_modules`.

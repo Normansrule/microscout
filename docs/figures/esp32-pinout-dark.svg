@@ -4395,7 +4395,7 @@ z
    </g>
   </g>
   <g id="text_52">
-   <!-- MicroScout · Gate G2 draft · DRAFT – UNVERIFIED · estimates and datasheet values, not measurements · source: review/G1/pin-allocation.csv -->
+   <!-- MicroScout · Gate G3 draft · DRAFT – UNVERIFIED · estimates and datasheet values, not measurements · source: review/G1/pin-allocation.csv -->
    <g style="fill: #898781" transform="translate(26.46 634.534242) scale(0.075 -0.075)">
     <defs>
      <path id="DejaVuSans-30" d="M 628 4666 
@@ -4419,6 +4419,38 @@ L 1344 2619
 L 1344 1825 
 L 684 1825 
 L 684 2619 
+z
+" transform="scale(0.015625)"/>
+     <path id="DejaVuSans-16" d="M 2597 2516 
+Q 3050 2419 3304 2112 
+Q 3559 1806 3559 1356 
+Q 3559 666 3084 287 
+Q 2609 -91 1734 -91 
+Q 1441 -91 1130 -33 
+Q 819 25 488 141 
+L 488 750 
+Q 750 597 1062 519 
+Q 1375 441 1716 441 
+Q 2309 441 2620 675 
+Q 2931 909 2931 1356 
+Q 2931 1769 2642 2001 
+Q 2353 2234 1838 2234 
+L 1294 2234 
+L 1294 2753 
+L 1863 2753 
+Q 2328 2753 2575 2939 
+Q 2822 3125 2822 3475 
+Q 2822 3834 2567 4026 
+Q 2313 4219 1838 4219 
+Q 1578 4219 1281 4162 
+Q 984 4106 628 3988 
+L 628 4550 
+Q 988 4650 1302 4700 
+Q 1616 4750 1894 4750 
+Q 2613 4750 3031 4423 
+Q 3450 4097 3450 3541 
+Q 3450 3153 3228 2886 
+Q 3006 2619 2597 2516 
 z
 " transform="scale(0.015625)"/>
      <path id="DejaVuSans-29" d="M 628 4666 
@@ -4474,7 +4506,7 @@ z
     <use xlink:href="#DejaVuSans-48" transform="translate(824.6875 0)"/>
     <use xlink:href="#DejaVuSans-3" transform="translate(886.21875 0)"/>
     <use xlink:href="#DejaVuSans-2a" transform="translate(918 0)"/>
-    <use xlink:href="#DejaVuSans-15" transform="translate(995.484375 0)"/>
+    <use xlink:href="#DejaVuSans-16" transform="translate(995.484375 0)"/>
     <use xlink:href="#DejaVuSans-3" transform="translate(1059.109375 0)"/>
     <use xlink:href="#DejaVuSans-47" transform="translate(1090.890625 0)"/>
     <use xlink:href="#DejaVuSans-55" transform="translate(1154.375 0)"/>

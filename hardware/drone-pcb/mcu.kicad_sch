@@ -5,7 +5,7 @@
   (paper "A3")
   (title_block
     (title "MicroScout flight controller - MCU and USB")
-    (date "2026-10-08")
+    (date "2026-10-09")
     (rev "G2-draft-1")
     (company "MicroScout (open hardware, CERN-OHL-S-2.0)")
     (comment 1 "STATUS: DRAFT - UNVERIFIED - requires human review at Gate G2")
@@ -3058,7 +3058,7 @@
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
-    (property "Footprint" "Button_Switch_SMD:SW_Push_1P1T_XKB_TS-1187A"
+    (property "Footprint" "Button_Switch_SMD:SW_Push_1P1T_NO_CK_KMR2"
       (at 40.64 139.7 0)
       (effects
         (font (size 1.27 1.27)) hide))
@@ -3066,11 +3066,11 @@
       (at 40.64 139.7 0)
       (effects
         (font (size 1.27 1.27)) hide))
-    (property "LCSC" "C318884"
+    (property "MPN" "KMR211NGLFS (C&K) or KMR2-footprint equivalent"
       (at 40.64 139.7 0)
       (effects
         (font (size 1.27 1.27)) hide))
-    (property "MPN" "TS-1187A-B-A-B"
+    (property "Note" "D-061: 4.2x2.8 mm switch; LCSC number UNCONFIRMED"
       (at 40.64 139.7 0)
       (effects
         (font (size 1.27 1.27)) hide))
@@ -3259,7 +3259,7 @@
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
-    (property "Footprint" "Button_Switch_SMD:SW_Push_1P1T_XKB_TS-1187A"
+    (property "Footprint" "Button_Switch_SMD:SW_Push_1P1T_NO_CK_KMR2"
       (at 78.74 139.7 0)
       (effects
         (font (size 1.27 1.27)) hide))
@@ -3267,11 +3267,11 @@
       (at 78.74 139.7 0)
       (effects
         (font (size 1.27 1.27)) hide))
-    (property "LCSC" "C318884"
+    (property "MPN" "KMR211NGLFS (C&K) or KMR2-footprint equivalent"
       (at 78.74 139.7 0)
       (effects
         (font (size 1.27 1.27)) hide))
-    (property "MPN" "TS-1187A-B-A-B"
+    (property "Note" "D-061: 4.2x2.8 mm switch; LCSC number UNCONFIRMED"
       (at 78.74 139.7 0)
       (effects
         (font (size 1.27 1.27)) hide))
@@ -5228,18 +5228,18 @@
       (font (size 1.27 1.27))
       (justify right bottom))
     (uuid "832d4862-c961-5e59-b1f8-4fc706037c4c"))
-  (text "Debug pads (UART0 ROM log, EN, IO0) - optional 1.27 mm"
+  (text "Debug pads (UART0 ROM log, EN, IO0) - SMD"
     (at 271.644 33.48 0)
     (effects
       (font (size 1.6 1.6))
       (justify left bottom))
-    (uuid "0090f135-c02a-57ce-829c-914044734cc6"))
-  (text "header, not fitted"
+    (uuid "835519e3-6329-52a4-a2c6-dba10c00b60c"))
+  (text "pads, nothing fitted"
     (at 271.644 36.68 0)
     (effects
       (font (size 1.6 1.6))
       (justify left bottom))
-    (uuid "ca32e636-5574-518b-ad3a-31bd0516c0a5"))
+    (uuid "6830d598-305d-5b1a-9a0c-80f7fe3481a5"))
   (text "Normal flashing and logging use native USB (GPIO19/20)."
     (at 271.644 39.88 0)
     (effects
@@ -5264,7 +5264,7 @@
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
-    (property "Footprint" "Connector_PinHeader_1.27mm:PinHeader_1x06_P1.27mm_Vertical"
+    (property "Footprint" "microscout:PadRow_1x06_P1.50mm_SMD"
       (at 289.56 50.8 0)
       (effects
         (font (size 1.27 1.27)) hide))

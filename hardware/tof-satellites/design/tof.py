@@ -27,7 +27,7 @@ def side():
     s.C("C1", "4.7u", "+3V3", "GND")
     s.C("C2", "100n", "+3V3", "GND")
     s.R("R1", "10k", "XSHUT", "GND")
-    s.add("Connector_Generic:Conn_01x05", "J1", "to FC", "Connector_PinHeader_1.27mm:PinHeader_1x05_P1.27mm_Vertical",
+    s.add("Connector_Generic:Conn_01x05", "J1", "to FC", "microscout:PadRow_1x05_P1.50mm_SMD",
           {"1": "+3V3", "2": "GND", "3": "SDA", "4": "SCL", "5": "XSHUT"}, Note="Solder pads; mirrors FC J11-J13")
     s.add("power:PWR_FLAG", "#FLG01", "PWR_FLAG", "", {"1": "GND"})
     s.add("power:PWR_FLAG", "#FLG02", "PWR_FLAG", "", {"1": "+3V3"})
@@ -53,7 +53,7 @@ def front():
     s.R("R2", "47k", "LPN", "GND")
     s.R("R3", "47k", "I2C_RST", "GND")
     s.R("R4", "47k", "+3V3", "RSVD6")
-    s.add("Connector_Generic:Conn_01x06", "J1", "to FC", "Connector_PinHeader_1.27mm:PinHeader_1x06_P1.27mm_Vertical",
+    s.add("Connector_Generic:Conn_01x06", "J1", "to FC", "microscout:PadRow_1x06_P1.50mm_SMD",
           {"1": "+3V3", "2": "GND", "3": "SDA", "4": "SCL", "5": "LPN", "6": "INT_N"}, Note="Solder pads; mirrors FC J14")
     s.add("power:PWR_FLAG", "#FLG01", "PWR_FLAG", "", {"1": "GND"})
     s.add("power:PWR_FLAG", "#FLG02", "PWR_FLAG", "", {"1": "+3V3"})

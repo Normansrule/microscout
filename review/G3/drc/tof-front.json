@@ -1,0 +1,28 @@
+{
+ "status": "DRAFT - UNVERIFIED - requires human review at Gate G3",
+ "board": "tof-front",
+ "pcb": "hardware/tof-satellites/front/microscout-tof-front.kicad_pcb",
+ "footprints": 10,
+ "nets": 9,
+ "drc": {
+  "DRC violations": 0,
+  "unconnected pads": 0,
+  "Footprint errors": 0
+ },
+ "autorouted_nets": [
+  "+3V3",
+  "/VL53L5CX satellite/I2C_RST",
+  "/VL53L5CX satellite/INT_N",
+  "/VL53L5CX satellite/LPN",
+  "/VL53L5CX satellite/RSVD6",
+  "/VL53L5CX satellite/SCL",
+  "/VL53L5CX satellite/SDA",
+  "GND"
+ ],
+ "notes": [
+  "imported 112 track segments and 10 vias from tof-front.ses",
+  "freerouting: 0, work dir /tmp/fr-tof-front-cv67bmg7",
+  "freerouting attempt 1 (('PRIORITIZED', 'GREEDY')): 0 connections open",
+  "kept the attempt with 0 open connections"
+ ]
+}

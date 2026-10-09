@@ -69,7 +69,7 @@ Open questions (`review/G1/README.md`) - reply with a decision for each
 - [ ] OQ-1 toolchain  - [ ] OQ-2 battery/connector  - [ ] OQ-3 frame fabrication  - [ ] OQ-4 optical flow  - [ ] OQ-5 cost  - [ ] OQ-6 barometer
 - [ ] OQ-7 repo public + Pages (commands given)  - [ ] OQ-8 firmware base  - [ ] OQ-9 ESC board  - [ ] OQ-10 reverse polarity  - [ ] OQ-11 weight  - [ ] OQ-12 brief changes
 
-## G2 - Schematic (package: `review/G2/`) - AWAITING REVIEW
+## G2 - Schematic (package: `review/G2/`) - APPROVED BY THE OWNER 2026-10-08 (D-059; open questions taken as recommended)
 - [ ] PDF of all sheets (`kicad-cli sch export pdf`) reviewed: `review/G2/schematics/` (FC, ESC, ToF side, ToF front)
 - [ ] ERC: `review/G2/check-*.md` (agent checks: 0 errors, netlists identical) **and KiCad's own ERC run in KiCad 8/9** - every waiver justified
 - [ ] Net lists reviewed (`review/G2/netlists/`)
@@ -81,11 +81,18 @@ Open questions (`review/G1/README.md`) - reply with a decision for each
 - [ ] Open questions OQ-13 to OQ-18 answered (`review/G2/README.md`)
 - [ ] Costed BOM `bom/drone-bom-g2.csv` reviewed (prices and stock change daily)
 
-## G3 - PCB layout (package: `review/G3/`) - NOT STARTED
+## G3 - PCB layout (package: `review/G3/`) - DRAFTED, AWAITING REVIEW
+- [ ] Carried over from G2: KiCad 9 ERC re-run on the bundled libraries (setup guide step 6), reports committed
+- [ ] G3 schematic revision accepted (D-061: pigtails, KMR2 switches, SMD wire pads; see `review/G3/README.md`)
+- [ ] Board outlines and the 16 x 25 mm M2 pattern accepted (D-060); frame, canopy and grommets follow at G5
+- [ ] Estimated land patterns replaced before G4: VL53L5CX (ST DS13754 Fig. 28) and MLT-5020 buzzer (OQ-23)
+- [ ] Charge current (OQ-21) and buzzer drive voltage (OQ-22) decided
+- [ ] Camera FPC insertion side checked against the purchased camera module (`tools/pcb/fc.py`, J3)
 - [ ] Layer-by-layer exports and 3D renders (top, bottom, angled) reviewed
-- [ ] DRC report clean
+- [ ] Open connections finished (`review/G3/open-connections.md`, OQ-19) and DRC report clean, re-run in KiCad 9 (setup guide step 7)
+- [ ] 6-layer flight-controller stackup accepted (D-062, OQ-20)
 - [ ] Stackup accepted
-- [ ] IPC-2152 trace-width calculations for motor and battery nets checked
+- [ ] Trace-width calculations for motor and battery nets checked (`trace-widths.md`: IPC-2221 formula as a conservative bound; the IPC-2152 charts were not reproduced)
 - [ ] Antenna keep-out checked
 - [ ] USB differential pair notes checked
 - [ ] IMU placement rationale accepted

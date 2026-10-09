@@ -82,7 +82,7 @@ def main():
             p0 = parts[0]
             pr = prices.get(lcsc, ("", "", "", ""))
             short = refs[0] if len(refs) == 1 else f"{refs[0]}..{refs[-1]}" if len(refs) > 2 else " ".join(refs)
-            pcb_only = not lcsc and any(k in fp for k in ("TestPoint", "SolderWirePad", "PinHeader_1.27mm"))
+            pcb_only = not lcsc and any(k in fp for k in ("TestPoint", "SolderWirePad", "PinHeader_1.27mm", "PadRow_", "Pad_SMD_"))
             status = "DNP" if dnp else ("PCB" if pcb_only else "SELECTED")
             rows.append(dict(ref=f"{board}:{short}", status=status, qty=0 if dnp else len(refs) * mult,
                              function=f"{value} ({p0.lib_id.split(':')[-1]})", mpn=p0.fields.get("MPN", value),

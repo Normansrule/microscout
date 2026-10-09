@@ -1,16 +1,16 @@
-> STATUS: DRAFT - UNVERIFIED - requires human review at Gate G2
+> STATUS: DRAFT - UNVERIFIED - requires human review at Gate G3
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/figures/banner-dark.png">
-    <img src="docs/figures/banner-light.png" width="100%" alt="MicroScout banner: a palm-sized ESP32-S3 brushless camera drone designed to flip, survive crashes, and be easy to fly and to program. Concept render of four ducted props with an orange canopy and the battery on top. Gate G2, schematics drafted, nothing built or flown yet.">
+    <img src="docs/figures/banner-light.png" width="100%" alt="MicroScout banner: a palm-sized ESP32-S3 brushless camera drone designed to flip, survive crashes, and be easy to fly and to program. Concept render of four ducted props with an orange canopy and the battery on top. Gate G3, PCB layout drafted, nothing built or flown yet.">
   </picture>
 </p>
 
 <p align="center">
   <a href="https://normansrule.github.io/microscout/lab/"><img src="https://img.shields.io/badge/Flight%20Lab-fly%20it%20in%20your%20browser-f28c28" alt="Flight Lab: fly it in your browser"></a>
   <img src="https://img.shields.io/badge/status-draft%20%C2%B7%20not%20built-b07000" alt="Status: draft, not built">
-  <img src="https://img.shields.io/badge/gate-G2%20schematics%20in%20review-2a78d6" alt="Gate G2 schematics in review">
+  <img src="https://img.shields.io/badge/gate-G3%20PCB%20layout%20in%20review-2a78d6" alt="Gate G3 PCB layout in review">
   <a href="https://github.com/Normansrule/microscout/actions/workflows/checks.yml"><img src="https://github.com/Normansrule/microscout/actions/workflows/checks.yml/badge.svg" alt="CI checks"></a>
   <img src="https://img.shields.io/badge/hardware-CERN--OHL--S--2.0-1baf7a" alt="Hardware licence CERN-OHL-S-2.0">
   <img src="https://img.shields.io/badge/firmware-GPL--3.0-1baf7a" alt="Firmware licence GPL-3.0">
@@ -24,6 +24,7 @@
   <a href="docs/guide/fly.md">Fly it</a> ·
   <a href="docs/guide/program.md">Program it</a> ·
   <a href="review/G2/README.md">Schematics (G2)</a> ·
+  <a href="review/G3/README.md">PCB layout (G3)</a> ·
   <a href="docs/decisions.md">Decisions</a> ·
   <a href="VERIFY.md">Checklist</a> ·
   <a href="docs/setup-ubuntu.md">Set up on Ubuntu</a>
@@ -33,7 +34,8 @@
 > **Nothing here has been built, powered, tested or flown.** MicroScout is drafted by an AI agent and checked by a human at eight gates.
 >
 > - Gate G1 (architecture and parts) was approved on 2026-10-07.
-> - Gate G2 (schematics) is drafted and waiting for review.
+> - Gate G2 (schematics) was approved on 2026-10-08.
+> - Gate G3 (PCB layout) is drafted and waiting for review. The flight controller and ESC still have open connections (listed in the G3 package).
 >
 > The 3D images are a concept model, the flights and the Flight Lab are simulations with estimated parameters, and every number is a datasheet value or an estimate.
 
@@ -85,7 +87,7 @@ The map-based MPC is handed the obstacle map. The fair comparison is the sensor-
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/figures/roadmap-dark.png">
-    <img src="docs/figures/roadmap-light.png" width="100%" alt="Gate roadmap: G1 architecture and parts approved 2026-10-07; G2 schematics awaiting review; G3 PCB layout, G4 fab outputs, G5 mechanical (concept CAD exists), G6 firmware and bench (SDK and simulator exist), G7 first flight and G8 release not started.">
+    <img src="docs/figures/roadmap-light.png" width="100%" alt="Gate roadmap: G1 architecture and parts approved 2026-10-07; G2 schematics approved 2026-10-08; G3 PCB layout drafted with routing open; G4 fab outputs, G5 mechanical (concept CAD exists), G6 firmware and bench (SDK and simulator exist), G7 first flight and G8 release not started.">
   </picture>
 </p>
 
@@ -94,9 +96,9 @@ The map-based MPC is handed the obstacle map. The fair comparison is the sensor-
 | ⚡ Quick and agile | 🛡️ Built to take knocks | 🧑‍💻 Easy to fly and program |
 |---|---|---|
 | 2S brushless (4 × 1103 11000KV), 2-inch props | One-piece ducted nylon (PA11) frame acts as the bumper | Beginner, sport and acro modes, one-button flips |
-| Thrust-to-weight **4.0-5.8** (est.) | Electronics soft-mounted on rubber grommets | `drone.takeoff()` / `drone.flip("back")` in Python |
+| Thrust-to-weight **3.9-5.7** (est.) | Electronics soft-mounted on rubber grommets | `drone.takeoff()` / `drone.flip("back")` in Python |
 | ~**1000 °/s** rotation, back flip in ~0.8 s (simulated) | Props are the designed weak point; no-solder spares | Same code for the simulator now and the drone later |
-| **~84.5 g** with a 550 mAh pack (est.), ~5-6.5 min hover | Hardware low-battery cut-off, current limit in firmware | USB-C charging with balancing; flash over USB without a battery |
+| **~86.2 g** with a 550 mAh pack (est.), ~5-6.5 min hover | Hardware low-battery cut-off, current limit in firmware | USB-C charging with balancing; flash over USB without a battery |
 
 **Inside:**
 
@@ -160,7 +162,7 @@ New machine? **[docs/setup-ubuntu.md](docs/setup-ubuntu.md)** covers every comma
 | Sensors | ICM-42688-P, BMP388, QMC5883P, 3 × VL53L1X + VL53L5CX (8 × 8) on satellites, Flow deck v2 |
 | Frame | One-piece ducted PA11 frame, TPU canopy and strap, boards on grommets |
 
-## Schematics (Gate G2 draft)
+## Schematics (approved at G2)
 
 <table>
   <tr>
@@ -175,12 +177,24 @@ The schematics are generated from Python by [`tools/sch`](tools/sch/) as KiCad 7
 - **KiCad 9 ERC (run by the owner):** 0 errors. The warnings came from library differences between KiCad versions, so the library parts are now bundled with the project (D-056). Re-running step 6 of the [setup guide](docs/setup-ubuntu.md) should show far fewer.
 - **Review:** an independent review pass found 7 serious issues, and all are fixed. They are listed in [review/G2/README.md](review/G2/README.md).
 
+## PCB layout (Gate G3 draft)
+
+<table>
+  <tr>
+    <td width="33%"><img src="review/G3/fc/microscout-fc-3d-angle.png" alt="Flight controller 3D render"><br><sub><b>Flight controller</b> - 6 layers, 52 mm, ESP32-S3 module on top, sensors and regulators underneath</sub></td>
+    <td width="33%"><img src="review/G3/esc/microscout-esc-3d-angle.png" alt="ESC 3D render"><br><sub><b>4-in-1 ESC</b> - 4 layers, 40 mm, 24 MOSFETs on top, four AM32 MCUs and drivers underneath</sub></td>
+    <td width="33%"><img src="review/G3/tof-front/microscout-tof-front-3d-angle.png" alt="Front ToF satellite 3D render"><br><sub><b>ToF satellites</b> - 2 layers, fully routed, DRC 0</sub></td>
+  </tr>
+</table>
+
+The boards are laid out by Python scripts in [`tools/pcb`](tools/pcb/) on KiCad 7, routed by Freerouting and a finishing router. **The flight controller and the ESC still have open connections**; each one is listed in [review/G3/open-connections.md](review/G3/open-connections.md), and how to finish them is open question OQ-19. Layer plots, DRC reports, the stackup and the trace-width calculations are in [review/G3](review/G3/README.md).
+
 ## The numbers (estimates, regenerated from the budget model)
 
 | | |
 |---|---|
-| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/thrust-to-weight-dark.svg"><img src="docs/figures/thrust-to-weight-light.svg" alt="Thrust-to-weight 4.0 to 5.8 at the nominal 84.5 g"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/sim-flip-dark.svg"><img src="docs/figures/sim-flip-light.svg" alt="Simulated back flip: rotation, pitch rate and height against time"></picture> |
-| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/weight-budget-dark.svg"><img src="docs/figures/weight-budget-light.svg" alt="Weight budget per item, 84.5 g nominal against a ~85 g limit"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/flight-time-dark.svg"><img src="docs/figures/flight-time-light.svg" alt="Estimated hover time against takeoff weight"></picture> |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/thrust-to-weight-dark.svg"><img src="docs/figures/thrust-to-weight-light.svg" alt="Thrust-to-weight 3.9 to 5.7 at the nominal 86.2 g"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/sim-flip-dark.svg"><img src="docs/figures/sim-flip-light.svg" alt="Simulated back flip: rotation, pitch rate and height against time"></picture> |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/weight-budget-dark.svg"><img src="docs/figures/weight-budget-light.svg" alt="Weight budget per item, 86.2 g nominal against a ~85 g limit"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/flight-time-dark.svg"><img src="docs/figures/flight-time-light.svg" alt="Estimated hover time against takeoff weight"></picture> |
 
 <details>
 <summary><b>More charts and animations</b>: power, cost, duct layout, pin map, power-on sequence, ToF addressing</summary>
@@ -198,8 +212,9 @@ The schematics are generated from Python by [`tools/sch`](tools/sch/) as KiCad 7
 | Gate | What the owner reviews | State |
 |---|---|---|
 | G1 | Architecture, parts, budgets, pin table - [review/G1](review/G1/README.md) | ✅ Approved 2026-10-07 |
-| G2 | Schematics, ERC, reference-design checks - [review/G2](review/G2/README.md) | 🟡 Awaiting review (OQ-13 to OQ-18) |
-| G3-G4 | PCB layout, fabrication outputs | ⚪ Not started |
+| G2 | Schematics, ERC, reference-design checks - [review/G2](review/G2/README.md) | ✅ Approved 2026-10-08 |
+| G3 | PCB layout, DRC, stackup, trace widths - [review/G3](review/G3/README.md) | 🟡 Awaiting review; routing not finished (OQ-19 to OQ-23) |
+| G4 | Fabrication outputs | ⚪ Not started |
 | G5 | Mechanical design | ⚪ Concept CAD only |
 | G6-G7 | Firmware, bench bring-up, first flight | ⚪ SDK, simulator and Flight Lab built early |
 | G8 | Release | ⚪ Not started |
@@ -208,7 +223,8 @@ Progress log: [PROGRESS.md](PROGRESS.md). Every design choice and its alternativ
 
 Known risks:
 
-- Takeoff weight ~84.5 g against the ~85 g limit.
+- Takeoff weight ~86.2 g against the ~85 g limit.
+- The flight controller and ESC layouts still have open connections (OQ-19), and the flight controller now needs a 6-layer board (D-062).
 - The XT30 connector's peak rating is below the full-throttle current, so firmware limits current to 30 A.
 - Priced parts come to ~$205 per drone (higher cost accepted).
 - Gate-driver stock is uncertain (OQ-13).

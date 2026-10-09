@@ -249,7 +249,13 @@ class Project:
         pro.setdefault("meta", {})["filename"] = f"{self.name}.kicad_pro"
         sheets = [[self.root_uuid, ""]] + [[U(self.name, "sheet", s.name), s.title] for s in self.sheets]
         pro["sheets"] = sheets
-        (self.outdir / f"{self.name}.kicad_pro").write_text(json.dumps(pro, indent=2) + "\n")
+        out = self.outdir / f"{self.name}.kicad_pro"
+        if out.exists():            # keep the PCB layout's design rules and net classes (written by tools/pcb, G3)
+            old = json.loads(out.read_text())
+            for key in ("board", "net_settings"):
+                if key in old:
+                    pro[key] = old[key]
+        out.write_text(json.dumps(pro, indent=2) + "\n")
         rel = {k: pathlib.Path(v) for k, v in self.extra_libs.items()}
         lines = ["(sym_lib_table"]
         for k, v in rel.items():
@@ -259,6 +265,8 @@ class Project:
         lines.append(")")
         (self.outdir / "sym-lib-table").write_text("\n".join(lines) + "\n")
         fl = ["(fp_lib_table"]
+        if (LIBDIR / "microscout.pretty").exists():
+            fl.append(f'  (lib (name "microscout")(type "KiCad")(uri "${{KIPRJMOD}}/{relpath(LIBDIR / "microscout.pretty", self.outdir)}")(options "")(descr "MicroScout project footprints (tools/pcb/footprints.py)"))')
         for d in sorted((LIBDIR / "kicad7-footprints").glob("*.pretty")):
             fl.append(f'  (lib (name "{d.stem}")(type "KiCad")(uri "${{KIPRJMOD}}/{relpath(d, self.outdir)}")(options "")(descr "KiCad 7 footprint subset vendored by tools/sch/vendor.py"))')
         fl.append(")")

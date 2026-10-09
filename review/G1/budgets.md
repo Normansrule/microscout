@@ -15,9 +15,9 @@ Rev B is the 2S brushless, ducted-frame redesign for agility (flips), speed and 
 | Props 4x 2-inch 3-blade | 2.6 | 2.0-3.0 | ESTIMATE | S16: 0.5 g (2-blade) to 0.75 g (3-blade) per prop |
 | Ducted frame (one piece, PA11) | 11.9 | 9.5-14.2 | ESTIMATE | CAD concept volume x 1.05 g/cm3 (mechanical/concept); commercial 80 mm PP frames 5.8-7.8 g (S19) |
 | Canopy + battery strap (TPU 95A) | 2.5 | 2.0-3.8 | ESTIMATE | CAD concept volume x 1.20 g/cm3 (canopy + strap) |
-| Flight-controller PCB (bare, 4-layer) | 3.9 | 3.3-4.6 | ESTIMATE | 40x40 mm x 1.0 mm FR-4 + copper |
+| Flight-controller PCB (bare, 6-layer) | 4.3 | 3.7-5.2 | ESTIMATE | 1653 mm2 (G3 outline) x 1.0 mm FR-4 + copper |
 | FC components incl. ESP32 module | 5.0 | 3.5-7.0 | ESTIMATE | module + sensors + charger + passives; weigh at G6 |
-| ESC PCB (bare, 2 oz outer) | 2.7 | 2.3-3.2 | ESTIMATE | 30x30 mm |
+| ESC PCB (bare, 2 oz outer) | 3.9 | 3.3-4.7 | ESTIMATE | 1318 mm2 (G3 outline) x 1.0 mm |
 | ESC components (4 MCU, 4 drivers, 24 FETs) | 2.0 | 1.5-3.0 | ESTIMATE | commercial 12 A whoop AIOs weigh 2.7-5.1 g complete |
 | Camera + FPC | 2.0 | 1.0-3.0 | ESTIMATE | UNCONFIRMED; weigh chosen module |
 | ToF satellite boards (3 side + 1 front) + wires | 2.0 | 1.3-3.0 | ESTIMATE | 4 small boards (G2: front sensor moved off the FC, D-052) |
@@ -25,27 +25,27 @@ Rev B is the 2S brushless, ducted-frame redesign for agility (flips), speed and 
 | ELRS receiver | 0.5 | 0.5-2.2 | SOURCED | S17 (Lite 0.46 g; RP1 2.2 g) |
 | XT30 lead + motor wires | 2.5 | 1.5-3.5 | ESTIMATE | allowance |
 | Soft-mount grommets + screws | 1.2 | 0.8-2.0 | ESTIMATE | 4 grommets, 4 M2 screws |
-| **Takeoff weight** | **84.5** | **73.5-100.4** | CALC | sum |
+| **Takeoff weight** | **86.2** | **75.0-102.4** | CALC | sum |
 
-Formula: W = sum(items). Nominal 84.5 g against the < 80 g target. Reference: Mobula8 (85 mm, 2S, same motor, with camera) is 43 g dry, ~72 g with a 29 g pack (S18). Ours carries five ToF sensors, optical flow, a larger frame and on-board charging.
+Formula: W = sum(items). Nominal 86.2 g against the ~85 g limit set at G1 (D-044; the original target was < 80 g). Reference: Mobula8 (85 mm, 2S, same motor, with camera) is 43 g dry, ~72 g with a 29 g pack (S18). Ours carries five ToF sensors, optical flow, a larger frame and on-board charging.
 
 ## 2. Thrust-to-weight and agility
 
 Formula: T/W = 4 x T_motor / W. Hover throttle (thrust fraction) = W / (4 x T_motor).
 
-| T per motor (g) | Basis | T/W at 84.5 g | T/W at worst 100.4 g | hover thrust fraction |
+| T per motor (g) | Basis | T/W at 86.2 g | T/W at worst 102.4 g | hover thrust fraction |
 |---:|---|---:|---:|---:|
-| 85 | ASSUMPTION: -30 % for ducts + sag | 4.02 | 3.39 | 25% |
-| 100 | ASSUMPTION: battery sag to ~7 V | 4.73 | 3.98 | 21% |
-| 122 | SOURCED S15 vendor table, open prop | 5.77 | 4.86 | 17% |
+| 85 | ASSUMPTION: -30 % for ducts + sag | 3.94 | 3.32 | 25% |
+| 100 | ASSUMPTION: battery sag to ~7 V | 4.64 | 3.91 | 22% |
+| 122 | SOURCED S15 vendor table, open prop | 5.66 | 4.77 | 18% |
 
-Inertia (ESTIMATE, point/slab model incl. the top-mounted battery height): Ixx = 4.67e-05, Iyy = 5.74e-05, Izz = 8.51e-05 kg m2. Motor offset from each axis = D/(2 sqrt 2) = 33.6 mm.
+Inertia (ESTIMATE, point/slab model incl. the top-mounted battery height): Ixx = 4.69e-05, Iyy = 5.76e-05, Izz = 8.56e-05 kg m2. Motor offset from each axis = D/(2 sqrt 2) = 33.6 mm.
 
 | T per motor (g) | max pitch torque (N m) | angular accel (rad/s2) | time to 1000 deg/s (ms, ignoring motor lag) |
 |---:|---:|---:|---:|
-| 85 | 0.056 | 976 | 18 |
-| 100 | 0.066 | 1,148 | 15 |
-| 122 | 0.080 | 1,401 | 12 |
+| 85 | 0.056 | 972 | 18 |
+| 100 | 0.066 | 1,143 | 15 |
+| 122 | 0.080 | 1,395 | 13 |
 
 Torque = 2 x T_max x arm (one pair at full thrust, the other at zero). Motor response (30 ms, ASSUMPTION) dominates, so reaching 1000 deg/s (freestyle range 850-1200 deg/s, S20) takes roughly 3 x tau ~ 90 ms. A 360 deg flip at that rate takes ~0.45 s. The simulator (`software/microscout_sdk`) flies the full flip with motor lag and reports altitude lost.
 
@@ -89,10 +89,10 @@ Formulas: P_hover = W / eta; I = P_hover / V_nom + I_elec; t = C x HV_derate x u
 
 | W (g) | eta (g/W) | P_hover (W) | I_total (A) | Hover time (min) |
 |---:|---:|---:|---:|---:|
-| 84.5 | 3.5 | 24.1 | 3.67 | 6.6 |
-| 84.5 | 2.5 | 33.8 | 4.98 | 4.9 |
-| 100.4 | 3.5 | 28.7 | 4.28 | 5.7 |
-| 100.4 | 2.5 | 40.2 | 5.83 | 4.2 |
+| 86.2 | 3.5 | 24.6 | 3.74 | 6.5 |
+| 86.2 | 2.5 | 34.5 | 5.07 | 4.8 |
+| 102.4 | 3.5 | 29.3 | 4.36 | 5.6 |
+| 102.4 | 2.5 | 41.0 | 5.94 | 4.1 |
 | 80.0 | 3.5 | 22.9 | 3.50 | 6.9 |
 | 80.0 | 2.5 | 32.0 | 4.73 | 5.1 |
 
@@ -100,11 +100,11 @@ Capacity 550 mAh (S14) x 0.92 (ESTIMATE) x 80% usable (ASSUMPTION). eta bracket:
 
 ### 3d. Peak current
 
-I_peak = 4 x 9.2 A (S15 full throttle) + electronics at a sagged 6.0 V = **37.7 A**. XT30 is rated 15 A continuous / 30 A peak (S23): full-throttle bursts exceed the peak rating, so firmware limits motor output to keep battery current <= 30 A (DR-06), and the connector choice stays an open question (OQ-2). Hover (4.2 A) is well inside the 15 A continuous rating; sustained hard acro (ESTIMATE 10-15 A average) approaches it.
+I_peak = 4 x 9.2 A (S15 full throttle) + electronics at a sagged 6.0 V = **37.7 A**. XT30 is rated 15 A continuous / 30 A peak (S23): full-throttle bursts exceed the peak rating, so firmware limits motor output to keep battery current <= 30 A (DR-06), and the connector choice stays an open question (OQ-2). Hover (4.3 A) is well inside the 15 A continuous rating; sustained hard acro (ESTIMATE 10-15 A average) approaches it.
 
 ## 4. Component calculations
 
-**4a. Shunt (INA226, S8, S27).** Full scale 81.92 mV / 1 mOhm = 82 A; LSB 2.5 uV / 1 mOhm = 2.5 mA. P = I^2 R: hover 4.2 A -> 18 mW; 30 A limit -> 0.90 W; 38 A burst -> 1.42 W (2 W part; bursts only).
+**4a. Shunt (INA226, S8, S27).** Full scale 81.92 mV / 1 mOhm = 82 A; LSB 2.5 uV / 1 mOhm = 2.5 mA. P = I^2 R: hover 4.3 A -> 18 mW; 30 A limit -> 0.90 W; 38 A burst -> 1.42 W (2 W part; bursts only).
 
 **4b. Reverse polarity (D-035, OQ-10).** Ground-return FETs do not work here: the charger's JST-XH balance lead ties pack negative straight to board ground, bypassing them. Rev B relies on keyed XT30 and JST-XH connectors; a high-side ideal-diode controller with back-to-back N-FETs is the alternative (part TBD). No fuse: a firmware limit cannot clear a shorted ESC FET on a 100C pack - residual risk stated in R-13 and the flying guide (unplug after flight).
 
@@ -120,11 +120,11 @@ I_peak = 4 x 9.2 A (S15 full throttle) + electronics at a sagged 6.0 V = **37.7 
 
 | Case | Speed (m/s) | Energy (J) | Basis |
 |---|---:|---:|---|
-| 1.0 m drop onto a hard floor | 4.4 | 0.83 | IEC 60068-2-31 run as 1000 mm falls (S25) |
-| 1.22 m transit drop | 4.9 | 1.01 | MIL-STD-810 (S25) |
-| Wall hit at 3 m/s | 3.0 | 0.38 | KE = 1/2 m v^2 |
-| Wall hit at 5 m/s | 5.0 | 1.06 | KE = 1/2 m v^2 |
-| Wall hit at 10 m/s | 10.0 | 4.23 | KE = 1/2 m v^2 |
+| 1.0 m drop onto a hard floor | 4.4 | 0.85 | IEC 60068-2-31 run as 1000 mm falls (S25) |
+| 1.22 m transit drop | 4.9 | 1.03 | MIL-STD-810 (S25) |
+| Wall hit at 3 m/s | 3.0 | 0.39 | KE = 1/2 m v^2 |
+| Wall hit at 5 m/s | 5.0 | 1.08 | KE = 1/2 m v^2 |
+| Wall hit at 10 m/s | 10.0 | 4.31 | KE = 1/2 m v^2 |
 
 Design response (D-030, D-031): the ducts and bumpers take the load in PA11 / TPU (elongation 35-50 % and > 500 %, S26), the boards are soft-mounted and never part of the load path, and the cheap parts (props, canopy, ducts) fail first. Requirement R-22 targets survival of 26 drops from 1.0 m and frontal hits at 3 m/s; faster crashes may break replaceable parts. An academic 405 g quad survived 4.5 m/s frontal hits undamaged (S28) - different scale, for orientation only.
 
@@ -132,7 +132,6 @@ Design response (D-030, D-031): the ducts and bumpers take the load in PA11 / TP
 
 | Ref | Part | Qty | Unit USD | Line USD |
 |---|---|---:|---:|---:|
-| FC:J2 | XT30PW-M30.G.Y | 1 | 0.376 | 0.38 |
 | FC:RS1 | HoJLR2512-2W-1mR-1% | 1 | 0.065 | 0.06 |
 | FC:R1 R2 | 0402WGF100JTCE | 2 | 0.001 | 0.00 |
 | FC:C1..C70 | CL05B104KO5NNNC | 21 | 0.005 | 0.10 |
@@ -154,11 +153,9 @@ Design response (D-030, D-031): the ducts and bumpers take the load in PA11 / TP
 | FC:R9 | 1206W4F1500T5E | 1 | 0.005 | 0.00 |
 | FC:R10..R45 | 0402WGF1001TCE | 5 | 0.001 | 0.01 |
 | FC:D4 | KT-0603R | 1 | 0.008 | 0.01 |
-| FC:J6 | S3B-XH-A(LF)(SN) | 1 | 0.074 | 0.07 |
 | FC:U8 | LTC2954CTS8-1#TRPBF | 1 | 6.670 | 6.67 |
 | FC:C12 | CC0402KRX7R9BB333 | 1 | 0.005 | 0.00 |
 | FC:D1..D6 | 1N5819WS | 3 | 0.013 | 0.04 |
-| FC:SW3 | TS-1187A-B-A-B | 1 | 0.021 | 0.02 |
 | FC:U23 | TLV6700DDCR | 1 | 0.950 | 0.95 |
 | FC:R16 | 0402WGF1504TCE | 1 | 0.003 | 0.00 |
 | FC:R17 | 0402WGF1103TCE | 1 | 0.001 | 0.00 |
@@ -174,8 +171,6 @@ Design response (D-030, D-031): the ducts and bumpers take the load in PA11 / TP
 | FC:R25 | 0402WGF1503TCE | 1 | 0.001 | 0.00 |
 | FC:J7 | SM08B-SRSS-TB(LF)(SN) | 1 | 0.334 | 0.33 |
 | FC:U1 | ESP32-S3-WROOM-1-N8R2 | 1 | 4.678 | 4.68 |
-| FC:SW2 | TS-1187A-B-A-B | 1 | 0.021 | 0.02 |
-| FC:SW1 | TS-1187A-B-A-B | 1 | 0.021 | 0.02 |
 | FC:J1 | TYPE-C-31-M-12 | 1 | 0.173 | 0.17 |
 | FC:R38 R39 | 0402WGF5101TCE | 2 | 0.001 | 0.00 |
 | FC:U22 | USBLC6-2SC6 | 1 | 0.178 | 0.18 |
@@ -221,11 +216,11 @@ Design response (D-030, D-031): the ducts and bumpers take the load in PA11 / TP
 | M1-M4 | Happymodel EX1103 11000KV | 4 | 14.990 | 59.96 |
 | P1-P4 | Gemfan Hurricane 2023-3 | 4 | 0.998 | 3.99 |
 | FLOW1 | Flow deck v2 | 1 | 55.000 | 55.00 |
-| | **Subtotal of priced lines** | | | **204.99** |
+| | **Subtotal of priced lines** | | | **204.48** |
 
-Prices: LCSC/vendor pages seen 2026-10-04 to 2026-10-07 at the break covering five drones (BOM `price_break` column); no shipping or tariffs. Not priced (UNCONFIRMED): CAM1 OV2640 FPC module (vendor TBD); B1 GNB 550 mAh 2S HV (long type, XT30); plus passives, PCBs, assembly and the printed frame.
+Prices: LCSC/vendor pages seen 2026-10-04 to 2026-10-07 at the break covering five drones (BOM `price_break` column); no shipping or tariffs. Not priced (UNCONFIRMED): FC:J2 XT30 male plug on 18 AWG silicone lead, ~40 mm (bought, hand-soldered); FC:J6 JST-XH 3-pin socket on 26 AWG lead, ~40 mm (bought, hand-soldered); FC:SW3 KMR211NGLFS (C&K) or KMR2-footprint equivalent; FC:SW2 KMR211NGLFS (C&K) or KMR2-footprint equivalent; FC:SW1 KMR211NGLFS (C&K) or KMR2-footprint equivalent; CAM1 OV2640 FPC module (vendor TBD); B1 GNB 550 mAh 2S HV (long type, XT30); plus passives, PCBs, assembly and the printed frame.
 
-**Finding:** priced lines are $205 per drone at G2 (G1: $137), before PCBs and assembly. The owner accepted a higher cost than the ~$75 target (D-044, OQ-5). Largest G2 additions: the Bitcraze Flow deck ($55, D-047), the BMP388 and the Fortior FD6288Q drivers, and the ESC passives now that every part is listed.
+**Finding:** priced lines are $204 per drone at G2 (G1: $137), before PCBs and assembly. The owner accepted a higher cost than the ~$75 target (D-044, OQ-5). Largest G2 additions: the Bitcraze Flow deck ($55, D-047), the BMP388 and the Fortior FD6288Q drivers, and the ESC passives now that every part is listed.
 
 ## Sources
 

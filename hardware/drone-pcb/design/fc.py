@@ -24,12 +24,13 @@ def build():
 
     # ======================================================================== POWER
     s = p.sheet("power", "Power")
-    s.block("Battery input and current sense (D-035: no fuse, no reverse FET; keyed XT30)",
-            ["XT30 pin 1 = pack +, pin 2 = pack - (footprint polarity to confirm at G3).",
+    s.block("Battery input and current sense (D-035: no fuse, no reverse FET; keyed XT30 on a pigtail, D-061)",
+            ["Pigtail pad 1 = pack + (red), pad 2 = pack - (black); the keyed XT30 plug is on the 18 AWG lead.",
              "RS1 high-side 1 mOhm: INA226 full scale 81.92 mV / 1 mOhm = 81.9 A; LSB 2.5 mA (budgets 4a).",
              "Input filter per INA226 datasheet 6.4.2: <=10 Ohm per input + 0.1 uF differential."])
-    s.add("Connector_Generic:Conn_01x02", "J2", "XT30PW-M", "Connector_AMASS:AMASS_XT30PW-M_1x02_P2.50mm_Horizontal",
-          {"1": "VBAT_RAW", "2": "GND"}, LCSC="C431092", MPN="XT30PW-M30.G.Y", Manufacturer="Changzhou Amass")
+    s.add("Connector_Generic:Conn_01x02", "J2", "Battery pigtail (XT30)", "microscout:Pigtail_2x_SMD_3x6mm_P4.5mm",
+          {"1": "VBAT_RAW", "2": "GND"}, MPN="XT30 male plug on 18 AWG silicone lead, ~40 mm (bought, hand-soldered)",
+          Note="D-061: pads instead of a board-mount XT30 (saves ~190 mm2)")
     s.R("RS1", "1m", "VBAT_RAW", "VBAT", pkg="2512")
     s.R("R1", "10", "VBAT_RAW", "INA_INP")
     s.R("R2", "10", "VBAT", "INA_INN")
@@ -83,9 +84,9 @@ def build():
           LCSC="C2286", MPN="KT-0603R")
     s.R("R11", "10k", "+3V3", "VBUS_DET")
     s.R("R12", "10k", "+3V3", "CHG_INT_N")
-    s.add("Connector_Generic:Conn_01x03", "J6", "JST-XH 3 (balance)", "Connector_JST:JST_XH_S3B-XH-A_1x03_P2.50mm_Horizontal",
-          {"1": "GND", "2": "BAL_MID", "3": None}, LCSC="C157928", MPN="S3B-XH-A(LF)(SN)",
-          Note="Pin 1 pack -, pin 2 mid, pin 3 pack + left open (UNCONFIRMED pack wiring)")
+    s.add("Connector_Generic:Conn_01x03", "J6", "Balance pigtail (JST-XH)", "microscout:Pigtail_3x_SMD_1.5x3mm_P2.5mm",
+          {"1": "GND", "2": "BAL_MID", "3": None}, MPN="JST-XH 3-pin socket on 26 AWG lead, ~40 mm (bought, hand-soldered)",
+          Note="D-061: pads instead of a board-mount JST-XH. Pad 1 pack -, pad 2 mid, pad 3 pack + left open (UNCONFIRMED pack wiring)")
     s.add("power:PWR_FLAG", "#FLG04", "PWR_FLAG", "", {"1": "VBUS"})
 
     s.block("Soft power switch - LTC2954-1 (datasheet 2954fb, Fig. 5 values for ONT/PDT)",
@@ -104,8 +105,8 @@ def build():
     s.R("R14", "100k", "+3V3", "PWR_KILL_N")
     s.R("R15", "10k", "+3V3", "PWR_BTN_INT_N")
     s.D("D5", "1N5819WS", "PWR_KILL_N", "MCU_KILL_N", LCSC="C191023", MPN="1N5819WS")
-    s.add("Switch:SW_Push", "SW3", "POWER", "Button_Switch_SMD:SW_Push_1P1T_XKB_TS-1187A",
-          {"1": "PWR_BTN", "2": "GND"}, LCSC="C318884", MPN="TS-1187A-B-A-B")
+    s.add("Switch:SW_Push", "SW3", "POWER", "Button_Switch_SMD:SW_Push_1P1T_NO_CK_KMR2",
+          {"1": "PWR_BTN", "2": "GND"}, MPN="KMR211NGLFS (C&K) or KMR2-footprint equivalent", Note="D-061: 4.2x2.8 mm switch; LCSC number UNCONFIRMED")
 
     s.block("Hardware battery undervoltage cut-off - TLV6700 (R-13, D-053, D-055) - last resort behind the firmware",
             ["Trip: V = 0.3945 V x (1.5 M + 110 k) / 110 k = 5.77 V (2.89 V/cell); release 0.400 x 14.64 = 5.85 V.",
@@ -179,10 +180,10 @@ def build():
           "Connector_JST:JST_SH_SM08B-SRSS-TB_1x08-1MP_P1.00mm_Horizontal",
           {"1": "VDRV", "2": "GND", "3": "MOT1_LINK", "4": "MOT2_LINK", "5": "MOT3_LINK", "6": "MOT4_LINK",
            "7": "GND", "8": None, "MP": "GND"}, LCSC="C160407", MPN="SM08B-SRSS-TB(LF)(SN)")
-    s.add("Connector_Generic:Conn_01x01", "J8", "ESC VBAT pad", "Connector_Wire:SolderWirePad_1x01_SMD_5x10mm",
-          {"1": "VBAT"}, Note="20 AWG wire to ESC board; pad size set at G3")
-    s.add("Connector_Generic:Conn_01x01", "J9", "ESC GND pad", "Connector_Wire:SolderWirePad_1x01_SMD_5x10mm",
-          {"1": "GND"}, Note="20 AWG wire to ESC board; pad size set at G3")
+    s.add("Connector_Generic:Conn_01x01", "J8", "ESC VBAT pad", "microscout:Pad_SMD_3x6mm",
+          {"1": "VBAT"}, Note="20 AWG wire to ESC board (3x6 mm pad, D-061)")
+    s.add("Connector_Generic:Conn_01x01", "J9", "ESC GND pad", "microscout:Pad_SMD_3x6mm",
+          {"1": "GND"}, Note="20 AWG wire to ESC board (3x6 mm pad, D-061)")
     for i, net in enumerate(["VBAT", "VLOGIC", "+3V3", "+5V", "VDRV", "GND"]):
         s.TP(f"TP{10 + i}", net)
 
@@ -208,11 +209,11 @@ def build():
     m.C("C32", "100n", "+3V3", "GND")
     m.R("R30", "10k", "+3V3", "ESP_EN")
     m.C("C33", "1u", "ESP_EN", "GND")
-    m.add("Switch:SW_Push", "SW2", "RESET", "Button_Switch_SMD:SW_Push_1P1T_XKB_TS-1187A",
-          {"1": "ESP_EN", "2": "GND"}, LCSC="C318884", MPN="TS-1187A-B-A-B")
+    m.add("Switch:SW_Push", "SW2", "RESET", "Button_Switch_SMD:SW_Push_1P1T_NO_CK_KMR2",
+          {"1": "ESP_EN", "2": "GND"}, MPN="KMR211NGLFS (C&K) or KMR2-footprint equivalent", Note="D-061: 4.2x2.8 mm switch; LCSC number UNCONFIRMED")
     m.R("R31", "10k", "+3V3", "BOOT_N")
-    m.add("Switch:SW_Push", "SW1", "BOOT", "Button_Switch_SMD:SW_Push_1P1T_XKB_TS-1187A",
-          {"1": "BOOT_N", "2": "GND"}, LCSC="C318884", MPN="TS-1187A-B-A-B")
+    m.add("Switch:SW_Push", "SW1", "BOOT", "Button_Switch_SMD:SW_Push_1P1T_NO_CK_KMR2",
+          {"1": "BOOT_N", "2": "GND"}, MPN="KMR211NGLFS (C&K) or KMR2-footprint equivalent", Note="D-061: 4.2x2.8 mm switch; LCSC number UNCONFIRMED")
     m.R("R32", "10k", "+3V3", "EXP_INT_N")
     m.R("R33", "10k", "LED_DIN_3V3", "GND")
     for i, n in enumerate(["MOT1_DSHOT", "MOT2_DSHOT", "MOT3_DSHOT", "MOT4_DSHOT"]):
@@ -233,9 +234,9 @@ def build():
     m.R("R40", "22", "USB_C_DP", "USB_DP")
     m.R("R41", "22", "USB_C_DN", "USB_DN")
 
-    m.block("Debug pads (UART0 ROM log, EN, IO0) - optional 1.27 mm header, not fitted",
+    m.block("Debug pads (UART0 ROM log, EN, IO0) - SMD pads, nothing fitted",
             ["Normal flashing and logging use native USB (GPIO19/20)."])
-    m.add("Connector_Generic:Conn_01x06", "J5", "DEBUG", "Connector_PinHeader_1.27mm:PinHeader_1x06_P1.27mm_Vertical",
+    m.add("Connector_Generic:Conn_01x06", "J5", "DEBUG", "microscout:PadRow_1x06_P1.50mm_SMD",
           {"1": "+3V3", "2": "GND", "3": "ESP_EN", "4": "BOOT_N", "5": "U0TXD", "6": "U0RXD"}, dnp=True)
 
     # ======================================================================== SENSORS
@@ -300,18 +301,18 @@ def build():
             ["Side boards: VL53L1X, XSHUT 10 k pull-down on the satellite. Front board: VL53L5CX, LPn/INT/I2C_RST pulls on",
              "the satellite. Firmware re-addresses every sensor at boot (all power up at 0x29)."])
     for ref, side in (("J11", "LEFT"), ("J12", "RIGHT"), ("J13", "REAR")):
-        n.add("Connector_Generic:Conn_01x05", ref, f"ToF {side.lower()}", "Connector_PinHeader_1.27mm:PinHeader_1x05_P1.27mm_Vertical",
+        n.add("Connector_Generic:Conn_01x05", ref, f"ToF {side.lower()}", "microscout:PadRow_1x05_P1.50mm_SMD",
               {"1": "+3V3", "2": "GND", "3": "I2C_SDA", "4": "I2C_SCL", "5": f"TOF_{side}_XSHUT"},
-              Note="Solder pads for a 5-wire flex/cable; footprint set at G3")
-    n.add("Connector_Generic:Conn_01x06", "J14", "ToF front", "Connector_PinHeader_1.27mm:PinHeader_1x06_P1.27mm_Vertical",
+              Note="SMD solder pads, 1.5 mm pitch (D-061)")
+    n.add("Connector_Generic:Conn_01x06", "J14", "ToF front", "microscout:PadRow_1x06_P1.50mm_SMD",
           {"1": "+3V3", "2": "GND", "3": "I2C_SDA", "4": "I2C_SCL", "5": "TOF_FWD_LPN", "6": "TOF_FWD_INT_N"},
-          Note="Solder pads for a 6-wire flex/cable; footprint set at G3")
+          Note="SMD solder pads, 1.5 mm pitch (D-061)")
 
     n.block("Optical flow - Bitcraze Flow deck v2 (PMW3901 + VL53L1x), wired to pads (OQ-4)",
             ["Deck pins used: VCC, GND, SCK, MISO, MOSI, IO_3 (PMW3901 CS), SDA, SCL (Bitcraze deck pinout).",
              "Fed from 3.3 V; the Crazyflie supplies 3.0 V - whether 3.3 V is within the deck's limits is UNCONFIRMED (G2 check).",
              "CS pull-up 10 k keeps the flow sensor deselected during boot."])
-    n.add("microscout:FlowDeck_Link", "J10", "Flow deck v2", "Connector_PinHeader_1.27mm:PinHeader_1x08_P1.27mm_Vertical",
+    n.add("microscout:FlowDeck_Link", "J10", "Flow deck v2", "microscout:PadRow_1x08_P1.50mm_SMD",
           {"VCC": "+3V3", "GND": "GND", "SCK": "SPI_SCK", "MISO": "SPI_MISO", "MOSI": "SPI_MOSI", "CS_IO3": "FLOW_CS_N",
            "SDA": "I2C_SDA", "SCL": "I2C_SCL"}, Note="Pads; module bought from Bitcraze (~$55)")
     n.R("R56", "10k", "+3V3", "FLOW_CS_N")
@@ -361,8 +362,8 @@ def build():
 
     c.block("ExpressLRS receiver pads (CRSF, 420 kbaud) - BetaFPV ELRS Lite or similar, powered from 5 V",
             ["Receiver TX -> GPIO41 (CRSF_RX); receiver RX <- GPIO42 (CRSF_TX)."])
-    c.add("Connector_Generic:Conn_01x04", "J4", "ELRS RX", "Connector_PinHeader_1.27mm:PinHeader_1x04_P1.27mm_Vertical",
-          {"1": "+5V", "2": "GND", "3": "CRSF_RX", "4": "CRSF_TX"}, Note="Solder pads; footprint set at G3")
+    c.add("Connector_Generic:Conn_01x04", "J4", "ELRS RX", "microscout:PadRow_1x04_P1.50mm_SMD",
+          {"1": "+5V", "2": "GND", "3": "CRSF_RX", "4": "CRSF_TX"}, Note="SMD solder pads, 1.5 mm pitch (D-061)")
     return p
 
 

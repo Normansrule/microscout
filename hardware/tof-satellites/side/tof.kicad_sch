@@ -5,7 +5,7 @@
   (paper "A3")
   (title_block
     (title "MicroScout ToF side satellite - VL53L1X satellite")
-    (date "2026-10-08")
+    (date "2026-10-09")
     (rev "G2-draft-1")
     (company "MicroScout (open hardware, CERN-OHL-S-2.0)")
     (comment 1 "STATUS: DRAFT - UNVERIFIED - requires human review at Gate G2")
@@ -1212,7 +1212,7 @@
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
-    (property "Footprint" "Connector_PinHeader_1.27mm:PinHeader_1x05_P1.27mm_Vertical"
+    (property "Footprint" "microscout:PadRow_1x05_P1.50mm_SMD"
       (at 93.98 58.42 0)
       (effects
         (font (size 1.27 1.27)) hide))

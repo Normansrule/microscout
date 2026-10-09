@@ -5,7 +5,7 @@
   (paper "A2")
   (title_block
     (title "MicroScout flight controller - Power")
-    (date "2026-10-08")
+    (date "2026-10-09")
     (rev "G2-draft-1")
     (company "MicroScout (open hardware, CERN-OHL-S-2.0)")
     (comment 1 "STATUS: DRAFT - UNVERIFIED - requires human review at Gate G2")
@@ -2427,66 +2427,68 @@
       (font (size 1.8 1.8))
       (justify left bottom))
     (uuid "19ee26e9-ebfb-5998-a854-6ca20e6df3dd"))
-  (text "Battery input and current sense (D-035: no fuse, no reverse FET; keyed XT30)"
+  (text "Battery input and current sense (D-035: no fuse, no reverse FET; keyed XT30 on a"
     (at 15.24 33.48 0)
     (effects
       (font (size 1.6 1.6))
       (justify left bottom))
-    (uuid "4962852c-b45f-5f51-acff-ea16f3719586"))
-  (text "XT30 pin 1 = pack +, pin 2 = pack - (footprint polarity to confirm at G3)."
+    (uuid "ff3db0f9-dc05-5cf3-82a5-c733707a463a"))
+  (text "pigtail, D-061)"
     (at 15.24 36.68 0)
     (effects
-      (font (size 1.15 1.15))
+      (font (size 1.6 1.6))
       (justify left bottom))
-    (uuid "288c8d6c-eb0a-5f09-bbe5-442f85e206b8"))
-  (text "RS1 high-side 1 mOhm: INA226 full scale 81.92 mV / 1 mOhm = 81.9 A; LSB 2.5 mA (budgets 4a)."
+    (uuid "b4416c74-44ec-5e7b-affb-b6c75d2497c2"))
+  (text "Pigtail pad 1 = pack + (red), pad 2 = pack - (black); the keyed XT30 plug is on the 18 AWG lead."
     (at 15.24 39.88 0)
     (effects
       (font (size 1.15 1.15))
       (justify left bottom))
-    (uuid "b429ee2b-bc70-5e7d-88b4-eb70b5e524c9"))
-  (text "Input filter per INA226 datasheet 6.4.2: <=10 Ohm per input + 0.1 uF differential."
+    (uuid "2b3cbdc4-214f-576b-aa01-d53bc11f4afa"))
+  (text "RS1 high-side 1 mOhm: INA226 full scale 81.92 mV / 1 mOhm = 81.9 A; LSB 2.5 mA (budgets 4a)."
     (at 15.24 43.08 0)
     (effects
       (font (size 1.15 1.15))
       (justify left bottom))
-    (uuid "f5a9aad8-34cd-57be-b1d6-6b66a56b721a"))
+    (uuid "e5f2c658-5c0b-5ed2-aab2-04c4776c40d0"))
+  (text "Input filter per INA226 datasheet 6.4.2: <=10 Ohm per input + 0.1 uF differential."
+    (at 15.24 46.28 0)
+    (effects
+      (font (size 1.15 1.15))
+      (justify left bottom))
+    (uuid "f807d6cd-efd1-543b-813e-5aa1b33f10c1"))
   (symbol
     (lib_id "Connector_Generic:Conn_01x02")
-    (at 33.02 50.8 0)
+    (at 33.02 53.34 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "0e051c85-fb35-5c71-aa4a-a99bb82dc6a8")
     (property "Reference" "J2"
-      (at 27.94 48.53 0)
+      (at 27.94 51.07 0)
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
-    (property "Value" "XT30PW-M"
-      (at 27.94 57.21 0)
+    (property "Value" "Battery pigtail (XT30)"
+      (at 27.94 59.75 0)
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
-    (property "Footprint" "Connector_AMASS:AMASS_XT30PW-M_1x02_P2.50mm_Horizontal"
-      (at 33.02 50.8 0)
+    (property "Footprint" "microscout:Pigtail_2x_SMD_3x6mm_P4.5mm"
+      (at 33.02 53.34 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Datasheet" "~"
-      (at 33.02 50.8 0)
+      (at 33.02 53.34 0)
       (effects
         (font (size 1.27 1.27)) hide))
-    (property "LCSC" "C431092"
-      (at 33.02 50.8 0)
+    (property "MPN" "XT30 male plug on 18 AWG silicone lead, ~40 mm (bought, hand-soldered)"
+      (at 33.02 53.34 0)
       (effects
         (font (size 1.27 1.27)) hide))
-    (property "MPN" "XT30PW-M30.G.Y"
-      (at 33.02 50.8 0)
-      (effects
-        (font (size 1.27 1.27)) hide))
-    (property "Manufacturer" "Changzhou Amass"
-      (at 33.02 50.8 0)
+    (property "Note" "D-061: pads instead of a board-mount XT30 (saves ~190 mm2)"
+      (at 33.02 53.34 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (pin "1"
@@ -2500,14 +2502,14 @@
           (unit 1)))))
   (wire
     (pts
-      (xy 27.94 50.8)
-      (xy 25.4 50.8))
+      (xy 27.94 53.34)
+      (xy 25.4 53.34))
     (stroke
       (width 0)
       (type default))
     (uuid "23e3b0a6-b7e4-5de8-8a66-2414b74f3785"))
   (label "VBAT_RAW"
-    (at 25.4 50.8 180)
+    (at 25.4 53.34 180)
     (fields_autoplaced)
     (effects
       (font (size 1.27 1.27))
@@ -2515,34 +2517,34 @@
     (uuid "f5559bdd-1795-57e6-8861-df6dc8993836"))
   (wire
     (pts
-      (xy 27.94 53.34)
-      (xy 25.4 53.34))
+      (xy 27.94 55.88)
+      (xy 25.4 55.88))
     (stroke
       (width 0)
       (type default))
     (uuid "114d1e02-3807-5ebd-aef4-b4ed76757e60"))
   (symbol
     (lib_id "power:GND")
-    (at 25.4 53.34 270)
+    (at 25.4 55.88 270)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "fd403429-601b-5867-9bb5-f99bfb177f5f")
     (property "Reference" "#PWR02001"
-      (at 25.4 53.34 0)
+      (at 25.4 55.88 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Value" "GND"
-      (at 25.4 53.34 0)
+      (at 25.4 55.88 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Footprint" ""
-      (at 25.4 53.34 0)
+      (at 25.4 55.88 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Datasheet" ""
-      (at 25.4 53.34 0)
+      (at 25.4 55.88 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (pin "1"
@@ -2554,44 +2556,44 @@
           (unit 1)))))
   (symbol
     (lib_id "Device:R")
-    (at 38.1 60.96 0)
+    (at 38.1 63.5 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "7e9bac8f-ab87-517b-af5c-19703ca90037")
     (property "Reference" "RS1"
-      (at 40.116 60.36 0)
+      (at 40.116 62.9 0)
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
     (property "Value" "1m"
-      (at 40.116 62.86 0)
+      (at 40.116 65.4 0)
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
     (property "Footprint" "Resistor_SMD:R_2512_6332Metric"
-      (at 38.1 60.96 0)
+      (at 38.1 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Datasheet" "~"
-      (at 38.1 60.96 0)
+      (at 38.1 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Package" "2512"
-      (at 38.1 60.96 0)
+      (at 38.1 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "LCSC" "C2924520"
-      (at 38.1 60.96 0)
+      (at 38.1 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "MPN" "HoJLR2512-2W-1mR-1%"
-      (at 38.1 60.96 0)
+      (at 38.1 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Rating" "2 W shunt"
-      (at 38.1 60.96 0)
+      (at 38.1 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (pin "1"
@@ -2605,14 +2607,14 @@
           (unit 1)))))
   (wire
     (pts
-      (xy 38.1 57.15)
-      (xy 38.1 54.61))
+      (xy 38.1 59.69)
+      (xy 38.1 57.15))
     (stroke
       (width 0)
       (type default))
     (uuid "c25b7b1d-4e22-552e-9d46-4492eab28173"))
   (label "VBAT_RAW"
-    (at 38.1 54.61 90)
+    (at 38.1 57.15 90)
     (fields_autoplaced)
     (effects
       (font (size 1.27 1.27))
@@ -2620,33 +2622,33 @@
     (uuid "b201af10-5292-518d-ae0a-04d77fcc008d"))
   (wire
     (pts
-      (xy 38.1 64.77)
-      (xy 38.1 67.31))
+      (xy 38.1 67.31)
+      (xy 38.1 69.85))
     (stroke
       (width 0)
       (type default))
     (uuid "1b47ae5e-c48d-5cca-96ca-18792334c079"))
   (symbol
     (lib_id "microscout:VBAT")
-    (at 38.1 67.31 180)
+    (at 38.1 69.85 180)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "3ac25a75-53ca-5467-abbc-c504e79f9838")
     (property "Reference" "#PWR02002"
-      (at 38.1 67.31 0)
+      (at 38.1 69.85 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Value" "VBAT"
-      (at 38.1 73.11 0)
+      (at 38.1 75.65 0)
       (effects (font (size 1.27 1.27))))
     (property "Footprint" ""
-      (at 38.1 67.31 0)
+      (at 38.1 69.85 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Datasheet" ""
-      (at 38.1 67.31 0)
+      (at 38.1 69.85 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (pin "1"
@@ -2658,44 +2660,44 @@
           (unit 1)))))
   (symbol
     (lib_id "Device:R")
-    (at 45.72 60.96 0)
+    (at 45.72 63.5 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "8c766645-1af9-5a9b-a72b-2f1a4c2cdb08")
     (property "Reference" "R1"
-      (at 47.736 60.36 0)
+      (at 47.736 62.9 0)
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
     (property "Value" "10"
-      (at 47.736 62.86 0)
+      (at 47.736 65.4 0)
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
     (property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-      (at 45.72 60.96 0)
+      (at 45.72 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Datasheet" "~"
-      (at 45.72 60.96 0)
+      (at 45.72 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Package" "0402"
-      (at 45.72 60.96 0)
+      (at 45.72 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "LCSC" "C25077"
-      (at 45.72 60.96 0)
+      (at 45.72 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "MPN" "0402WGF100JTCE"
-      (at 45.72 60.96 0)
+      (at 45.72 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Rating" "5%"
-      (at 45.72 60.96 0)
+      (at 45.72 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (pin "1"
@@ -2709,14 +2711,14 @@
           (unit 1)))))
   (wire
     (pts
-      (xy 45.72 57.15)
-      (xy 45.72 54.61))
+      (xy 45.72 59.69)
+      (xy 45.72 57.15))
     (stroke
       (width 0)
       (type default))
     (uuid "8fa2ad48-c670-5ab0-818a-17130c033e5d"))
   (label "VBAT_RAW"
-    (at 45.72 54.61 90)
+    (at 45.72 57.15 90)
     (fields_autoplaced)
     (effects
       (font (size 1.27 1.27))
@@ -2724,14 +2726,14 @@
     (uuid "18f42465-1c2c-5b53-ba36-d20b7abfc0d5"))
   (wire
     (pts
-      (xy 45.72 64.77)
-      (xy 45.72 67.31))
+      (xy 45.72 67.31)
+      (xy 45.72 69.85))
     (stroke
       (width 0)
       (type default))
     (uuid "a187bd8d-16c3-5e44-9bfe-164f434230fb"))
   (label "INA_INP"
-    (at 45.72 67.31 270)
+    (at 45.72 69.85 270)
     (fields_autoplaced)
     (effects
       (font (size 1.27 1.27))
@@ -2739,44 +2741,44 @@
     (uuid "6591ce6e-1efc-55bb-9f4f-9b8a646a6d87"))
   (symbol
     (lib_id "Device:R")
-    (at 55.88 60.96 0)
+    (at 55.88 63.5 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "7e68fa87-8166-5b17-b62a-1af9ec72e2f2")
     (property "Reference" "R2"
-      (at 57.896 60.36 0)
+      (at 57.896 62.9 0)
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
     (property "Value" "10"
-      (at 57.896 62.86 0)
+      (at 57.896 65.4 0)
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
     (property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-      (at 55.88 60.96 0)
+      (at 55.88 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Datasheet" "~"
-      (at 55.88 60.96 0)
+      (at 55.88 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Package" "0402"
-      (at 55.88 60.96 0)
+      (at 55.88 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "LCSC" "C25077"
-      (at 55.88 60.96 0)
+      (at 55.88 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "MPN" "0402WGF100JTCE"
-      (at 55.88 60.96 0)
+      (at 55.88 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Rating" "5%"
-      (at 55.88 60.96 0)
+      (at 55.88 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (pin "1"
@@ -2790,33 +2792,33 @@
           (unit 1)))))
   (wire
     (pts
-      (xy 55.88 57.15)
-      (xy 55.88 54.61))
+      (xy 55.88 59.69)
+      (xy 55.88 57.15))
     (stroke
       (width 0)
       (type default))
     (uuid "7429ae5b-9b56-5db5-a95b-3053b08300cb"))
   (symbol
     (lib_id "microscout:VBAT")
-    (at 55.88 54.61 0)
+    (at 55.88 57.15 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "addd5c95-5b17-573f-8ecb-d38c39b71001")
     (property "Reference" "#PWR02003"
-      (at 55.88 54.61 0)
+      (at 55.88 57.15 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Value" "VBAT"
-      (at 55.88 49.81 0)
+      (at 55.88 52.35 0)
       (effects (font (size 1.27 1.27))))
     (property "Footprint" ""
-      (at 55.88 54.61 0)
+      (at 55.88 57.15 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Datasheet" ""
-      (at 55.88 54.61 0)
+      (at 55.88 57.15 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (pin "1"
@@ -2828,14 +2830,14 @@
           (unit 1)))))
   (wire
     (pts
-      (xy 55.88 64.77)
-      (xy 55.88 67.31))
+      (xy 55.88 67.31)
+      (xy 55.88 69.85))
     (stroke
       (width 0)
       (type default))
     (uuid "6ed37777-1864-5935-87b5-b1339bd6e91e"))
   (label "INA_INN"
-    (at 55.88 67.31 270)
+    (at 55.88 69.85 270)
     (fields_autoplaced)
     (effects
       (font (size 1.27 1.27))
@@ -2843,44 +2845,44 @@
     (uuid "c1ef9101-ed23-5b9f-9f6c-cfcec1f8edc1"))
   (symbol
     (lib_id "Device:C")
-    (at 63.5 58.42 0)
+    (at 63.5 63.5 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "47ee5d02-e898-553d-a58c-723d82f66508")
     (property "Reference" "C1"
-      (at 66.532 57.82 0)
+      (at 66.532 62.9 0)
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
     (property "Value" "100n"
-      (at 66.532 60.32 0)
+      (at 66.532 65.4 0)
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
     (property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
-      (at 63.5 58.42 0)
+      (at 63.5 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Datasheet" "~"
-      (at 63.5 58.42 0)
+      (at 63.5 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Package" "0402"
-      (at 63.5 58.42 0)
+      (at 63.5 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "LCSC" "C1525"
-      (at 63.5 58.42 0)
+      (at 63.5 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "MPN" "CL05B104KO5NNNC"
-      (at 63.5 58.42 0)
+      (at 63.5 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Rating" "16 V X7R"
-      (at 63.5 58.42 0)
+      (at 63.5 63.5 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (pin "1"
@@ -2894,14 +2896,14 @@
           (unit 1)))))
   (wire
     (pts
-      (xy 63.5 54.61)
-      (xy 63.5 52.07))
+      (xy 63.5 59.69)
+      (xy 63.5 57.15))
     (stroke
       (width 0)
       (type default))
     (uuid "a085f239-3864-5356-8ed0-ae607a94ea30"))
   (label "INA_INP"
-    (at 63.5 52.07 90)
+    (at 63.5 57.15 90)
     (fields_autoplaced)
     (effects
       (font (size 1.27 1.27))
@@ -2909,14 +2911,14 @@
     (uuid "103441bb-711e-5fbd-8c74-f6345f8c0340"))
   (wire
     (pts
-      (xy 63.5 62.23)
-      (xy 63.5 64.77))
+      (xy 63.5 67.31)
+      (xy 63.5 69.85))
     (stroke
       (width 0)
       (type default))
     (uuid "b43aeeb2-d778-5d9a-a9fb-8729d10cac20"))
   (label "INA_INN"
-    (at 63.5 64.77 270)
+    (at 63.5 69.85 270)
     (fields_autoplaced)
     (effects
       (font (size 1.27 1.27))
@@ -2924,40 +2926,40 @@
     (uuid "c9ff20d3-3a63-53c4-b216-b7bc1193b528"))
   (symbol
     (lib_id "Sensor_Energy:INA226")
-    (at 96.52 71.12 0)
+    (at 96.52 73.66 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "843f9091-8d2b-56eb-80c9-0de7ded363a7")
     (property "Reference" "U9"
-      (at 86.36 57.42 0)
+      (at 86.36 59.96 0)
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
     (property "Value" "INA226"
-      (at 86.36 86.42 0)
+      (at 86.36 88.96 0)
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
     (property "Footprint" "Package_SO:VSSOP-10_3x3mm_P0.5mm"
-      (at 96.52 71.12 0)
+      (at 96.52 73.66 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Datasheet" "~"
-      (at 96.52 71.12 0)
+      (at 96.52 73.66 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "LCSC" "C49851"
-      (at 96.52 71.12 0)
+      (at 96.52 73.66 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "MPN" "INA226AIDGSR"
-      (at 96.52 71.12 0)
+      (at 96.52 73.66 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Manufacturer" "Texas Instruments"
-      (at 96.52 71.12 0)
+      (at 96.52 73.66 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (pin "1"
@@ -2987,34 +2989,34 @@
           (unit 1)))))
   (wire
     (pts
-      (xy 106.68 63.5)
-      (xy 109.22 63.5))
+      (xy 106.68 66.04)
+      (xy 109.22 66.04))
     (stroke
       (width 0)
       (type default))
     (uuid "f2af23c7-4a77-5e61-94a3-f67c63a5b3e9"))
   (symbol
     (lib_id "power:GND")
-    (at 109.22 63.5 90)
+    (at 109.22 66.04 90)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "7a5c847e-dbcc-5187-affa-a218e4757147")
     (property "Reference" "#PWR02004"
-      (at 109.22 63.5 0)
+      (at 109.22 66.04 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Value" "GND"
-      (at 109.22 63.5 0)
+      (at 109.22 66.04 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Footprint" ""
-      (at 109.22 63.5 0)
+      (at 109.22 66.04 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Datasheet" ""
-      (at 109.22 63.5 0)
+      (at 109.22 66.04 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (pin "1"
@@ -3026,14 +3028,14 @@
           (unit 1)))))
   (wire
     (pts
-      (xy 86.36 73.66)
-      (xy 83.82 73.66))
+      (xy 86.36 76.2)
+      (xy 83.82 76.2))
     (stroke
       (width 0)
       (type default))
     (uuid "620a458d-e5b1-50b0-a862-61d3a489cca2"))
   (label "INA_INP"
-    (at 83.82 73.66 180)
+    (at 83.82 76.2 180)
     (fields_autoplaced)
     (effects
       (font (size 1.27 1.27))
@@ -3041,34 +3043,34 @@
     (uuid "6e97362f-e035-50d4-b061-57d1348dc685"))
   (wire
     (pts
-      (xy 106.68 66.04)
-      (xy 109.22 66.04))
+      (xy 106.68 68.58)
+      (xy 109.22 68.58))
     (stroke
       (width 0)
       (type default))
     (uuid "08db7373-c075-5f95-bf63-fffa627c5f83"))
   (symbol
     (lib_id "power:GND")
-    (at 109.22 66.04 90)
+    (at 109.22 68.58 90)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "9ce4e9d5-02f3-5753-8815-45f5e419d105")
     (property "Reference" "#PWR02005"
-      (at 109.22 66.04 0)
+      (at 109.22 68.58 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Value" "GND"
-      (at 109.22 66.04 0)
+      (at 109.22 68.58 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Footprint" ""
-      (at 109.22 66.04 0)
+      (at 109.22 68.58 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Datasheet" ""
-      (at 109.22 66.04 0)
+      (at 109.22 68.58 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (pin "1"
@@ -3080,42 +3082,22 @@
           (unit 1)))))
   (wire
     (pts
-      (xy 106.68 78.74)
-      (xy 109.22 78.74))
+      (xy 106.68 81.28)
+      (xy 109.22 81.28))
     (stroke
       (width 0)
       (type default))
     (uuid "5814942a-38f6-5fe6-8c61-a7cfc6379a4d"))
   (global_label "EXP_INT_N"
     (shape passive)
-    (at 109.22 78.74 0)
+    (at 109.22 81.28 0)
     (fields_autoplaced)
     (effects
       (font (size 1.27 1.27))
       (justify left))
     (uuid "91bd1a92-9040-5468-8f8f-24a2005a81de")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 109.22 78.74 0)
-      (effects
-        (font (size 1.27 1.27)) hide)))
-  (wire
-    (pts
-      (xy 106.68 71.12)
-      (xy 109.22 71.12))
-    (stroke
-      (width 0)
-      (type default))
-    (uuid "78184f48-4e9f-573b-a03b-3957be0846d3"))
-  (global_label "I2C_SDA"
-    (shape passive)
-    (at 109.22 71.12 0)
-    (fields_autoplaced)
-    (effects
-      (font (size 1.27 1.27))
-      (justify left))
-    (uuid "6e62012d-b5b7-5a7e-96cf-4dedd0bd1996")
-    (property "Intersheetrefs" "${INTERSHEET_REFS}"
-      (at 109.22 71.12 0)
+      (at 109.22 81.28 0)
       (effects
         (font (size 1.27 1.27)) hide)))
   (wire
@@ -3125,48 +3107,68 @@
     (stroke
       (width 0)
       (type default))
-    (uuid "c6a53dfe-029b-551c-a4c1-a4f46ec1c36a"))
-  (global_label "I2C_SCL"
+    (uuid "78184f48-4e9f-573b-a03b-3957be0846d3"))
+  (global_label "I2C_SDA"
     (shape passive)
     (at 109.22 73.66 0)
     (fields_autoplaced)
     (effects
       (font (size 1.27 1.27))
       (justify left))
-    (uuid "e75ef537-8e80-5fef-9199-bed70fca9d8b")
+    (uuid "6e62012d-b5b7-5a7e-96cf-4dedd0bd1996")
     (property "Intersheetrefs" "${INTERSHEET_REFS}"
       (at 109.22 73.66 0)
       (effects
         (font (size 1.27 1.27)) hide)))
   (wire
     (pts
-      (xy 96.52 58.42)
-      (xy 96.52 55.88))
+      (xy 106.68 76.2)
+      (xy 109.22 76.2))
+    (stroke
+      (width 0)
+      (type default))
+    (uuid "c6a53dfe-029b-551c-a4c1-a4f46ec1c36a"))
+  (global_label "I2C_SCL"
+    (shape passive)
+    (at 109.22 76.2 0)
+    (fields_autoplaced)
+    (effects
+      (font (size 1.27 1.27))
+      (justify left))
+    (uuid "e75ef537-8e80-5fef-9199-bed70fca9d8b")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 109.22 76.2 0)
+      (effects
+        (font (size 1.27 1.27)) hide)))
+  (wire
+    (pts
+      (xy 96.52 60.96)
+      (xy 96.52 58.42))
     (stroke
       (width 0)
       (type default))
     (uuid "fc1c4c02-3adc-5a00-9c5d-6e5c46996304"))
   (symbol
     (lib_id "power:+3V3")
-    (at 96.52 55.88 0)
+    (at 96.52 58.42 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "47993a8d-1d34-5150-ac5a-69f09caade79")
     (property "Reference" "#PWR02006"
-      (at 96.52 55.88 0)
+      (at 96.52 58.42 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Value" "+3V3"
-      (at 96.52 51.08 0)
+      (at 96.52 53.62 0)
       (effects (font (size 1.27 1.27))))
     (property "Footprint" ""
-      (at 96.52 55.88 0)
+      (at 96.52 58.42 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Datasheet" ""
-      (at 96.52 55.88 0)
+      (at 96.52 58.42 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (pin "1"
@@ -3178,33 +3180,33 @@
           (unit 1)))))
   (wire
     (pts
-      (xy 96.52 83.82)
-      (xy 96.52 86.36))
+      (xy 96.52 86.36)
+      (xy 96.52 88.9))
     (stroke
       (width 0)
       (type default))
     (uuid "859690f2-9a5e-5e6b-abac-fa8e84e542d9"))
   (symbol
     (lib_id "power:GND")
-    (at 96.52 86.36 0)
+    (at 96.52 88.9 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "fc73135e-957a-5fbc-b702-ab6b8f581d96")
     (property "Reference" "#PWR02007"
-      (at 96.52 86.36 0)
+      (at 96.52 88.9 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Value" "GND"
-      (at 96.52 92.16 0)
+      (at 96.52 94.7 0)
       (effects (font (size 1.27 1.27))))
     (property "Footprint" ""
-      (at 96.52 86.36 0)
+      (at 96.52 88.9 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Datasheet" ""
-      (at 96.52 86.36 0)
+      (at 96.52 88.9 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (pin "1"
@@ -3216,35 +3218,35 @@
           (unit 1)))))
   (wire
     (pts
-      (xy 86.36 63.5)
-      (xy 83.82 63.5))
+      (xy 86.36 66.04)
+      (xy 83.82 66.04))
     (stroke
       (width 0)
       (type default))
     (uuid "ee2aef5f-0b44-5c39-b9f1-4f6b1198ad79"))
   (symbol
     (lib_id "microscout:VBAT")
-    (at 83.82 63.5 90)
+    (at 83.82 66.04 90)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "b35bc535-7cc6-50ee-bec7-2bfc794b47e2")
     (property "Reference" "#PWR02008"
-      (at 83.82 63.5 0)
+      (at 83.82 66.04 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Value" "VBAT"
-      (at 79.22 64 90)
+      (at 79.22 66.54 90)
       (effects
         (font (size 1.27 1.27))
         (justify left)))
     (property "Footprint" ""
-      (at 83.82 63.5 0)
+      (at 83.82 66.04 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Datasheet" ""
-      (at 83.82 63.5 0)
+      (at 83.82 66.04 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (pin "1"
@@ -3256,14 +3258,14 @@
           (unit 1)))))
   (wire
     (pts
-      (xy 86.36 76.2)
-      (xy 83.82 76.2))
+      (xy 86.36 78.74)
+      (xy 83.82 78.74))
     (stroke
       (width 0)
       (type default))
     (uuid "d9c6320b-0eda-58e3-82e2-959b6932f5f3"))
   (label "INA_INN"
-    (at 83.82 76.2 180)
+    (at 83.82 78.74 180)
     (fields_autoplaced)
     (effects
       (font (size 1.27 1.27))
@@ -3271,44 +3273,44 @@
     (uuid "6be4d36a-49cd-5b69-a369-eedaa1b8c10f"))
   (symbol
     (lib_id "Device:C")
-    (at 17.78 111.76 0)
+    (at 17.78 114.3 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "aba11a0b-9448-5ab3-b63a-8a2e2ab2c7a1")
     (property "Reference" "C2"
-      (at 20.812 111.16 0)
+      (at 20.812 113.7 0)
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
     (property "Value" "100n"
-      (at 20.812 113.66 0)
+      (at 20.812 116.2 0)
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
     (property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
-      (at 17.78 111.76 0)
+      (at 17.78 114.3 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Datasheet" "~"
-      (at 17.78 111.76 0)
+      (at 17.78 114.3 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Package" "0402"
-      (at 17.78 111.76 0)
+      (at 17.78 114.3 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "LCSC" "C1525"
-      (at 17.78 111.76 0)
+      (at 17.78 114.3 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "MPN" "CL05B104KO5NNNC"
-      (at 17.78 111.76 0)
+      (at 17.78 114.3 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Rating" "16 V X7R"
-      (at 17.78 111.76 0)
+      (at 17.78 114.3 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (pin "1"
@@ -3322,33 +3324,33 @@
           (unit 1)))))
   (wire
     (pts
-      (xy 17.78 107.95)
-      (xy 17.78 105.41))
+      (xy 17.78 110.49)
+      (xy 17.78 107.95))
     (stroke
       (width 0)
       (type default))
     (uuid "3c97a578-55cb-5e9c-9fd5-ffef19636d08"))
   (symbol
     (lib_id "power:+3V3")
-    (at 17.78 105.41 0)
+    (at 17.78 107.95 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "46eabe89-4515-5b2e-a0d9-0f8cc328c74e")
     (property "Reference" "#PWR02009"
-      (at 17.78 105.41 0)
+      (at 17.78 107.95 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Value" "+3V3"
-      (at 17.78 100.61 0)
+      (at 17.78 103.15 0)
       (effects (font (size 1.27 1.27))))
     (property "Footprint" ""
-      (at 17.78 105.41 0)
+      (at 17.78 107.95 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Datasheet" ""
-      (at 17.78 105.41 0)
+      (at 17.78 107.95 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (pin "1"
@@ -3360,33 +3362,33 @@
           (unit 1)))))
   (wire
     (pts
-      (xy 17.78 115.57)
-      (xy 17.78 118.11))
+      (xy 17.78 118.11)
+      (xy 17.78 120.65))
     (stroke
       (width 0)
       (type default))
     (uuid "371f0ef0-acb1-534e-8bb1-50f0dd65c537"))
   (symbol
     (lib_id "power:GND")
-    (at 17.78 118.11 0)
+    (at 17.78 120.65 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "bc95fedd-e675-5f34-a5bc-fb2d10a03802")
     (property "Reference" "#PWR02010"
-      (at 17.78 118.11 0)
+      (at 17.78 120.65 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Value" "GND"
-      (at 17.78 123.91 0)
+      (at 17.78 126.45 0)
       (effects (font (size 1.27 1.27))))
     (property "Footprint" ""
-      (at 17.78 118.11 0)
+      (at 17.78 120.65 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Datasheet" ""
-      (at 17.78 118.11 0)
+      (at 17.78 120.65 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (pin "1"
@@ -3398,28 +3400,28 @@
           (unit 1)))))
   (symbol
     (lib_id "power:PWR_FLAG")
-    (at 27.94 99.06 0)
+    (at 27.94 101.6 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "eb375d35-e9a6-53df-b98d-d306417403bd")
     (property "Reference" "#FLG01"
-      (at 29.956 98.46 0)
+      (at 29.956 101 0)
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
     (property "Value" "PWR_FLAG"
-      (at 29.956 100.96 0)
+      (at 29.956 103.5 0)
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
     (property "Footprint" ""
-      (at 27.94 99.06 0)
+      (at 27.94 101.6 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Datasheet" "~"
-      (at 27.94 99.06 0)
+      (at 27.94 101.6 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (pin "1"
@@ -3431,33 +3433,33 @@
           (unit 1)))))
   (wire
     (pts
-      (xy 27.94 99.06)
-      (xy 27.94 101.6))
+      (xy 27.94 101.6)
+      (xy 27.94 104.14))
     (stroke
       (width 0)
       (type default))
     (uuid "ca86d9da-7228-530f-8f89-511316dca67d"))
   (symbol
     (lib_id "power:GND")
-    (at 27.94 101.6 0)
+    (at 27.94 104.14 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "3133bbb2-c057-5816-8789-d8679bae4e95")
     (property "Reference" "#PWR02011"
-      (at 27.94 101.6 0)
+      (at 27.94 104.14 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Value" "GND"
-      (at 27.94 107.4 0)
+      (at 27.94 109.94 0)
       (effects (font (size 1.27 1.27))))
     (property "Footprint" ""
-      (at 27.94 101.6 0)
+      (at 27.94 104.14 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (property "Datasheet" ""
-      (at 27.94 101.6 0)
+      (at 27.94 104.14 0)
       (effects
         (font (size 1.27 1.27)) hide))
     (pin "1"
@@ -6488,12 +6490,12 @@
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
-    (property "Value" "JST-XH 3 (balance)"
+    (property "Value" "Balance pigtail (JST-XH)"
       (at 327.66 146.11 0)
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
-    (property "Footprint" "Connector_JST:JST_XH_S3B-XH-A_1x03_P2.50mm_Horizontal"
+    (property "Footprint" "microscout:Pigtail_3x_SMD_1.5x3mm_P2.5mm"
       (at 332.74 139.7 0)
       (effects
         (font (size 1.27 1.27)) hide))
@@ -6501,15 +6503,11 @@
       (at 332.74 139.7 0)
       (effects
         (font (size 1.27 1.27)) hide))
-    (property "LCSC" "C157928"
+    (property "MPN" "JST-XH 3-pin socket on 26 AWG lead, ~40 mm (bought, hand-soldered)"
       (at 332.74 139.7 0)
       (effects
         (font (size 1.27 1.27)) hide))
-    (property "MPN" "S3B-XH-A(LF)(SN)"
-      (at 332.74 139.7 0)
-      (effects
-        (font (size 1.27 1.27)) hide))
-    (property "Note" "Pin 1 pack -, pin 2 mid, pin 3 pack + left open (UNCONFIRMED pack wiring)"
+    (property "Note" "D-061: pads instead of a board-mount JST-XH. Pad 1 pack -, pad 2 mid, pad 3 pack + left open (UNCONFIRMED pack wiring)"
       (at 332.74 139.7 0)
       (effects
         (font (size 1.27 1.27)) hide))
@@ -7660,7 +7658,7 @@
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
-    (property "Footprint" "Button_Switch_SMD:SW_Push_1P1T_XKB_TS-1187A"
+    (property "Footprint" "Button_Switch_SMD:SW_Push_1P1T_NO_CK_KMR2"
       (at 449.58 114.3 0)
       (effects
         (font (size 1.27 1.27)) hide))
@@ -7668,11 +7666,11 @@
       (at 449.58 114.3 0)
       (effects
         (font (size 1.27 1.27)) hide))
-    (property "LCSC" "C318884"
+    (property "MPN" "KMR211NGLFS (C&K) or KMR2-footprint equivalent"
       (at 449.58 114.3 0)
       (effects
         (font (size 1.27 1.27)) hide))
-    (property "MPN" "TS-1187A-B-A-B"
+    (property "Note" "D-061: 4.2x2.8 mm switch; LCSC number UNCONFIRMED"
       (at 449.58 114.3 0)
       (effects
         (font (size 1.27 1.27)) hide))
@@ -12408,7 +12406,7 @@
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
-    (property "Footprint" "Connector_Wire:SolderWirePad_1x01_SMD_5x10mm"
+    (property "Footprint" "microscout:Pad_SMD_3x6mm"
       (at 439.42 274.32 0)
       (effects
         (font (size 1.27 1.27)) hide))
@@ -12416,7 +12414,7 @@
       (at 439.42 274.32 0)
       (effects
         (font (size 1.27 1.27)) hide))
-    (property "Note" "20 AWG wire to ESC board; pad size set at G3"
+    (property "Note" "20 AWG wire to ESC board (3x6 mm pad, D-061)"
       (at 439.42 274.32 0)
       (effects
         (font (size 1.27 1.27)) hide))
@@ -12485,7 +12483,7 @@
       (effects
         (font (size 1.27 1.27))
         (justify left bottom)))
-    (property "Footprint" "Connector_Wire:SolderWirePad_1x01_SMD_5x10mm"
+    (property "Footprint" "microscout:Pad_SMD_3x6mm"
       (at 454.66 274.32 0)
       (effects
         (font (size 1.27 1.27)) hide))
@@ -12493,7 +12491,7 @@
       (at 454.66 274.32 0)
       (effects
         (font (size 1.27 1.27)) hide))
-    (property "Note" "20 AWG wire to ESC board; pad size set at G3"
+    (property "Note" "20 AWG wire to ESC board (3x6 mm pad, D-061)"
       (at 454.66 274.32 0)
       (effects
         (font (size 1.27 1.27)) hide))

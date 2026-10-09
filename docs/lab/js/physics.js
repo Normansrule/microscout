@@ -9,7 +9,7 @@ import { G, RHO, qmul, qnormalize, qrot, mulRv, mulRTv, rng } from "./math.js";
 import { RAYS, TOF_RANGE, castRay, resolveCollisions, DRONE_RADIUS } from "./world.js";
 
 export const DEFAULT_PARAMS = {
-  mass_kg: 0.0845, motor_to_motor_m: 0.095, ixx: 4.67e-5, iyy: 5.74e-5, izz: 8.51e-5,
+  mass_kg: 0.0862, motor_to_motor_m: 0.095, ixx: 4.69e-5, iyy: 5.76e-5, izz: 8.56e-5,
   t_max_per_motor_n: 0.085 * 9.81, motor_tau_s: 0.03, yaw_torque_per_thrust_m: 0.012,
   prop_pitch_speed_ms: 59.0, drag_cda_m2: 0.010, angular_drag: 2.0e-6, battery_mah: 550, battery_cells: 2,
   battery_r_int_ohm: 0.045, hover_eff_g_per_w: 3.0, electronics_w: 2.98, motor_spin: [1, -1, -1, 1],

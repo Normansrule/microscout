@@ -40,7 +40,7 @@ def data():
         pins.append(dict(gpio=g, pin=int(r["module_pin"]), net=r["net"], fn=r["function"], dir=r["direction"],
                          pull=r["external_pull"], notes=r["boot_or_conflict_notes"], group=gi, strap=g in STRAPPING))
     oq = []
-    for line in (REPO / "review" / "G2" / "README.md").read_text().splitlines():
+    for line in (REPO / "review" / "G3" / "README.md").read_text().splitlines():
         m = re.match(r"\| (OQ-\d+) \| (.+?) \| (.+?) \|$", line)
         if m:
             oq.append(dict(id=m.group(1), q=m.group(2), rec=m.group(3)))

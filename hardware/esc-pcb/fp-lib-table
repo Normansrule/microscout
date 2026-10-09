@@ -1,10 +1,9 @@
 (fp_lib_table
+  (lib (name "microscout")(type "KiCad")(uri "${KIPRJMOD}/../libraries/microscout.pretty")(options "")(descr "MicroScout project footprints (tools/pcb/footprints.py)"))
   (lib (name "Button_Switch_SMD")(type "KiCad")(uri "${KIPRJMOD}/../libraries/kicad7-footprints/Button_Switch_SMD.pretty")(options "")(descr "KiCad 7 footprint subset vendored by tools/sch/vendor.py"))
   (lib (name "Capacitor_SMD")(type "KiCad")(uri "${KIPRJMOD}/../libraries/kicad7-footprints/Capacitor_SMD.pretty")(options "")(descr "KiCad 7 footprint subset vendored by tools/sch/vendor.py"))
-  (lib (name "Connector_AMASS")(type "KiCad")(uri "${KIPRJMOD}/../libraries/kicad7-footprints/Connector_AMASS.pretty")(options "")(descr "KiCad 7 footprint subset vendored by tools/sch/vendor.py"))
   (lib (name "Connector_FFC-FPC")(type "KiCad")(uri "${KIPRJMOD}/../libraries/kicad7-footprints/Connector_FFC-FPC.pretty")(options "")(descr "KiCad 7 footprint subset vendored by tools/sch/vendor.py"))
   (lib (name "Connector_JST")(type "KiCad")(uri "${KIPRJMOD}/../libraries/kicad7-footprints/Connector_JST.pretty")(options "")(descr "KiCad 7 footprint subset vendored by tools/sch/vendor.py"))
-  (lib (name "Connector_PinHeader_1.27mm")(type "KiCad")(uri "${KIPRJMOD}/../libraries/kicad7-footprints/Connector_PinHeader_1.27mm.pretty")(options "")(descr "KiCad 7 footprint subset vendored by tools/sch/vendor.py"))
   (lib (name "Connector_USB")(type "KiCad")(uri "${KIPRJMOD}/../libraries/kicad7-footprints/Connector_USB.pretty")(options "")(descr "KiCad 7 footprint subset vendored by tools/sch/vendor.py"))
   (lib (name "Connector_Wire")(type "KiCad")(uri "${KIPRJMOD}/../libraries/kicad7-footprints/Connector_Wire.pretty")(options "")(descr "KiCad 7 footprint subset vendored by tools/sch/vendor.py"))
   (lib (name "Diode_SMD")(type "KiCad")(uri "${KIPRJMOD}/../libraries/kicad7-footprints/Diode_SMD.pretty")(options "")(descr "KiCad 7 footprint subset vendored by tools/sch/vendor.py"))

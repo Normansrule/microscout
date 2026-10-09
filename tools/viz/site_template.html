@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- STATUS: DRAFT - UNVERIFIED - requires human review at Gate G2 -->
+<!-- STATUS: DRAFT - UNVERIFIED - requires human review at Gate G3 -->
 <!-- Template for docs/index.html. Edit this file, then run: python3 tools/viz/build_site.py -->
 <!-- Page text and data: CC-BY-SA-4.0. Inline script: SPDX-License-Identifier: MIT -->
 <html lang="en">
@@ -7,7 +7,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MicroScout Design Explorer</title>
-<meta name="description" content="Interactive view of the MicroScout ESP32-S3 micro drone (Gate G2 schematic draft): 3D concept, simulated flights, thrust, hover time, power, cost and pin allocation. Draft, unverified estimates.">
+<meta name="description" content="Interactive view of the MicroScout ESP32-S3 micro drone (Gate G3 PCB layout draft): 3D concept, simulated flights, thrust, hover time, power, cost and pin allocation. Draft, unverified estimates.">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 <style>
 :root {
@@ -140,7 +140,7 @@ pre.code { background: var(--page); border: 1px solid var(--border); border-radi
 <div class="wrap">
   <header class="top">
     <button class="chip themebtn" id="themeBtn" type="button" aria-label="Toggle light or dark theme">◐ Theme</button>
-    <p class="eyebrow">Open-source micro drone · G1 approved · Gate G2 schematics draft</p>
+    <p class="eyebrow">Open-source micro drone · G1 and G2 approved · Gate G3 PCB layout draft</p>
     <h1>MicroScout design explorer</h1>
     <p class="lede">A 95 mm, 2S brushless ESP32-S3 quadcopter designed to be quick, to flip and to survive crashes: a one-piece ducted nylon frame is meant to protect soft-mounted electronics, and a Python SDK flies it - in a simulator today, on the drone later. This page shows the Gate G1 rev B draft and lets you change the assumptions.</p>
     <div class="banner" role="note">
@@ -245,13 +245,13 @@ with microscout.connect("sim") as drone:
   </section>
 
   <section id="schematics" aria-labelledby="h-sch">
-    <h2 id="h-sch">Schematics (Gate G2 draft)</h2>
+    <h2 id="h-sch">Schematics (approved at G2)</h2>
     <p class="sub">Generated from Python (<code>tools/sch</code>) as KiCad 7 files: flight controller (4 sheets), 4-in-1 ESC (5 sheets) and the ToF satellite boards. The agent's checks report 0 errors and KiCad netlists identical to the source; KiCad's own ERC and a human review are still to come. Click a sheet for the full PDF.</p>
     <div class="grid2">
       <figure class="card" style="padding:8px"><a href="https://github.com/Normansrule/microscout/blob/main/review/G2/schematics/microscout-fc.pdf"><img src="figures/schematics/microscout-fc-2.png" loading="lazy" style="width:100%;height:auto" alt="Flight-controller power sheet: charger, soft switch, bucks, undervoltage cut-off and ESC driver supply."></a><figcaption>Flight controller - power sheet</figcaption></figure>
       <figure class="card" style="padding:8px"><a href="https://github.com/Normansrule/microscout/blob/main/review/G2/schematics/microscout-esc.pdf"><img src="figures/schematics/microscout-esc-3.png" loading="lazy" style="width:100%;height:auto" alt="ESC motor 1 sheet: AT32F421 MCU with AM32, FD6288Q gate driver, six MOSFETs and back-EMF dividers."></a><figcaption>ESC - motor 1 (motors 2-4 identical)</figcaption></figure>
     </div>
-    <p class="sub" style="margin-top:8px"><a href="https://github.com/Normansrule/microscout/blob/main/review/G2/README.md">G2 review package →</a> reference-design comparison, protection summary, pull-ups and strapping, costed BOM.</p>
+    <p class="sub" style="margin-top:8px"><a href="https://github.com/Normansrule/microscout/blob/main/review/G2/README.md">G2 review package →</a> reference-design comparison, protection summary, pull-ups and strapping, costed BOM. <a href="https://github.com/Normansrule/microscout/blob/main/review/G3/README.md">G3 PCB layout package →</a> layer plots, 3D renders, DRC and open connections.</p>
   </section>
 
   <section id="pins" aria-labelledby="h-pins">
@@ -299,7 +299,7 @@ with microscout.connect("sim") as drone:
   </section>
 
   <section id="open" aria-labelledby="h-open">
-    <h2 id="h-open">Open questions at Gate G2</h2>
+    <h2 id="h-open">Open questions at Gate G3</h2>
     <p class="sub">Decisions the owner makes before the schematic starts. The recommendation is the drafting agent's.</p>
     <div class="oq" id="oqList"></div>
   </section>

@@ -1,0 +1,221 @@
+STATUS: DRAFT - UNVERIFIED - requires human review at Gate G3
+** Drc report for /home/claude/microscout/hardware/drone-pcb/microscout-fc.kicad_pcb **
+** Created on 2026-10-09 10:54:45 **
+
+** Found 30 DRC violations **
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; Severity: warning
+    @(157.5715 mm, 74.0000 mm): Line on Edge.Cuts
+    @(154.7000 mm, 75.6500 mm): Line on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; Severity: warning
+    @(157.5715 mm, 74.0000 mm): Line on Edge.Cuts
+    @(145.3000 mm, 75.6500 mm): Line on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; Severity: warning
+    @(131.5000 mm, 88.9240 mm): Line on Edge.Cuts
+    @(131.3500 mm, 109.2000 mm): Line on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; Severity: warning
+    @(131.5000 mm, 88.9240 mm): Line on Edge.Cuts
+    @(131.3500 mm, 90.8000 mm): Line on F.Silkscreen
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(147.8671 mm, 124.3584 mm): Track [+5V] on F.Cu, length 1.6348 mm
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(149.4813 mm, 104.3318 mm): Track [/Camera, LEDs, buzzer, receiver/LED_D0] on In3.Cu, length 2.0243 mm
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(146.2463 mm, 112.1952 mm): Track [/Camera, LEDs, buzzer, receiver/LED_D2] on F.Cu, length 1.5102 mm
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(148.7707 mm, 111.6935 mm): Track [/Camera, LEDs, buzzer, receiver/LED_D2] on F.Cu, length 1.8791 mm
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(142.6050 mm, 117.5727 mm): Track [/Power/BAL_MID] on F.Cu, length 2.4019 mm
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(154.5354 mm, 108.2898 mm): Track [/Power/BAL_MID] on In2.Cu, length 5.4701 mm
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(156.9852 mm, 114.7835 mm): Track [/Power/BOOST_FB] on In2.Cu, length 0.6664 mm
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(144.5762 mm, 124.0104 mm): Track [/Power/CHG_CBSET] on In3.Cu, length 0.2260 mm
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(148.6746 mm, 106.9496 mm): Track [/Power/CHG_CBSET] on In3.Cu, length 0.3124 mm
+[via_dangling]: Via is not connected or connected on only one layer
+    Local override; Severity: warning
+    @(152.5808 mm, 118.9635 mm): Via [/Power/PWR_BTN] on F.Cu - B.Cu
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(154.6821 mm, 118.8432 mm): Track [/Power/PWR_EN] on B.Cu, length 1.6884 mm
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(144.5128 mm, 109.5006 mm): Track [/Power/PWR_KILL_N] on B.Cu, length 1.7395 mm
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(141.9081 mm, 115.3272 mm): Track [/Power/PWR_KILL_N] on B.Cu, length 0.1202 mm
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(144.2008 mm, 123.0476 mm): Track [GND] on B.Cu, length 0.0016 mm
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(156.2481 mm, 115.9225 mm): Track [I2C_SCL] on In2.Cu, length 1.0557 mm
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(156.6005 mm, 115.9225 mm): Track [I2C_SCL] on In2.Cu, length 0.3524 mm
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(149.4806 mm, 112.2377 mm): Track [I2C_SCL] on In2.Cu, length 3.1248 mm
+[via_dangling]: Via is not connected or connected on only one layer
+    Local override; Severity: warning
+    @(152.8068 mm, 107.6705 mm): Via [I2C_SDA] on F.Cu - B.Cu
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(158.7786 mm, 110.0702 mm): Track [I2C_SDA] on In2.Cu, length 2.5803 mm
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(148.5910 mm, 106.7477 mm): Track [MCU_KILL_N] on In3.Cu, length 0.4797 mm
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(143.2413 mm, 122.5476 mm): Track [VDRV] on In3.Cu, length 0.1034 mm
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(149.2869 mm, 112.8293 mm): Track [VDRV] on B.Cu, length 0.4543 mm
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(146.0200 mm, 112.0000 mm): Track [VDRV] on B.Cu, length 0.5069 mm
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(151.1433 mm, 118.4332 mm): Track [VLOGIC] on In2.Cu, length 2.0904 mm
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(154.1603 mm, 112.0483 mm): Track [VLOGIC] on In3.Cu, length 0.7303 mm
+[track_dangling]: Track has unconnected end
+    Local override; Severity: warning
+    @(153.2337 mm, 118.4332 mm): Track [VLOGIC] on In3.Cu, length 1.3104 mm
+
+** Found 29 unconnected pads **
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(153.7884 mm, 112.0100 mm): Track [+5V] on In3.Cu, length 0.1000 mm
+    @(151.5000 mm, 111.9800 mm): Pad 1 [+5V] of C68 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(146.4500 mm, 119.6125 mm): Pad 5 [+5V] of U21 on B.Cu
+    @(143.7001 mm, 122.6369 mm): Track [+5V] on In2.Cu, length 2.3193 mm
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(151.5000 mm, 111.9800 mm): Pad 1 [+5V] of C68 on F.Cu
+    @(146.4500 mm, 119.6125 mm): Pad 5 [+5V] of U21 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(149.4813 mm, 104.3318 mm): Track [/Camera, LEDs, buzzer, receiver/LED_D0] on In3.Cu, length 2.0243 mm
+    @(144.5500 mm, 119.6125 mm): Pad 4 [/Camera, LEDs, buzzer, receiver/LED_D0] of U21 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(155.6712 mm, 97.4753 mm): Track [/MCU and USB/MOT2_DSHOT] on In3.Cu, length 4.0800 mm
+    @(160.0000 mm, 102.5850 mm): Pad 1 [/MCU and USB/MOT2_DSHOT] of R35 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(152.0000 mm, 89.2125 mm): Pad 8 [/Power/CHG_ILIM] of U2 on F.Cu
+    @(159.9900 mm, 83.2125 mm): Pad 1 [/Power/CHG_ILIM] of R4 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(142.6375 mm, 116.4250 mm): Pad 6 [/Power/PWR_EN] of U8 on B.Cu
+    @(154.6821 mm, 118.8432 mm): Track [/Power/PWR_EN] on B.Cu, length 1.6884 mm
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(144.5128 mm, 109.5006 mm): Track [/Power/PWR_KILL_N] on B.Cu, length 1.7395 mm
+    @(146.3431 mm, 113.5119 mm): Pad 2 [/Power/PWR_KILL_N] of D5 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(141.9081 mm, 115.3272 mm): Track [/Power/PWR_KILL_N] on B.Cu, length 0.1202 mm
+    @(146.3431 mm, 113.5119 mm): Pad 2 [/Power/PWR_KILL_N] of D5 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(142.6375 mm, 117.0750 mm): Pad 7 [/Power/PWR_PDT] of U8 on B.Cu
+    @(144.3875 mm, 117.5550 mm): Pad 1 [/Power/PWR_PDT] of C13 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(156.7875 mm, 95.2500 mm): Pad 2 [/Sensors and expanders/TOF_FWD_INT_N] of U11 on B.Cu
+    @(173.7500 mm, 96.2500 mm): Pad 6 [/Sensors and expanders/TOF_FWD_INT_N] of J14 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(152.0375 mm, 91.2500 mm): Pad 4 [/Sensors and expanders/TOF_RIGHT_XSHUT] of U10 on B.Cu
+    @(160.0000 mm, 102.7500 mm): Pad 5 [/Sensors and expanders/TOF_RIGHT_XSHUT] of J12 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(156.7500 mm, 104.4450 mm): Pad 17 [CAM_D5] of U1 on F.Cu
+    @(162.1500 mm, 98.2500 mm): Pad 16 [CAM_D5] of J3 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(154.2500 mm, 90.5375 mm): Pad 8 [CAM_PWDN] of U10 on B.Cu
+    @(162.1500 mm, 102.2500 mm): Pad 8 [CAM_PWDN] of J3 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(154.9625 mm, 91.2500 mm): Pad 9 [CAM_RESET_N] of U10 on B.Cu
+    @(162.1500 mm, 103.2500 mm): Pad 6 [CAM_RESET_N] of J3 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(175.7209 mm, 92.3455 mm): Zone [GND] on B.Cu
+    @(144.2008 mm, 123.0476 mm): Track [GND] on B.Cu, length 0.0016 mm
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(175.7209 mm, 92.3455 mm): Zone [GND] on B.Cu
+    @(175.7209 mm, 92.3455 mm): Zone [GND] on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(175.7209 mm, 92.3455 mm): Zone [GND] on B.Cu
+    @(175.7209 mm, 92.3455 mm): Zone [GND] on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(175.7209 mm, 92.3455 mm): Zone [GND] on B.Cu
+    @(175.7209 mm, 92.3455 mm): Zone [GND] on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(152.8068 mm, 107.6705 mm): Track [I2C_SDA] on In2.Cu, length 0.3690 mm
+    @(158.7786 mm, 110.0702 mm): Track [I2C_SDA] on In2.Cu, length 2.5803 mm
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(148.2650 mm, 111.0850 mm): Track [LED_DIN_3V3] on In3.Cu, length 2.4400 mm
+    @(145.5000 mm, 121.8875 mm): Pad 2 [LED_DIN_3V3] of U21 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(148.5910 mm, 106.7477 mm): Track [MCU_KILL_N] on In3.Cu, length 0.4797 mm
+    @(146.3431 mm, 115.6119 mm): Pad 1 [MCU_KILL_N] of D5 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(153.8187 mm, 99.6462 mm): Pad 2 [PWR_BTN_INT_N] of R15 on B.Cu
+    @(157.5000 mm, 93.5375 mm): Pad 5 [PWR_BTN_INT_N] of U11 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(142.6375 mm, 115.7750 mm): Pad 5 [PWR_BTN_INT_N] of U8 on B.Cu
+    @(153.8187 mm, 99.6462 mm): Pad 2 [PWR_BTN_INT_N] of R15 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(156.2700 mm, 117.0000 mm): Track [VBAT] on B.Cu, length 0.5369 mm
+    @(153.2256 mm, 114.7256 mm): Via [VBAT] on F.Cu - B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(149.2869 mm, 112.8293 mm): Track [VDRV] on B.Cu, length 0.4543 mm
+    @(152.0950 mm, 112.8881 mm): Pad 1 [VDRV] of R25 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(146.0200 mm, 112.0000 mm): Track [VDRV] on B.Cu, length 0.5069 mm
+    @(143.2900 mm, 115.7576 mm): Pad 1 [VDRV] of TP14 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(143.2900 mm, 115.7576 mm): Pad 1 [VDRV] of TP14 on F.Cu
+    @(143.2413 mm, 122.5476 mm): Track [VDRV] on In3.Cu, length 0.1034 mm
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(154.1603 mm, 112.0483 mm): Track [VLOGIC] on In3.Cu, length 0.7303 mm
+    @(154.8875 mm, 112.8694 mm): Pad 1 [VLOGIC] of R13 on B.Cu
+
+** Found 0 Footprint errors **
+
+** End of Report **

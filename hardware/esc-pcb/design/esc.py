@@ -110,8 +110,8 @@ def build():
           "Connector_JST:JST_SH_SM08B-SRSS-TB_1x08-1MP_P1.00mm_Horizontal",
           {"1": "VDRV", "2": "GND", "3": "MOT1_DSHOT", "4": "MOT2_DSHOT", "5": "MOT3_DSHOT", "6": "MOT4_DSHOT",
            "7": "GND", "8": None, "MP": "GND"}, LCSC="C160407", MPN="SM08B-SRSS-TB(LF)(SN)")
-    s.add("Connector_Generic:Conn_01x01", "J2", "VBAT pad", "Connector_Wire:SolderWirePad_1x01_SMD_5x10mm", {"1": "VBAT"})
-    s.add("Connector_Generic:Conn_01x01", "J3", "GND pad", "Connector_Wire:SolderWirePad_1x01_SMD_5x10mm", {"1": "GND"})
+    s.add("Connector_Generic:Conn_01x01", "J2", "VBAT pad", "microscout:Pad_SMD_3x6mm", {"1": "VBAT"})
+    s.add("Connector_Generic:Conn_01x01", "J3", "GND pad", "microscout:Pad_SMD_3x6mm", {"1": "GND"})
     s.CP("C1", "100u 25V", "VBAT", "GND", "Capacitor_SMD:CP_Elec_6.3x5.9", LCSC="C2939798",
          MPN="SVS1EM101E06E00RAXXX", Rating="25 V polymer, ESR 45 mOhm, ripple 2.2 A")
     s.add("power:PWR_FLAG", "#FLG01", "PWR_FLAG", "", {"1": "GND"})

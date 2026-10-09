@@ -1,0 +1,221 @@
+STATUS: DRAFT - UNVERIFIED - requires human review at Gate G3
+** Drc report for /home/claude/microscout/hardware/esc-pcb/microscout-esc.kicad_pcb **
+** Created on 2026-10-09 10:45:18 **
+
+** Found 2 DRC violations **
+[via_dangling]: Via is not connected or connected on only one layer
+    Local override; Severity: warning
+    @(153.6714 mm, 104.2151 mm): Via [+3V3_ESC] on F.Cu - B.Cu
+[via_dangling]: Via is not connected or connected on only one layer
+    Local override; Severity: warning
+    @(146.3286 mm, 95.7849 mm): Via [+3V3_ESC] on F.Cu - B.Cu
+
+** Found 51 unconnected pads **
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(156.5333 mm, 90.1967 mm): Track [+3V3_ESC] on B.Cu, length 0.5119 mm
+    @(154.9033 mm, 91.7592 mm): Pad 17 [+3V3_ESC] of U401 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(145.0967 mm, 108.2408 mm): Pad 17 [+3V3_ESC] of U101 on B.Cu
+    @(143.4667 mm, 109.8033 mm): Track [+3V3_ESC] on B.Cu, length 0.5119 mm
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(158.8033 mm, 93.2167 mm): Pad 1 [+3V3_ESC] of C401 on B.Cu
+    @(158.8033 mm, 95.4667 mm): Pad 1 [+3V3_ESC] of C403 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(141.1967 mm, 106.7833 mm): Track [+3V3_ESC] on B.Cu, length 0.4819 mm
+    @(141.1967 mm, 104.5333 mm): Pad 1 [+3V3_ESC] of C103 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(168.3742 mm, 92.0299 mm): Pad 1 [+3V3_ESC] of TP1 on B.Cu
+    @(158.5595 mm, 92.7348 mm): Track [+3V3_ESC] on B.Cu, length 0.2438 mm
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(144.2967 mm, 108.2408 mm): Pad 19 [/Motor 1/M1_BH] of U101 on B.Cu
+    @(146.0092 mm, 111.1825 mm): Pad 23 [/Motor 1/M1_BH] of U102 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(144.6967 mm, 108.2408 mm): Pad 18 [/Motor 1/M1_CH] of U101 on B.Cu
+    @(146.0092 mm, 110.6825 mm): Pad 24 [/Motor 1/M1_CH] of U102 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(149.6153 mm, 107.9378 mm): Pad 4 [/Motor 1/M1_GL_C] of Q106 on F.Cu
+    @(154.5097 mm, 118.5601 mm): Pad 2 [/Motor 1/M1_GL_C] of R115 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(154.5097 mm, 118.5601 mm): Pad 2 [/Motor 1/M1_GL_C] of R115 on B.Cu
+    @(168.3125 mm, 109.0089 mm): Pad 1 [/Motor 1/M1_GL_C] of R135 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(149.1967 mm, 113.8700 mm): Pad 13 [/Motor 1/M1_HO_C] of U102 on B.Cu
+    @(152.2056 mm, 118.2208 mm): Pad 1 [/Motor 1/M1_HO_C] of R114 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(138.4128 mm, 114.2432 mm): Pad 1 [/Motor 1/M1_LO_A] of R111 on B.Cu
+    @(149.8842 mm, 112.6825 mm): Pad 11 [/Motor 1/M1_LO_A] of U102 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(146.2560 mm, 119.0764 mm): Pad 1 [/Motor 1/M1_LO_B] of R113 on B.Cu
+    @(149.8842 mm, 112.1825 mm): Pad 10 [/Motor 1/M1_LO_B] of U102 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(149.8842 mm, 111.6825 mm): Pad 9 [/Motor 1/M1_LO_C] of U102 on B.Cu
+    @(153.4897 mm, 118.5601 mm): Pad 1 [/Motor 1/M1_LO_C] of R115 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(133.4967 mm, 103.9908 mm): Pad 1 [/Motor 1/M1_SWDIO] of TP101 on B.Cu
+    @(143.4967 mm, 108.2408 mm): Pad 21 [/Motor 1/M1_SWDIO] of U101 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(157.2408 mm, 107.1033 mm): Pad 20 [/Motor 2/M2_AH] of U201 on B.Cu
+    @(160.6825 mm, 104.9908 mm): Pad 22 [/Motor 2/M2_AH] of U202 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(155.3033 mm, 104.3658 mm): Pad 11 [/Motor 2/M2_BEMF_C] of U201 on B.Cu
+    @(155.5458 mm, 114.3620 mm): Track [/Motor 2/M2_BEMF_C] on B.Cu, length 0.1102 mm
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(158.2451 mm, 115.4393 mm): Pad 2 [/Motor 2/M2_BEMF_COM] of R228 on B.Cu
+    @(153.3658 mm, 105.1033 mm): Pad 7 [/Motor 2/M2_BEMF_COM] of U201 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(149.1158 mm, 108.0133 mm): Pad 1 [/Motor 2/M2_BOOT0] of R201 on B.Cu
+    @(153.3658 mm, 107.5033 mm): Pad 1 [/Motor 2/M2_BOOT0] of U201 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(159.7030 mm, 99.6572 mm): Pad 1 [/Motor 2/M2_HO_B] of R212 on B.Cu
+    @(162.8700 mm, 103.3033 mm): Pad 16 [/Motor 2/M2_HO_B] of U202 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(161.6825 mm, 101.1158 mm): Pad 11 [/Motor 2/M2_LO_A] of U202 on B.Cu
+    @(165.7255 mm, 103.2199 mm): Pad 1 [/Motor 2/M2_LO_A] of R211 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(162.8700 mm, 102.8033 mm): Pad 15 [/Motor 2/M2_PH_B] of U202 on B.Cu
+    @(165.4748 mm, 101.4803 mm): Pad 5 [/Motor 2/M2_PH_B] of Q204 on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(154.3509 mm, 111.1090 mm): Pad 1 [/Motor 2/M2_VB_C] of C209 on B.Cu
+    @(161.0604 mm, 111.7062 mm): Track [/Motor 2/M2_VB_C] on B.Cu, length 0.4769 mm
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(139.3175 mm, 95.0092 mm): Pad 22 [/Motor 3/M3_AH] of U302 on B.Cu
+    @(142.7592 mm, 92.8967 mm): Pad 20 [/Motor 3/M3_AH] of U301 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(140.3183 mm, 101.1554 mm): Track [/Motor 3/M3_BEMF_B] on In2.Cu, length 0.2206 mm
+    @(145.0967 mm, 95.6342 mm): Pad 10 [/Motor 3/M3_BEMF_B] of U301 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(146.6342 mm, 94.8967 mm): Pad 7 [/Motor 3/M3_BEMF_COM] of U301 on B.Cu
+    @(141.7549 mm, 84.5607 mm): Pad 2 [/Motor 3/M3_BEMF_COM] of R328 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(146.6342 mm, 92.4967 mm): Pad 1 [/Motor 3/M3_BOOT0] of U301 on B.Cu
+    @(150.8842 mm, 91.9867 mm): Pad 1 [/Motor 3/M3_BOOT0] of R301 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(137.1300 mm, 96.6967 mm): Pad 16 [/Motor 3/M3_HO_B] of U302 on B.Cu
+    @(140.2970 mm, 100.3428 mm): Pad 1 [/Motor 3/M3_HO_B] of R312 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(134.2745 mm, 96.7801 mm): Pad 1 [/Motor 3/M3_LO_A] of R311 on B.Cu
+    @(138.3175 mm, 98.8842 mm): Pad 11 [/Motor 3/M3_LO_A] of U302 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(134.5252 mm, 98.5197 mm): Pad 5 [/Motor 3/M3_PH_B] of Q304 on F.Cu
+    @(137.1300 mm, 97.1967 mm): Pad 15 [/Motor 3/M3_PH_B] of U302 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(145.6491 mm, 88.8910 mm): Pad 1 [/Motor 3/M3_VB_C] of C309 on B.Cu
+    @(138.9396 mm, 88.2938 mm): Track [/Motor 3/M3_VB_C] on B.Cu, length 0.4769 mm
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(153.9908 mm, 88.8175 mm): Pad 23 [/Motor 4/M4_BH] of U402 on B.Cu
+    @(155.7033 mm, 91.7592 mm): Pad 19 [/Motor 4/M4_BH] of U401 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(153.9908 mm, 89.3175 mm): Pad 24 [/Motor 4/M4_CH] of U402 on B.Cu
+    @(155.3033 mm, 91.7592 mm): Pad 18 [/Motor 4/M4_CH] of U401 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(150.3847 mm, 92.0622 mm): Pad 4 [/Motor 4/M4_GL_C] of Q406 on F.Cu
+    @(145.4903 mm, 81.4399 mm): Pad 2 [/Motor 4/M4_GL_C] of R415 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(145.4903 mm, 81.4399 mm): Pad 2 [/Motor 4/M4_GL_C] of R415 on B.Cu
+    @(131.6875 mm, 90.9911 mm): Pad 1 [/Motor 4/M4_GL_C] of R435 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(147.7944 mm, 81.7792 mm): Pad 1 [/Motor 4/M4_HO_C] of R414 on B.Cu
+    @(150.8033 mm, 86.1300 mm): Pad 13 [/Motor 4/M4_HO_C] of U402 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(150.1158 mm, 87.3175 mm): Pad 11 [/Motor 4/M4_LO_A] of U402 on B.Cu
+    @(161.5872 mm, 85.7568 mm): Pad 1 [/Motor 4/M4_LO_A] of R411 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(150.1158 mm, 87.8175 mm): Pad 10 [/Motor 4/M4_LO_B] of U402 on B.Cu
+    @(153.7440 mm, 80.9236 mm): Pad 1 [/Motor 4/M4_LO_B] of R413 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(146.5103 mm, 81.4399 mm): Pad 1 [/Motor 4/M4_LO_C] of R415 on B.Cu
+    @(150.1158 mm, 88.3175 mm): Pad 9 [/Motor 4/M4_LO_C] of U402 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(156.5033 mm, 91.7592 mm): Pad 21 [/Motor 4/M4_SWDIO] of U401 on B.Cu
+    @(166.5033 mm, 96.0092 mm): Pad 1 [/Motor 4/M4_SWDIO] of TP401 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(169.9362 mm, 90.8591 mm): Zone [GND] on B.Cu
+    @(169.9362 mm, 90.8591 mm): Zone [GND] on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(169.9362 mm, 90.8591 mm): Zone [GND] on B.Cu
+    @(169.9362 mm, 90.8591 mm): Zone [GND] on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(149.5000 mm, 102.0000 mm): Pad 4 [MOT2_DSHOT] of J1 on B.Cu
+    @(155.3033 mm, 108.2408 mm): Pad 25 [MOT2_DSHOT] of U201 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(144.6967 mm, 91.7592 mm): Pad 25 [MOT3_DSHOT] of U301 on B.Cu
+    @(150.5000 mm, 102.0000 mm): Pad 5 [MOT3_DSHOT] of J1 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(151.5000 mm, 102.0000 mm): Pad 6 [MOT4_DSHOT] of J1 on B.Cu
+    @(157.2408 mm, 93.6967 mm): Pad 25 [MOT4_DSHOT] of U401 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(140.0759 mm, 103.8009 mm): Track [VBAT] on F.Cu, length 0.3394 mm
+    @(138.1967 mm, 105.2533 mm): Pad 1 [VBAT] of C110 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(161.8033 mm, 94.7467 mm): Pad 1 [VBAT] of C410 on B.Cu
+    @(159.4425 mm, 95.6777 mm): Track [VBAT] on F.Cu, length 0.4600 mm
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(169.9362 mm, 90.8591 mm): Zone [VBAT] on F.Cu
+    @(169.9362 mm, 90.8591 mm): Zone [VBAT] on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(169.9362 mm, 90.8591 mm): Zone [VBAT] on F.Cu
+    @(169.9362 mm, 90.8591 mm): Zone [VBAT] on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(169.9362 mm, 90.8591 mm): Zone [VBAT] on F.Cu
+    @(169.9362 mm, 90.8591 mm): Zone [VBAT] on F.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(138.1967 mm, 105.2533 mm): Pad 1 [VBAT] of C110 on B.Cu
+    @(137.9467 mm, 111.2533 mm): Pad 1 [VBAT] of C111 on B.Cu
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(161.8033 mm, 94.7467 mm): Pad 1 [VBAT] of C410 on B.Cu
+    @(162.0533 mm, 88.7467 mm): Pad 1 [VBAT] of C411 on B.Cu
+
+** Found 0 Footprint errors **
+
+** End of Report **

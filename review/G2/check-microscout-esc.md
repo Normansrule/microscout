@@ -11,6 +11,11 @@ netlist and then prove the `.kicad_sch` files match it. **Run KiCad's own ERC in
 | Source ERC warnings | 0 |
 | KiCad netlist vs source | identical (195 nets, 210 parts in KiCad export) |
 | Footprints missing from the KiCad 7 library | 0 |
-| Custom footprints still to draw at G3 | 0 |
+| Custom footprints still to draw at G3 | 2 |
 | Capacitor voltage-rating problems | 0 |
+
+## Custom footprints for G3
+
+- J2: Pad_SMD_3x6mm
+- J3: Pad_SMD_3x6mm
 

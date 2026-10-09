@@ -1,4 +1,4 @@
-# STATUS: DRAFT - UNVERIFIED - requires human review at Gate G2
+# STATUS: DRAFT - UNVERIFIED - requires human review at Gate G3
 """README banner and gate-roadmap images (light + dark), drawn with Pillow.
 
   python3 tools/viz/banner.py      (needs docs/figures/renders/hero-cutout.png from render.py --banner)
@@ -30,8 +30,8 @@ THEMES = {
 
 GATES = [  # (gate, title, state, note)
     ("G1", "Architecture & parts", "done", "approved 2026-10-07"),
-    ("G2", "Schematics", "review", "awaiting review"),
-    ("G3", "PCB layout", "todo", ""),
+    ("G2", "Schematics", "done", "approved 2026-10-08"),
+    ("G3", "PCB layout", "review", "drafted, routing open"),
     ("G4", "Fab outputs", "todo", ""),
     ("G5", "Mechanical", "todo", "concept CAD exists"),
     ("G6", "Firmware & bench", "todo", "SDK + simulator exist"),
@@ -92,7 +92,7 @@ def banner(theme):
     for c in chips:
         w, h = pill(d, x, y, c, f("semi", 20), t["ink"], t["chip"], t["chip_line"], padx=14, pady=8)
         x += w + 10
-    pill(d, x0, 428, "Gate G2 · schematics drafted · nothing built or flown yet", f("semi", 20), t["warn"], t["warn_bg"], padx=16, pady=8)
+    pill(d, x0, 428, "Gate G3 · PCB layout drafted · nothing built or flown yet", f("semi", 20), t["warn"], t["warn_bg"], padx=16, pady=8)
     # drone cut-out with a soft shadow
     cut = Image.open(REPO / "docs" / "figures" / "renders" / "hero-cutout.png").convert("RGBA")
     scale = 390 / cut.height
