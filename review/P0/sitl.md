@@ -58,7 +58,7 @@ In the MAVProxy console: `mode guided`, `arm throttle`, `takeoff 5`, then `mode 
 ## 5. The first simulated follow-me flight
 
 `software/wisp_sitl/follow_demo.py` starts the SITL binary itself, plays a phone walking along a cliff-top trail at
-1.4 m/s, and records where the drone sits. The walker's position goes out as MAVLink `GLOBAL_POSITION_INT` from
+1.4 m/s, and records where the drone sits. The walker's position goes out as MAVLink (Micro Air Vehicle Link protocol) `GLOBAL_POSITION_INT` from
 system id 255, the way the Wisp app will send the phone's GPS.
 
 ```bash
@@ -100,7 +100,7 @@ says nothing about a real drone, wind, GPS error or a real phone's 1-5 m positio
 
 ## 6. Gazebo Harmonic, for camera-based tracking tests (UNCONFIRMED: not run here)
 
-From gazebosim.org and the `ardupilot_gazebo` README (Harmonic is the version the plugin recommends; ROS 2 is not
+From gazebosim.org and the `ardupilot_gazebo` README (Harmonic is the version the plugin recommends; ROS 2 (Robot Operating System 2) is not
 needed):
 
 ```bash

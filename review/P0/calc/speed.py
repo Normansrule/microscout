@@ -9,7 +9,7 @@ Top speed, level flight at tilt angle theta:
 Prop thrust falls as the airflow approaches the prop's pitch speed (ESTIMATE, linear unloading):
     T(v) = T0 (1 - v / vp),   vp = 0.8 x KV x V x pitch / 60   (0.8: loaded rpm, ESTIMATE)
 Flight time:  t = 0.8 x E_pack / (W / eta + P_electronics),   E_pack = capacity x nominal voltage
-with eta the hover efficiency in grams of thrust per watt from the maker's thrust table (CLAIM) and 80 % of the
+with eta the hover efficiency in grams of thrust per watt from a maker's thrust table (ESTIMATE when the table is for a proxy motor or prop) and 80 % of the
 pack's energy treated as usable (ESTIMATE).
 """
 import math
@@ -30,9 +30,9 @@ BUILDS = [
 ]
 FLIGHT = [
     # name, mass g, eta g/W at hover, capacity mAh, cells, electronics W
-    ("Follow, 4S 550", 241.5, 3.5, 550, 4, 6.0),
-    ("Follow Fast, 6S 550", 229.8, 2.9, 550, 6, 4.0),
-    ("Follow Fast with guards, 6S 450", 240.0, 2.9, 450, 6, 4.0),
+    ("Follow, 4S 550", 241.5, 3.5, 550, 4, 6.0, True),   # proxy: T-Motor P1604 3800KV, open GF3520-3
+    ("Follow Fast, 6S 550", 229.8, 2.9, 550, 6, 4.0, False),
+    ("Follow Fast with guards, 6S 450", 240.0, 2.9, 450, 6, 4.0, False),
 ]
 
 
@@ -62,11 +62,11 @@ def main():
         tilt = (min(r[2] for r in res), max(r[2] for r in res))
         rows.append(f"| {name} | {m * 1000:.1f} g | {t0a if t0a == t0b else f'{t0a}-{t0b}'} g | {ca}-{cb} m² | "
                     f"{vmin:.0f}-{vmax:.0f} m/s | **{vmin * 3.6:.0f}-{vmax * 3.6:.0f} km/h** | **{vmin * 2.237:.0f}-{vmax * 2.237:.0f} mph** | {tilt[0]:.0f}-{tilt[1]:.0f}° | {basis} |")
-    for name, m, eta, mah, cells, pe in FLIGHT:
+    for name, m, eta, mah, cells, pe, proxy in FLIGHT:
         e = mah / 1000 * cells * 3.7
         p = m / eta + pe
         t = 0.8 * e / p * 60
-        lines.append(f"| {name} | {m:.1f} g | {eta} g/W | {m:.1f} / {eta} + {pe} = {p:.0f} W | {mah} mAh × {cells} × 3.7 V = {e:.2f} Wh | **{t:.1f} min** |")
+        lines.append(f"| {name} | {m:.1f} g | {eta} g/W{' (proxy)' if proxy else ''} | {m:.1f} / {eta} + {pe} = {p:.0f} W | {mah} mAh × {cells} × 3.7 V = {e:.2f} Wh | **{t:.1f} min** |")
     md = f"""> STATUS: DRAFT - UNVERIFIED - requires human review at the Phase 0 gate
 
 # How fast, how long (estimates)
@@ -87,7 +87,8 @@ ends of the thrust and drag-area (CdA) ranges and a pack at 3.7 V and 4.2 V per 
 {chr(10).join(rows)}
 
 - **100 mph (161 km/h) is out of reach under 249.48 g** on these numbers. The limit is the prop's pitch speed, not
-  drag: a light quad runs out of prop before it runs out of thrust, so 6S buys only about 10-15 % over 4S.
+  drag: a light quad runs out of prop before it runs out of thrust, so 6S buys only about 10-15 % over 4S (two P1604
+  setups compared in [`research/follow-airframe.md`](research/follow-airframe.md) §5.2).
 - For comparison (maker claims): DJI Mini 5 Pro 18 m/s (65 km/h); the ducted GEPRC CineBot35 (583 g) is credited
   with 140-150 km/h.
 - ArduPilot caps the lean angle (`ATC_ANGLE_MAX` in 4.7) and the speed in each mode (`WP_SPD`, `LOIT_SPEED_MS`).
@@ -96,8 +97,10 @@ ends of the thrust and drag-area (CdA) ranges and a pack at 3.7 V and 4.2 V per 
 
 ## Flight time
 
-t = 0.8 × E_pack / (W/η + P_electronics), with η the hover efficiency from the motor maker's table (CLAIM, at 20 %
-throttle) and 80 % of the pack usable (ESTIMATE). Electronics: about 6 W with the Pi and the O4, 4 W without the Pi
+t = 0.8 × E_pack / (W/η + P_electronics), with η the hover efficiency from a maker's thrust table at about 20 %
+throttle. For the Follow build η is a proxy, ESTIMATE: the T-Motor P1604 3800KV on open GF3520-3 props
+([`research/follow-airframe.md`](research/follow-airframe.md)), not the build's SPEEDX2 1404 in ducts, so its
+flight time is an ESTIMATE too and 80 % of the pack usable (ESTIMATE). Electronics: about 6 W with the Pi and the O4, 4 W without the Pi
 (ESTIMATE).
 
 | Build | Mass | η | Power | Pack energy | Hover time |

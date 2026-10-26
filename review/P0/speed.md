@@ -20,7 +20,8 @@ ends of the thrust and drag-area (CdA) ranges and a pack at 3.7 V and 4.2 V per 
 | Follow Fast with guards, 6S 450 | 240.0 g | 2475 g | 0.01-0.015 m² | 29-34 m/s | **104-122 km/h** | **65-76 mph** | 68-75° | guards add drag: CdA range ESTIMATE |
 
 - **100 mph (161 km/h) is out of reach under 249.48 g** on these numbers. The limit is the prop's pitch speed, not
-  drag: a light quad runs out of prop before it runs out of thrust, so 6S buys only about 10-15 % over 4S.
+  drag: a light quad runs out of prop before it runs out of thrust, so 6S buys only about 10-15 % over 4S (two P1604
+  setups compared in [`research/follow-airframe.md`](research/follow-airframe.md) §5.2).
 - For comparison (maker claims): DJI Mini 5 Pro 18 m/s (65 km/h); the ducted GEPRC CineBot35 (583 g) is credited
   with 140-150 km/h.
 - ArduPilot caps the lean angle (`ATC_ANGLE_MAX` in 4.7) and the speed in each mode (`WP_SPD`, `LOIT_SPEED_MS`).
@@ -29,13 +30,15 @@ ends of the thrust and drag-area (CdA) ranges and a pack at 3.7 V and 4.2 V per 
 
 ## Flight time
 
-t = 0.8 × E_pack / (W/η + P_electronics), with η the hover efficiency from the motor maker's table (CLAIM, at 20 %
-throttle) and 80 % of the pack usable (ESTIMATE). Electronics: about 6 W with the Pi and the O4, 4 W without the Pi
+t = 0.8 × E_pack / (W/η + P_electronics), with η the hover efficiency from a maker's thrust table at about 20 %
+throttle. For the Follow build η is a proxy, ESTIMATE: the T-Motor P1604 3800KV on open GF3520-3 props
+([`research/follow-airframe.md`](research/follow-airframe.md)), not the build's SPEEDX2 1404 in ducts, so its
+flight time is an ESTIMATE too and 80 % of the pack usable (ESTIMATE). Electronics: about 6 W with the Pi and the O4, 4 W without the Pi
 (ESTIMATE).
 
 | Build | Mass | η | Power | Pack energy | Hover time |
 |---|---:|---:|---|---|---:|
-| Follow, 4S 550 | 241.5 g | 3.5 g/W | 241.5 / 3.5 + 6.0 = 75 W | 550 mAh × 4 × 3.7 V = 8.14 Wh | **5.2 min** |
+| Follow, 4S 550 | 241.5 g | 3.5 g/W (proxy) | 241.5 / 3.5 + 6.0 = 75 W | 550 mAh × 4 × 3.7 V = 8.14 Wh | **5.2 min** |
 | Follow Fast, 6S 550 | 229.8 g | 2.9 g/W | 229.8 / 2.9 + 4.0 = 83 W | 550 mAh × 6 × 3.7 V = 12.21 Wh | **7.0 min** |
 | Follow Fast with guards, 6S 450 | 240.0 g | 2.9 g/W | 240.0 / 2.9 + 4.0 = 87 W | 450 mAh × 6 × 3.7 V = 9.99 Wh | **5.5 min** |
 

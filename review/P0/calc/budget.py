@@ -21,7 +21,7 @@ TARGET_MARGIN_G = 5.0      # ESTIMATE: room for scale error, glue, wire and a he
 
 # (part, qty, mass each g, basis, price each USD or None, supplier, stock, note)
 NANO = [
-    ("Crazyflie 2.1+ airframe: board, frame, 4 coreless motors, props (no battery)", 1, 21.9, "DERIVED", None, "Bitcraze / RobotShop US", "RobotShop: in stock, 9 units", "29 g takeoff minus the 7.1 g battery; motor and frame split not published"),
+    ("Crazyflie 2.1+ airframe: board, frame, 4 coreless motors, props (no battery)", 1, 21.9, "DERIVED", None, "Bitcraze / RobotShop US", "RobotShop: in stock, 9 units", "29 g takeoff minus the 7.1 g battery, assuming the 29 g includes the battery (UNCONFIRMED); motor and frame split not published"),
     ("250 mAh 1S LiPo (stock battery)", 1, 7.1, "CLAIM", None, "Bitcraze", "no label", "in the kit"),
     ("Flow deck v2 (optical flow + ToF height)", 1, 1.6, "CLAIM", None, "Bitcraze", "no label", "in the STEM ranging bundle"),
     ("Multi-ranger deck (5 ToF: front, back, left, right, up)", 1, 2.3, "CLAIM", None, "Bitcraze", "no label", "in the STEM ranging bundle"),
@@ -124,11 +124,15 @@ weighed. **Do not order anything before the Phase 0 gate is approved.**
 
 **The registration line.** 14 CFR 48.15(b) exempts a recreational aircraft that "weighs 0.55 pounds or less on
 takeoff, including everything that is on board or otherwise attached". 0.55 lb × 453.59237 g/lb = **{LIMIT_G:.2f} g**,
-not 250 g. A build must weigh 249.48 g or less, ready to fly, on a scale, every time anything changes. The budgets
+not 250 g. A build must weigh under 249.48 g, ready to fly, on a scale, every time anything changes. The budgets
 keep a {TARGET_MARGIN_G:.0f} g margin (ESTIMATE) for scale error and parts that weigh more than listed.
 
 **Basis.** CLAIM = maker or shop figure; DERIVED = computed from claims; ESTIMATE = assumption; UNCONFIRMED = not
 verified. Sources with dates are in `research/`.
+
+**Abbreviations.** AIO = all-in-one (flight controller and ESC on one board); ELRS = ExpressLRS radio link;
+ESC = electronic speed controller; FCC = Federal Communications Commission; LiPo = lithium-polymer battery;
+NPU = neural processing unit; ToF = time-of-flight distance sensor.
 
 ## Wisp Nano: Crazyflie 2.1+ with Flow and Multi-ranger decks
 
@@ -139,8 +143,9 @@ verified. Sources with dates are in `research/`.
   (takeoff mass minus the 29 g stock takeoff mass).
 - Cost: **${cost([r for r in NANO if 'optional' not in r[0]]):.2f}** without the AI deck, **${cost(NANO):.2f}** with it
   (Bitcraze prices; shipping and tax extra).
-- The Crazyflie 2.1 Brushless (34 g, 40 g payload, 10 min, $640 STEM ranging bundle) is the alternative: more margin,
-  but over the 30-40 g target and "re-stocking soon" at RobotShop US.
+- The Crazyflie 2.1 Brushless (34 g bare, about 43 g with the Flow and Multi-ranger decks; 40 g payload, 10 min;
+  $640 STEM ranging bundle, about $666 with spare batteries) is the alternative: more margin, but over the 30-40 g
+  target once fitted, and "re-stocking soon" at RobotShop US.
 
 ## Wisp Follow: 3 inch ducted, 4S, ArduPilot, companion computer on board
 

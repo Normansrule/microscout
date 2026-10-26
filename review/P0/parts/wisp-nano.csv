@@ -1,6 +1,6 @@
 # STATUS: DRAFT - UNVERIFIED - requires human review at the Phase 0 gate
 part,qty,mass_each_g,mass_g,basis,price_each_usd,supplier,stock_2026_10_26,note
-"Crazyflie 2.1+ airframe: board, frame, 4 coreless motors, props (no battery)",1,21.9,21.9,DERIVED,,Bitcraze / RobotShop US,"RobotShop: in stock, 9 units",29 g takeoff minus the 7.1 g battery; motor and frame split not published
+"Crazyflie 2.1+ airframe: board, frame, 4 coreless motors, props (no battery)",1,21.9,21.9,DERIVED,,Bitcraze / RobotShop US,"RobotShop: in stock, 9 units","29 g takeoff minus the 7.1 g battery, assuming the 29 g includes the battery (UNCONFIRMED); motor and frame split not published"
 250 mAh 1S LiPo (stock battery),1,7.1,7.1,CLAIM,,Bitcraze,no label,in the kit
 Flow deck v2 (optical flow + ToF height),1,1.6,1.6,CLAIM,,Bitcraze,no label,in the STEM ranging bundle
 "Multi-ranger deck (5 ToF: front, back, left, right, up)",1,2.3,2.3,CLAIM,,Bitcraze,no label,in the STEM ranging bundle
