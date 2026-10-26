@@ -1,0 +1,83 @@
+{
+ "vehicle": "ArduCopter 4.7.2 SITL, + quad model",
+ "steps": [
+  {
+   "name": "default",
+   "scale": 1.0,
+   "gains": {
+    "ATC_RAT_RLL_P": 0.13500000536441803,
+    "ATC_RAT_RLL_I": 0.13500000536441803,
+    "ATC_RAT_RLL_D": 0.003599999938160181,
+    "ATC_RAT_RLL_FF": 0.0,
+    "ATC_RAT_RLL_FLTD": 20.0
+   },
+   "score": {
+    "rise_s": 0.0934,
+    "overshoot_pct": 3.5,
+    "settle_s": 0.167,
+    "rms_err_dps": 9.44,
+    "peak_dps": 93.1,
+    "window_s": 0.424
+   },
+   "t_step": 55.9241,
+   "samples": 328
+  },
+  {
+   "name": "half",
+   "scale": 0.5,
+   "gains": {
+    "ATC_RAT_RLL_P": 0.06750000268220901,
+    "ATC_RAT_RLL_I": 0.06750000268220901,
+    "ATC_RAT_RLL_D": 0.0017999999690800905,
+    "ATC_RAT_RLL_FF": 0.0,
+    "ATC_RAT_RLL_FLTD": 20.0
+   },
+   "score": {
+    "rise_s": 0.1172,
+    "overshoot_pct": 6.4,
+    "settle_s": null,
+    "rms_err_dps": 17.46,
+    "peak_dps": 95.7,
+    "window_s": 0.437
+   },
+   "t_step": 63.6227,
+   "samples": 331
+  },
+  {
+   "name": "double",
+   "scale": 2.0,
+   "gains": {
+    "ATC_RAT_RLL_P": 0.27000001072883606,
+    "ATC_RAT_RLL_I": 0.27000001072883606,
+    "ATC_RAT_RLL_D": 0.007199999876320362,
+    "ATC_RAT_RLL_FF": 0.0,
+    "ATC_RAT_RLL_FLTD": 20.0
+   },
+   "score": {
+    "rise_s": 0.0908,
+    "overshoot_pct": 9.3,
+    "settle_s": null,
+    "rms_err_dps": 5.97,
+    "peak_dps": 98.4,
+    "window_s": 0.421
+   },
+   "t_step": 71.3272,
+   "samples": 333
+  }
+ ],
+ "stop_test": {
+  "results": [
+   "Stopping: Brake mode, holding position",
+   "step test aborted by stop"
+  ],
+  "abort_reply_s": 0.022,
+  "mode_after": "BRAKE",
+  "roll_after_deg": 0.32,
+  "speed_after_ms": 0.11
+ },
+ "refused_big_change": true,
+ "refused_non_tuning_param": true,
+ "landed_and_disarmed": true,
+ "app_rtt_ms": 0.64,
+ "vehicle_rtt_ms": 2.29
+}

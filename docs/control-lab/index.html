@@ -1,0 +1,102 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: MIT -->
+<!-- STATUS: Phase 1 draft. Model, SITL (software in the loop) replay and live SITL only; never flown. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wisp Control Lab</title>
+<meta name="description" content="Tune Wisp's roll-rate PID loop against a model, a recorded ArduPilot simulation, or a live simulator, with the equation's numbers shown as they change.">
+<link rel="preload" href="../concepts/fonts/overpass-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../concepts/fonts/overpass-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="lab.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to the lab</a>
+<div class="lab">
+  <aside class="rail" aria-label="Vehicle and link">
+    <a class="mark" href="../"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M4 20 C9 9, 15 23, 24 7" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/><circle cx="24" cy="7" r="3" fill="currentColor"/></svg>Wisp</a>
+
+    <section class="link" aria-labelledby="link-h">
+      <h2 id="link-h">Data from</h2>
+      <div class="seg" role="radiogroup" aria-label="Data source">
+        <button role="radio" data-source="model">Model</button>
+        <button role="radio" data-source="replay">Recording</button>
+        <button role="radio" data-source="live">Live SITL</button>
+      </div>
+      <p class="link-note" id="link-note"></p>
+    </section>
+
+    <section class="vehicle" aria-labelledby="veh-h">
+      <h2 id="veh-h">Vehicle</h2>
+      <dl class="readouts" id="readouts"></dl>
+      <div class="ekf" id="ekf" role="group" aria-label="Extended Kalman filter test ratios"></div>
+    </section>
+
+    <section class="actions" aria-labelledby="act-h" id="actions">
+      <h2 id="act-h">Fly the simulator</h2>
+      <button class="act" data-cmd="takeoff">Take off to 10 m</button>
+      <div class="act-row">
+        <label for="amp">Step size</label>
+        <select id="amp"><option value="45">45 °/s</option><option value="90" selected>90 °/s</option><option value="135">135 °/s</option></select>
+      </div>
+      <button class="act" data-cmd="step">Run step test</button>
+      <button class="act" data-cmd="land">Land</button>
+      <button class="stop" data-cmd="stop">Stop and hover</button>
+      <p class="log" id="log" role="status" aria-live="polite"></p>
+    </section>
+  </aside>
+
+  <main class="main" id="main">
+    <header class="head">
+      <div>
+        <h1>Roll rate loop</h1>
+        <p class="finding" id="finding"></p>
+      </div>
+      <div class="picker" id="picker" role="group" aria-label="Recorded steps"></div>
+    </header>
+
+    <section class="diagram" aria-label="Block diagram and equation">
+      <div id="diagram-host" tabindex="0" role="region" aria-label="Block diagram, scrolls sideways on small screens"></div>
+      <p class="eq" id="eq"></p>
+      <div class="scrub" id="scrub">
+        <button class="play" id="play" aria-label="Play the step">Play</button>
+        <input type="range" id="playhead" min="-0.3" max="1.4" step="0.0025" value="0.05" aria-label="Time in the step">
+        <output id="playhead-out" for="playhead"></output>
+        <label class="slow"><input type="checkbox" id="slow"> Quarter speed</label>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card" aria-labelledby="step-h">
+        <h2 id="step-h">Step response</h2>
+        <p class="note" id="step-note"></p>
+        <div id="step"></div>
+        <canvas id="strip" width="900" height="200" aria-label="Last four seconds of target and measured roll rate"></canvas>
+      </section>
+      <section class="card" aria-labelledby="bode-h">
+        <h2 id="bode-h">Loop gain and phase</h2>
+        <p class="note" id="bode-note"></p>
+        <div id="bode"></div>
+      </section>
+      <section class="card gains" aria-labelledby="gains-h">
+        <h2 id="gains-h">Gains</h2>
+        <div id="plant-pick" class="plant-pick"></div>
+        <div class="gain"><label for="g-P">Proportional, P <output id="o-P"></output></label><input id="g-P" type="range" min="0" max="0.4" step="0.0025"></div>
+        <div class="gain"><label for="g-I">Integral, I <output id="o-I"></output></label><input id="g-I" type="range" min="0" max="0.5" step="0.0025"></div>
+        <div class="gain"><label for="g-D">Derivative, D <output id="o-D"></output></label><input id="g-D" type="range" min="0" max="0.012" step="0.0001"></div>
+        <div class="gain"><label for="g-FLTD">D-term filter <output id="o-FLTD"></output></label><input id="g-FLTD" type="range" min="5" max="80" step="1"></div>
+        <div class="gain" id="gyro-row"><label for="g-gyro">Gyro filter <output id="o-gyro"></output></label><input id="g-gyro" type="range" min="10" max="100" step="1"></div>
+        <div class="gain-btns">
+          <button class="quiet" id="reset">ArduPilot defaults</button>
+          <button class="send" id="send">Send gains to SITL</button>
+        </div>
+        <dl class="margins" id="margins"></dl>
+      </section>
+    </div>
+    <footer class="foot">Simulation only: nothing here has flown. Model and data: <a href="https://github.com/Normansrule/wisp/tree/main/software/wisp_gcs">software/wisp_gcs</a>, Phase 1 review: <a href="https://github.com/Normansrule/wisp/blob/main/review/P1/README.md">review/P1</a>.</footer>
+  </main>
+</div>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+/* SPDX-License-Identifier: MIT */
+/* Wisp Control Lab, "Sectional" concept: chart tints for surfaces, airspace blue for limits, sensors and the
+   model, chart magenta only for Wisp (the vehicle's own measured motion). Light only: it is read in daylight. */
+@font-face { font-family: "Overpass"; src: url("../concepts/fonts/overpass-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Overpass"; src: url("../concepts/fonts/overpass-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "Overpass"; src: url("../concepts/fonts/overpass-latin-800-normal.woff2") format("woff2"); font-weight: 800; font-display: swap; }
+
+:root {
+  --paper: #fafbf6; --land: #eceee2; --land-2: #e1e5d3; --line: #cfd5c3;
+  --ink: #16222a; --muted: #47555e; --air: #1d5aa3; --wisp: #9f166c; --warn: #7a4f00; --bad: #a3271d;
+  --r: 6px; --ease: cubic-bezier(0.23, 1, 0.32, 1);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--land-2); color: var(--ink); font: 400 15px/1.45 "Overpass", system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+a { color: var(--air); }
+:focus-visible { outline: 3px solid var(--air); outline-offset: 2px; }
+button, select, input { font: inherit; color: inherit; }
+button { cursor: pointer; transition: transform 140ms var(--ease), background-color 160ms ease, color 160ms ease; }
+button:active:not(:disabled) { transform: scale(0.97); }
+button:disabled { cursor: not-allowed; opacity: 0.55; }
+.skip { position: absolute; left: -9999px; }
+.skip:focus { left: 12px; top: 12px; background: var(--paper); padding: 8px 12px; z-index: 9; }
+
+.lab { min-height: 100vh; display: grid; grid-template-columns: 260px minmax(0, 1fr); max-width: 1680px; margin: 0 auto; background: var(--paper); }
+
+/* ---------- rail ---------- */
+.rail { background: var(--land); padding: 20px 18px 24px; display: flex; flex-direction: column; gap: 22px; }
+.mark { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 19px; letter-spacing: -0.01em; color: var(--ink); text-decoration: none; }
+.mark svg { width: 28px; height: 28px; color: var(--wisp); }
+.rail h2 { margin: 0 0 8px; font-size: 13px; color: var(--muted); font-weight: 600; }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--land-2); border-radius: var(--r); padding: 3px; }
+.seg button { border: 0; background: none; padding: 7px 0 6px; border-radius: 4px; font-weight: 600; font-size: 13.5px; color: var(--muted); }
+.seg button[aria-checked="true"] { background: var(--paper); color: var(--ink); }
+.link-note { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
+.link-note b { color: var(--ink); font-weight: 600; }
+.link-note code { font-size: 12px; background: var(--paper); padding: 1px 4px; border-radius: 3px; overflow-wrap: anywhere; }
+.readouts { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+.readouts div { min-width: 0; }
+.readouts dt { font-size: 12.5px; color: var(--muted); }
+.readouts dd { margin: 0; font-size: 19px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.15; }
+.readouts dd small { font-size: 13px; font-weight: 600; color: var(--muted); margin-left: 2px; }
+.readouts .wide { grid-column: span 2; }
+.ekf { margin-top: 14px; display: grid; gap: 6px; }
+.ekf .bar { display: grid; grid-template-columns: 74px 1fr 38px; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); }
+.ekf .track { position: relative; height: 8px; background: var(--land-2); border-radius: 4px; }
+.ekf .fill { position: absolute; inset: 0 auto 0 0; background: var(--air); border-radius: 4px; }
+.ekf .limit { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink); }
+.ekf .bar.over .fill { background: var(--bad); }
+.ekf .bar output { text-align: right; color: var(--ink); font-weight: 600; }
+.ekf p { margin: 0; font-size: 12.5px; color: var(--muted); }
+.actions { display: grid; gap: 8px; margin-top: auto; }
+.act { height: 40px; border: 0; border-radius: var(--r); background: var(--paper); font-weight: 600; }
+.act-row { display: flex; align-items: center; justify-content: space-between; font-size: 13.5px; color: var(--muted); }
+.act-row select { border: 0; background: var(--paper); border-radius: var(--r); padding: 5px 8px; font-weight: 600; }
+.stop { height: 54px; border: 0; border-radius: var(--r); background: var(--ink); color: var(--paper); font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+.log { margin: 2px 0 0; min-height: 2.8em; font-size: 13px; color: var(--muted); }
+.log.bad { color: var(--bad); }
+
+/* ---------- main ---------- */
+.main { padding: 22px 30px 18px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.head h1 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+.finding { margin: 6px 0 0; color: var(--muted); max-width: 72ch; }
+.finding b { color: var(--ink); font-weight: 600; }
+.picker { display: flex; gap: 6px; flex-wrap: wrap; }
+.picker button { border: 0; border-radius: var(--r); background: var(--land); padding: 7px 12px 6px; font-weight: 600; font-size: 14px; color: var(--muted); }
+.picker button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+.diagram { background: var(--land); border-radius: var(--r); padding: 8px 14px 10px; }
+.diagram svg { display: block; width: 100%; height: auto; }
+.diagram text { font-family: "Overpass", system-ui, sans-serif; }
+.diagram .blk { fill: var(--paper); stroke: none; }
+.diagram circle.blk { stroke: var(--ink); stroke-width: 2; }
+.diagram .blk-t { font-weight: 800; font-size: 16px; fill: var(--ink); }
+.diagram .blk-s { font-size: 13.5px; fill: var(--muted); }
+.diagram .wire { fill: none; stroke: var(--ink); stroke-width: 2; }
+.diagram .head { fill: var(--ink); }
+.diagram .wire.wisp { stroke: var(--wisp); } .diagram .head.wisp { fill: var(--wisp); }
+.diagram .wire.air { stroke: var(--air); } .diagram .head.air { fill: var(--air); }
+.diagram .val { font-size: 14.5px; font-weight: 800; fill: var(--ink); }
+.diagram .val.wisp { fill: var(--wisp); } .diagram .val.air { fill: var(--air); font-weight: 600; }
+.eq { margin: 2px 0 0; font-size: 19px; line-height: 1.5; display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline; }
+.eq-sym { font-weight: 600; }
+.eq-at { color: var(--muted); font-size: 15px; }
+.eq-num b { color: var(--wisp); font-weight: 800; }
+.scrub { display: grid; grid-template-columns: auto 1fr auto auto; gap: 12px; align-items: center; margin-top: 6px; }
+.scrub[hidden] { display: none; }
+.play { height: 32px; min-width: 64px; border: 0; border-radius: var(--r); background: var(--ink); color: var(--paper); font-weight: 600; }
+.scrub input[type="range"] { width: 100%; accent-color: var(--wisp); }
+.scrub output { min-width: 64px; font-weight: 600; text-align: right; }
+.slow { font-size: 13.5px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+
+.grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
+.card h2 { margin: 0; font-size: 16px; font-weight: 800; }
+.card .note { margin: 2px 0 8px; color: var(--muted); font-size: 13.5px; min-height: 2.9em; }
+.card svg { display: block; width: 100%; height: auto; }
+.card svg text { font: 400 12.5px "Overpass", system-ui, sans-serif; fill: var(--muted); }
+.card svg .grid { stroke: var(--line); stroke-width: 1; }
+.card svg .zero { stroke: var(--muted); stroke-width: 1; }
+.card svg .band { fill: var(--land); }
+.card svg .vline { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; }
+.card svg .playhead { stroke: var(--ink); stroke-width: 1.5; }
+.card svg path.target { stroke: var(--ink); stroke-width: 1.6; stroke-dasharray: 5 4; }
+.card svg path.measured { stroke: var(--wisp); stroke-width: 2.6; stroke-linejoin: round; }
+.card svg path.model { stroke: var(--air); stroke-width: 2; stroke-linejoin: round; }
+.card svg path.phase { stroke: var(--air); stroke-width: 2.2; }
+.card svg path.gain { stroke: var(--ink); stroke-width: 2.2; }
+.card svg text.lbl { font-weight: 600; font-size: 13px; }
+.card svg text.lbl.measured { fill: var(--wisp); } .card svg text.lbl.model { fill: var(--air); } .card svg text.lbl.target { fill: var(--ink); }
+.card svg .mark { fill: var(--ink); }
+.card svg text.lbl.bad { fill: var(--bad); } .card svg .mark.bad { fill: var(--bad); }
+#strip { display: none; width: 100%; height: auto; margin-top: 10px; background: var(--paper); }
+#strip.on { display: block; }
+
+.gains { display: grid; gap: 12px; }
+.plant-pick { display: grid; grid-template-columns: 1fr 1fr; background: var(--land); border-radius: var(--r); padding: 3px; }
+.plant-pick[hidden] { display: none; }
+.plant-pick button { border: 0; background: none; padding: 6px 0 5px; border-radius: 4px; font-weight: 600; font-size: 13px; color: var(--muted); }
+.plant-pick button[aria-checked="true"] { background: var(--paper); color: var(--ink); }
+.gain label { display: flex; justify-content: space-between; font-size: 14px; }
+.gain output { font-weight: 600; }
+.gain input { width: 100%; accent-color: var(--wisp); margin: 4px 0 0; }
+.gain.off { opacity: 0.55; }
+.gain-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.quiet, .send { height: 38px; border: 0; border-radius: var(--r); font-weight: 600; font-size: 13.5px; }
+.quiet { background: var(--land); }
+.send { background: var(--ink); color: var(--paper); }
+.margins { margin: 6px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+.margins dt { font-size: 12.5px; color: var(--muted); order: 2; }
+.margins div { display: flex; flex-direction: column; }
+.margins dd { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+.margins dd.bad { color: var(--bad); } .margins dd.warn { color: var(--warn); }
+.foot { margin-top: auto; padding-top: 6px; font-size: 13px; color: var(--muted); }
+
+@media (max-width: 1280px) {
+  .grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .gains { grid-column: span 2; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; }
+  .gains h2, .plant-pick, .gain-btns, .margins { grid-column: span 2; }
+  .margins { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 900px) {
+  .lab { grid-template-columns: 1fr; }
+  .rail { order: 0; }
+  .actions { margin-top: 0; position: sticky; bottom: 0; background: var(--land); padding-bottom: 8px; z-index: 2; }
+  .main { padding: 18px 16px; }
+  .grid { grid-template-columns: 1fr; }
+  .gains { grid-column: auto; grid-template-columns: 1fr; }
+  .gains h2, .plant-pick, .gain-btns, .margins { grid-column: auto; }
+  .margins { grid-template-columns: 1fr 1fr; }
+  .scrub { grid-template-columns: auto 1fr auto; }
+  .slow { grid-column: span 3; }
+  .eq { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  button, button:active { transition: none; transform: none !important; }
+}
+.actions[hidden] { display: none; }
+.k-target, .k-measured, .k-model { font-weight: 600; }
+.k-target { color: var(--ink); } .k-measured { color: var(--wisp); } .k-model { color: var(--air); }
+.diagram.is-model .wire.wisp { stroke: var(--air); } .diagram.is-model .head.wisp { fill: var(--air); }
+.diagram.is-model .val.wisp { fill: var(--air); }
+@media (max-width: 900px) {
+  #diagram-host { overflow-x: auto; margin: 0 -14px; padding: 0 14px; }
+  #diagram-host svg { min-width: 720px; }
+}
+
+/* Touch: every control at least 44 px tall (WCAG 2.5.5 target size, AAA; 2.5.8 needs 24 px) */
+@media (max-width: 900px), (pointer: coarse) {
+  .seg button, .picker button, .plant-pick button, .play, .quiet, .send, .act, .act-row select { min-height: 44px; }
+  input[type="range"] { height: 44px; margin: 0; }
+  .slow { min-height: 44px; }
+  .slow input { width: 22px; height: 22px; }
+}
+@media (max-width: 900px), (pointer: coarse) { .mark { min-height: 44px; } }
+.diagram.is-model .eq-num b { color: var(--air); }

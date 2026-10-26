@@ -6,7 +6,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Wisp</title>
-<meta name="description" content="Wisp, an open-source pocket follow drone. Phase 0: research, parts, architecture and visual concepts, in review. Nothing built or flown yet.">
+<meta name="description" content="Wisp, an open-source pocket follow drone. Phase 1, simulation stack and Control Lab, in review. Nothing built or flown yet.">
 <style>
   :root { --bg: #fafbf6; --ink: #16222a; --muted: #47555e; --wisp: #9f166c; --land: #eceee2; color-scheme: light; }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #121619; --ink: #ecefe8; --muted: #a8b2b8; --wisp: #e46fb5; --land: #1c2226; color-scheme: dark; } }
@@ -31,9 +31,11 @@
   <svg viewBox="0 0 420 60" aria-hidden="true"><path d="M6 50 C80 10, 150 58, 240 30 S360 6, 404 16" fill="none" stroke="var(--wisp)" stroke-width="4" stroke-linecap="round"/><path d="M40 33 v8 M90 25 v8 M150 34 v8 M210 34 v8 M270 22 v8 M330 13 v8" stroke="var(--wisp)" stroke-width="3"/><circle cx="404" cy="16" r="7" fill="var(--wisp)"/></svg>
   <h1>Wisp<span>the pocket follow drone</span></h1>
   <p>An open-source drone that knows where it is, avoids crashes and follows you while it films, built from proven parts so the work goes into flight software, control theory and follow-me.</p>
-  <p class="warn"><b>Nothing has been built or flown.</b> Phase 0 (research, parts, architecture and visual concepts) is waiting for the owner's review.</p>
+  <p class="warn"><b>Nothing has been built or flown.</b> Phase 1 (the simulation stack and the Control Lab) is waiting for the owner's review.</p>
   <ul>
+    <li><a href="control-lab/"><b>Control Lab</b><span>Tune the roll-rate loop against a model, a recorded ArduPilot simulation, or a live one</span></a></li>
     <li><a href="concepts/"><b>Three visual concepts</b><span>Follow-me screens and live Control Lab mockups for the app</span></a></li>
+    <li><a href="https://github.com/Normansrule/wisp/blob/main/review/P1/README.md"><b>Phase 1 review package</b><span>Simulation stack, step tests in ArduPilot SITL, the loop model and what it predicts</span></a></li>
     <li><a href="https://github.com/Normansrule/wisp/blob/main/review/P0/README.md"><b>Phase 0 review package</b><span>Research with sources, parts and weight budgets, architecture, simulation</span></a></li>
     <li><a href="lab/"><b>Flight Lab</b><span>Fly a simulated drone in your browser, tune PID, LQR and MPC autopilots, train it with reinforcement learning</span></a></li>
     <li><a href="microscout/"><b>MicroScout, archived</b><span>The repository's first project: a custom-PCB drone drafted through three gates</span></a></li>

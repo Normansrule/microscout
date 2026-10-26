@@ -1,7 +1,7 @@
 # Wisp: the pocket follow drone
 
 <p>
-  <img src="https://img.shields.io/badge/phase-0%20research%20%26%20design%2C%20in%20review-9f166c" alt="Phase 0 research and design, in review">
+  <img src="https://img.shields.io/badge/phase-1%20simulation%20%26%20Control%20Lab%2C%20in%20review-9f166c" alt="Phase 1 simulation and Control Lab, in review">
   <img src="https://img.shields.io/badge/status-not%20built%2C%20not%20flown-47555e" alt="Status: not built, not flown">
   <a href="https://github.com/Normansrule/wisp/actions/workflows/checks.yml"><img src="https://github.com/Normansrule/wisp/actions/workflows/checks.yml/badge.svg" alt="CI checks"></a>
   <img src="https://img.shields.io/badge/software-MIT-1d5aa3" alt="Software licence MIT">
@@ -14,8 +14,9 @@ theory and follow-me. It comes with a ground-control app and a site that teaches
 
 > [!WARNING]
 > **Nothing here has been built, bought or flown.** Wisp is planned by an AI agent and checked by its owner at a
-> review gate after every phase. Phase 0 (research, parts, architecture, visual concepts) is waiting for review:
-> **[review/P0](review/P0/README.md)**. Every speed, mass and flight time below is an estimate.
+> review gate after every phase. Phase 1 (simulation stack and Control Lab) is waiting for review:
+> **[review/P1](review/P1/README.md)** (Phase 0: [review/P0](review/P0/README.md)). Every speed, mass and flight time
+> below is an estimate.
 
 ## Two airframes, one software stack
 
@@ -32,7 +33,19 @@ theory and follow-me. It comes with a ground-control app and a site that teaches
 100 mph and long flights are out of reach for anything under the registration line: the reasons and the formulas
 are in [review/P0/speed.md](review/P0/speed.md).
 
-## Phase 0, in review
+## Phase 1, in review: simulation stack and Control Lab
+
+- A **ground bridge** between ArduPilot (MAVLink) and the apps, with latency shown and safety rules on what a page
+  may command ([software/wisp_gcs](software/wisp_gcs/README.md)).
+- The **Control Lab**: the roll-rate loop as a block diagram carrying live numbers, the PID equation with values
+  substituted, step response and Bode plot, against a model, a recorded simulation or a live one
+  ([docs/control-lab](https://normansrule.github.io/wisp/control-lab/)).
+- **Step tests in ArduCopter 4.7.2 SITL** at three gain sets, and a loop model that predicts them, including
+  that doubling the gains makes the loop unstable ([review/P1](review/P1/README.md)).
+
+<p><img src="review/P1/media/lab-live-sitl.png" width="100%" alt="Control Lab flying ArduPilot SITL: block diagram with live values, step response, Bode plot and gains"></p>
+
+## Phase 0: research and design
 
 - **Research with sources**: Crazyflie kits and decks, sub-250 g ArduPilot builds, ArduPilot follow-me and
   safety features, person tracking on small computers, and the FAA and Los Angeles rules
@@ -56,8 +69,8 @@ are in [review/P0/speed.md](review/P0/speed.md).
 
 | Phase | What | Status |
 |---|---|---|
-| 0 | Research, parts and weight budgets, architecture, three visual concepts | In review |
-| 1 | SITL simulation stack and Control Lab basics | Not started |
+| 0 | Research, parts and weight budgets, architecture, three visual concepts | Done; open questions pending |
+| 1 | SITL simulation stack and Control Lab basics | In review |
 | 2 | Wisp Nano built and flying, with positioning and avoidance | Not started |
 | 3 | Wisp Follow built, tuned and flying with GPS hold | Not started |
 | 4 | Safety autopilot: avoidance, crash detection, failsafes | Not started |
@@ -71,7 +84,7 @@ Simulation comes before hardware and a tether before free flight; no safety test
 
 - **[Flight Lab](https://normansrule.github.io/wisp/lab/)**: a browser simulator with PID, LQR and MPC autopilots,
   reinforcement learning, an FPV (first-person view) camera and a flight recorder. It came from MicroScout and
-  becomes the Control Lab's offline mode ([docs/guide/lab.md](docs/guide/lab.md)).
+  stays as the free-flying 3D playground next to the Control Lab ([docs/guide/lab.md](docs/guide/lab.md)).
 - **[archive/microscout](archive/microscout/README.md)**: MicroScout, this repository's first project, a custom-PCB
   (printed circuit board) drone drafted through gates G1-G3. It is frozen; Wisp reuses its simulator, Flight Lab
   and control material.

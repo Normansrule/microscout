@@ -1,0 +1,5 @@
+# Wisp ground station (Phase 1). Python 3.10 or newer.
+pymavlink>=2.4.41
+websockets>=13
+numpy>=1.26
+pytest>=8   # tests only

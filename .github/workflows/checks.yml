@@ -1,4 +1,4 @@
-# Wisp checks: simulator tests and Flight Lab tests on every push.
+# Wisp checks: simulator, Flight Lab and ground-station tests on every push.
 # They check consistency only, not that anything flies. The archived MicroScout schematic job was removed
 # with the move to Wisp (its last run is on branch archive/microscout-g3-draft).
 name: checks
@@ -30,3 +30,23 @@ jobs:
           node-version: "22"
       - name: Flight Lab simulation regression tests (simulation only, says nothing about real flight)
         run: node --test docs/lab/test/lab.test.mjs
+  ground-station:
+    # Phase 1: the bridge's pure parts, the loop model in Python and JavaScript, and the recorded SITL session.
+    # The end-to-end SITL test (tests/test_sitl.py) needs an ArduPilot build and is skipped here.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install
+        run: pip install -r software/wisp_gcs/requirements.txt
+      - name: Python tests
+        run: cd software/wisp_gcs && pytest -q tests
+      - name: Control Lab model matches the Python model
+        run: |
+          python3 software/wisp_gcs/make_fixture.py   # regenerate from the Python model in this commit
+          node --test docs/control-lab/test/*.test.mjs
