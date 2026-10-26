@@ -12,15 +12,15 @@
     "ATC_RAT_RLL_FLTD": 20.0
    },
    "score": {
-    "rise_s": 0.0934,
-    "overshoot_pct": 3.5,
-    "settle_s": 0.167,
-    "rms_err_dps": 9.44,
+    "rise_s": 0.0943,
+    "overshoot_pct": 3.4,
+    "settle_s": 0.164,
+    "rms_err_dps": 9.18,
     "peak_dps": 93.1,
-    "window_s": 0.424
+    "window_s": 0.425
    },
-   "t_step": 55.9241,
-   "samples": 328
+   "t_step": 55.7266,
+   "samples": 350
   },
   {
    "name": "half",
@@ -33,15 +33,15 @@
     "ATC_RAT_RLL_FLTD": 20.0
    },
    "score": {
-    "rise_s": 0.1172,
-    "overshoot_pct": 6.4,
+    "rise_s": 0.115,
+    "overshoot_pct": 6.5,
     "settle_s": null,
-    "rms_err_dps": 17.46,
-    "peak_dps": 95.7,
-    "window_s": 0.437
+    "rms_err_dps": 17.35,
+    "peak_dps": 95.8,
+    "window_s": 0.434
    },
-   "t_step": 63.6227,
-   "samples": 331
+   "t_step": 67.2799,
+   "samples": 350
   },
   {
    "name": "double",
@@ -54,30 +54,30 @@
     "ATC_RAT_RLL_FLTD": 20.0
    },
    "score": {
-    "rise_s": 0.0908,
-    "overshoot_pct": 9.3,
-    "settle_s": null,
-    "rms_err_dps": 5.97,
-    "peak_dps": 98.4,
-    "window_s": 0.421
+    "rise_s": 0.0877,
+    "overshoot_pct": 5.0,
+    "settle_s": 0.402,
+    "rms_err_dps": 5.05,
+    "peak_dps": 94.5,
+    "window_s": 0.422
    },
-   "t_step": 71.3272,
-   "samples": 333
+   "t_step": 78.7835,
+   "samples": 350
   }
  ],
  "stop_test": {
   "results": [
-   "Stopping: Brake mode, holding position",
-   "step test aborted by stop"
+   "Stopping: Brake mode accepted, holding position",
+   "step aborted by stop"
   ],
-  "abort_reply_s": 0.022,
+  "abort_reply_s": 0.011,
   "mode_after": "BRAKE",
-  "roll_after_deg": 0.32,
-  "speed_after_ms": 0.11
+  "roll_after_deg": -1.42,
+  "speed_after_ms": 0.2
  },
  "refused_big_change": true,
  "refused_non_tuning_param": true,
  "landed_and_disarmed": true,
- "app_rtt_ms": 0.64,
- "vehicle_rtt_ms": 2.29
+ "app_rtt_ms": 0.61,
+ "vehicle_rtt_ms": 2.74
 }

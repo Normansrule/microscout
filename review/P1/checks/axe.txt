@@ -1,0 +1,10 @@
+
+== replay 1440px: 0 violations
+
+== model 1440px: 0 violations
+
+== live 1440px: 0 violations
+
+== replay 390px: 0 violations
+targets under 44px: [["Skip to the lab",96,22],["slow",22,22],["software/wisp_gcs",108,16],["review/P1",60,16]]
+horizontal overflow px: 0

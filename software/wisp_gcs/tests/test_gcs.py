@@ -46,14 +46,27 @@ def test_battery_unknowns_are_none():
     assert s.batt == {"v": 12.6, "a": None, "pct": None}
 
 
-def test_dejitter_spreads_a_burst_and_never_runs_ahead():
-    d, p = Dejitter(), 0.0116
-    true = [k * p for k in range(40)]
-    arrive = [true[16] if 10 <= k < 16 else t for k, t in enumerate(true)]
+@pytest.mark.parametrize("period", [0.01, 0.0116])
+def test_dejitter_spreads_a_burst_and_never_runs_ahead(period):
+    d = Dejitter()
+    true = [k * period for k in range(800)]
+    arrive = [true[716] if 710 <= k < 716 else t for k, t in enumerate(true)]       # 6 samples held up
     est = [d(a) for a in arrive]
-    assert max(abs(e - t) for e, t in zip(est, true)) < 0.005           # was up to 70 ms
+    assert max(abs(e - t) for e, t in zip(est, true)) < 0.002        # was up to 60-70 ms
     assert all(e <= a + 1e-12 for e, a in zip(est, arrive))
     assert all(b > a for a, b in zip(est, est[1:]))
+
+
+def test_dejitter_learns_the_rate_from_an_uneven_arrival_pattern():
+    # 100 Hz on the vehicle, arriving in pairs: gaps of 2.5 ms and 17.5 ms
+    d = Dejitter(period=0.0116)
+    t, arrive = 0.0, []
+    for k in range(400):
+        t += 0.0025 if k % 2 else 0.0175
+        arrive.append(t)
+    for a in arrive:
+        d(a)
+    assert d.period == pytest.approx(0.01, rel=0.01)
 
 
 # ---- step test ---------------------------------------------------------------------------------------------
@@ -139,11 +152,78 @@ def test_recorded_session_findings_hold():
 
 # ---- bridge safety rules -------------------------------------------------------------------------------------
 @pytest.mark.parametrize("name,ok", [
-    ("ATC_RAT_RLL_P", True), ("ATC_RAT_YAW_FLTE", True), ("PSC_VELXY_P", True), ("GCS_PID_MASK", True),
-    ("ARMING_CHECK", False), ("FS_THR_ENABLE", False), ("ATC_RAT_RLL_P2", False), ("SERIAL0_BAUD", False),
+    ("ATC_RAT_RLL_P", True), ("ATC_RAT_YAW_FLTE", True), ("PSC_NE_VEL_P", True), ("PSC_D_ACC_I", True),
+    ("GCS_PID_MASK", True), ("PSC_VELXY_P", False), ("ARMING_CHECK", False), ("FS_THR_ENABLE", False),
+    ("ATC_RAT_RLL_P2", False), ("ATC_RAT_RLL_P\n", False), ("SERIAL0_BAUD", False),
 ])
 def test_param_allowlist(name, ok):
-    assert bool(bridge.PARAM_ALLOW.match(name)) is ok
+    assert (bridge.param_ceiling(name) is not None) is ok
+
+
+class FakeLink:
+    """Enough of bridge.Link to test the command rules without a vehicle."""
+
+    def __init__(self, armed, params, modes_ok=("BRAKE", "LAND", "GUIDED")):
+        self.state = VehicleState()
+        self.state.armed = armed
+        self.state.params = dict(params)
+        self.stop_gen = 0
+        self.written, self.modes, self.modes_ok = {}, [], modes_ok
+
+    def stopped(self, gen):
+        return self.stop_gen != gen
+
+    def get_param(self, name, timeout=0):
+        return self.state.params.get(name)
+
+    def set_param(self, name, value, timeout=0):
+        self.written[name] = value
+        self.state.params[name] = value
+        return value
+
+    def set_mode(self, name, timeout=0):
+        self.modes.append(name)
+        return name in self.modes_ok
+
+
+def _bridge(link):
+    b = bridge.Bridge.__new__(bridge.Bridge)
+    b.link, b.busy, b.replies = link, __import__("threading").Lock(), []
+    b.reply = lambda to, ok, text, **kw: b.replies.append((ok, text))
+    return b
+
+
+@pytest.mark.parametrize("armed,params,name,value,ok", [
+    (True, {"ATC_RAT_RLL_P": 0.135}, "ATC_RAT_RLL_P", 0.4, True),       # under 4x
+    (True, {"ATC_RAT_RLL_P": 0.135}, "ATC_RAT_RLL_P", 0.6, False),      # over 4x
+    (True, {"ATC_RAT_RLL_FF": 0.0}, "ATC_RAT_RLL_FF", 0.5, False),      # 0 in flight
+    (True, {}, "ATC_RAT_PIT_P", 0.2, False),                            # unreadable in flight
+    (False, {"ATC_RAT_RLL_FF": 0.0}, "ATC_RAT_RLL_FF", 0.5, True),      # fine on the ground
+    (False, {}, "ATC_RAT_RLL_FF", 90000, False),                        # over the ceiling, even disarmed
+    (False, {}, "ARMING_CHECK", 0, False),                              # not a tuning parameter
+])
+def test_set_param_rules(armed, params, name, value, ok):
+    link = FakeLink(armed, params)
+    b = _bridge(link)
+    b._set_param(None, name, value)
+    assert b.replies[-1][0] is ok, b.replies
+    assert (name in link.written) is ok
+
+
+def test_a_stop_cancels_a_step_that_has_not_started_yet():
+    link = FakeLink(True, {})
+    b = _bridge(link)
+    gen = link.stop_gen
+    link.stop_gen += 1                     # the stop arrived after the step command, before its thread ran
+    b.dispatch({"cmd": "step", "axis": "roll", "amp": 90, "dur": 0.4}, None, gen)
+    assert b.replies == [(False, "step aborted by stop")]
+
+
+def test_stop_falls_back_to_land_when_brake_is_refused():
+    link = FakeLink(True, {}, modes_ok=("LAND",))
+    b = _bridge(link)
+    b.dispatch({"cmd": "stop"}, None, 1)
+    assert link.modes == ["BRAKE", "LAND"] and "landing instead" in b.replies[-1][1]
 
 
 class _Conn:
@@ -171,3 +251,4 @@ def test_origin_allowlist_rejects_other_sites():
     assert allowed("http://127.0.0.1:8765") and allowed("http://localhost:5173")
     assert allowed("https://normansrule.github.io")
     assert not allowed("https://evil.example") and not allowed("http://127.0.0.1.evil.example")
+    assert not allowed("null")             # sandboxed iframes and file:// pages

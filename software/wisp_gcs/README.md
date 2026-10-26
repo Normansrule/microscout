@@ -3,13 +3,14 @@
 > **STATUS: Phase 1 draft, simulation only.** Run against ArduCopter 4.7.2 SITL (software in the loop) on Ubuntu
 > 24.04 in a cloud container. Never connected to a real drone; not for one until the Phase 3 review.
 
-The bridge between a drone speaking MAVLink (Micro Air Vehicle Link) and the Wisp apps, plus the tools that
+The bridge between a drone speaking MAVLink (Micro Air Vehicle Link) and the Wisp apps, which read JSON
+(JavaScript Object Notation) over a WebSocket, plus the tools that
 record, score and model a rate-loop step test.
 
 | File | What it does |
 |---|---|
 | `bridge.py` | MAVLink on one side, WebSocket JSON on the other. Serves the Control Lab, measures latency, runs commands with safety rules |
-| `telemetry.py` | MAVLink messages to the JSON the apps read; timestamps for PID samples (`Dejitter`) |
+| `telemetry.py` | MAVLink messages to the JSON the apps read; timestamps for PID (proportional-integral-derivative) samples (`Dejitter`) |
 | `steptest.py` | The rate-loop step test: what to command in Guided mode, and how to score the response |
 | `fit.py` | The rate-loop model (PID, delay, motor lag, airframe, gyro filter), its stability margins, and a plant fit |
 | `session.py` | A scripted session through the bridge: take-off, three step tests, a stop mid-step, refused changes, land |
@@ -32,7 +33,7 @@ python3 -m wisp_gcs.bridge --sitl ~/ardupilot --record ~/wisp-rec.jsonl
 ```
 
 Open <http://127.0.0.1:8765/control-lab/> (the bridge serves the page, so it starts in Live SITL). Wait for
-10 or so GPS satellites, then **Take off to 10 m**, **Run step test**, move the gains, **Send gains to SITL**, run
+10 or so GPS (Global Positioning System) satellites, then **Take off to 10 m**, **Run step test**, move the gains, **Send gains to SITL**, run
 another step. **Stop and hover** (or the Escape key) aborts a step test and puts the drone in Brake mode.
 
 In a second terminal, the scripted session and the replay file:
@@ -61,14 +62,23 @@ modes: `cd ~/wisp/docs && python3 -m http.server 8000`, then <http://127.0.0.1:8
 A web page can reach a port on your computer, so the bridge:
 
 - listens on 127.0.0.1 only, and accepts WebSocket connections only from its own pages, other `localhost`
-  pages and `https://normansrule.github.io` (Origin check);
-- writes only tuning parameters on an allowlist (rate and angle PID, position controller, `GCS_PID_MASK`), and
-  while armed refuses any change of more than 4x in one step;
-- starts a step test only when armed in Guided mode above 3 m, and handles **stop** immediately, even while a
-  step test or take-off is running (found and fixed in Phase 1: stop used to wait behind the step test).
+  pages and `https://normansrule.github.io` (Origin check). Pages whose Origin is `null` (sandboxed frames,
+  `file://`) are refused. Clients that send no Origin at all, which browsers never do, are accepted, so local
+  scripts and the tests can connect;
+- writes only tuning parameters on an allowlist (rate and angle PID gains; the
+  4.7.2 position-controller gains such as `PSC_NE_VEL_P`; `GCS_PID_MASK`), each under an absolute ceiling;
+- while armed, refuses a change of more than 4x in one step, and any change to a parameter that is 0 or cannot
+  be read;
+- counts a **stop** the moment it arrives: it cancels a take-off or step test received before it, even one not
+  yet started, asks for Brake mode and reports whether the vehicle accepted it, and asks for Land if Brake is
+  refused;
+- starts a step test only when armed in Guided mode above 3 m, aborts it if anything else changes the mode, and
+  ends it by braking to a stop before holding position in Guided;
+- sends the vehicle a ground-station heartbeat once a second, so ArduPilot's ground-station-loss failsafe can
+  work (not tested yet).
 
-The 4x rule is per step: two steps can still reach gains that make SITL oscillate. Absolute limits for a real
-Wisp wait for its identified model (open question OQ-P1-3 in [review/P1](../../review/P1/README.md)).
+The 4x rule is per step: two steps can still reach gains that make SITL oscillate. Tighter limits for a real
+Wisp are open question OQ-P1-3 in [review/P1](../../review/P1/README.md).
 
 ## Licence
 

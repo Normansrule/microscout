@@ -11,6 +11,7 @@ vehicle.
 from __future__ import annotations
 
 import math
+from collections import deque
 from dataclasses import dataclass, field
 
 # ArduCopter custom_mode numbers (ArduCopter/mode.h, 4.7.2)
@@ -64,6 +65,7 @@ class VehicleState:
     mode: str = "UNKNOWN"
     armed: bool = False
     heartbeat_t: float | None = None
+    att_t: float | None = None         # when the newest ATTITUDE arrived
     att: dict = field(default_factory=lambda: {"roll": 0.0, "pitch": 0.0, "yaw": 0.0})
     rates: dict = field(default_factory=lambda: {"p": 0.0, "q": 0.0, "r": 0.0})
     pos: dict | None = None            # local NED (north-east-down) from home, metres
@@ -85,6 +87,7 @@ class VehicleState:
             self.armed = bool(m["base_mode"] & MAV_MODE_FLAG_SAFETY_ARMED)
             self.heartbeat_t = t
         elif kind == "ATTITUDE":
+            self.att_t = t
             self.att = {"roll": deg(m["roll"]), "pitch": deg(m["pitch"]), "yaw": deg(m["yaw"]) % 360}
             self.rates = {"p": deg(m["rollspeed"]), "q": deg(m["pitchspeed"]), "r": deg(m["yawspeed"])}
         elif kind == "LOCAL_POSITION_NED":
@@ -125,7 +128,8 @@ class VehicleState:
         hb_age = None if self.heartbeat_t is None else round(now - self.heartbeat_t, 2)
         return {
             "type": "state", "t": round(self.t, 3), "mode": self.mode, "armed": self.armed,
-            "heartbeat_age": hb_age, "att": _round(self.att, 2), "rates": _round(self.rates, 2),
+            "heartbeat_age": hb_age,
+            "att_age_ms": None if self.att_t is None else round((now - self.att_t) * 1000, 1), "att": _round(self.att, 2), "rates": _round(self.rates, 2),
             "pos": _round(self.pos, 3), "vel": _round(self.vel, 3), "alt_rel": _r(self.alt_rel, 2),
             "gps": self.gps, "batt": self.batt, "ekf": _round(self.ekf, 4),
         }
@@ -146,23 +150,26 @@ class Dejitter:
 
     Messages are stamped when they arrive, so a delay on the computer (another program busy, the reader thread
     waiting) makes several arrive at once with the same time. This spreads such a burst back out at the
-    stream's period: each stamp is the earlier of the arrival time and the previous stamp plus 1.05 periods, so
-    it never runs ahead of the arrival time and, once the burst is over, falls back onto it. The period is
-    learned from the gaps between arrivals that are not part of a burst.
+    stream's period: each stamp is the earlier of the arrival time and the previous stamp plus 1.01 periods, so
+    it never runs ahead of the arrival time and, once the burst is over, falls back onto it. The period is the
+    average spacing over the last 500 arrivals, which a short burst barely moves; a stamp is never more than
+    0.25 s behind its arrival.
     """
 
-    def __init__(self, period: float = 0.0116):
+    def __init__(self, period: float = 0.01, window: int = 500, max_lag: float = 0.25):
         self.period = period
-        self.last_arrival: float | None = None
+        self.arrivals: deque = deque(maxlen=window)
+        self.max_lag = max_lag
         self.last: float | None = None
 
     def __call__(self, arrival: float) -> float:
-        if self.last_arrival is not None:
-            gap = arrival - self.last_arrival
-            if 0.5 * self.period < gap < 2.0 * self.period:
-                self.period += 0.02 * (gap - self.period)
-        self.last_arrival = arrival
-        t = arrival if self.last is None else min(arrival, self.last + 1.05 * self.period)
-        t = t if self.last is None else max(t, self.last + 1e-4)
+        self.arrivals.append(arrival)
+        if len(self.arrivals) >= 50:
+            self.period = (self.arrivals[-1] - self.arrivals[0]) / (len(self.arrivals) - 1)
+        if self.last is None or len(self.arrivals) < 50:      # still learning the period: trust arrivals
+            t = arrival if self.last is None else max(arrival, self.last + 1e-4)
+        else:
+            t = min(arrival, self.last + 1.01 * self.period)
+            t = max(t, self.last + 1e-4, arrival - self.max_lag)   # never far behind, never backwards
         self.last = t
         return t

@@ -52,5 +52,5 @@ export function equationHTML(v, g, label) {
   const e = v.e * Math.PI / 180;
   return `<span class="eq-sym">u = P × e + I + D</span>` +
     `<span class="eq-at">${label}</span>` +
-    `<span class="eq-num">${g.P.toFixed(3)} × ${fmt(e, 3)} rad/s + ${fmt(v.i, 3)} + ${fmt(v.d, 3)} = <b>${fmt(v.u, 3)}</b></span>`;
+    `<span class="eq-num">${g.P.toFixed(3)} × ${fmt(e, 3)} rad/s + ${fmt(v.i, 3)} + ${fmt(v.d, 3)}${Math.abs(v.ff || 0) > 5e-4 ? ` + FF ${fmt(v.ff, 3)}` : ""} = <b>${fmt(v.u, 3)}</b></span>`;
 }

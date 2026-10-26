@@ -76,10 +76,11 @@ function valuesAt(t) {
     let k = 0;
     while (k < r.t.length - 1 && r.t[k + 1] <= t) k++;
     return { r: r.des[k], w: r.ach[k], e: r.des[k] - r.ach[k], p: r.p[k], i: r.i[k], d: r.d[k],
-      u: r.ff[k] + r.p[k] + r.i[k] + r.d[k], tk: r.t[k] };
+      u: r.ff[k] + r.p[k] + r.i[k] + r.d[k], ff: r.ff[k], tk: r.t[k] };
   }
   const s = v.sim, k = Math.max(0, Math.min(s.t.length - 1, Math.round((t - s.t[0]) * 400)));
-  return { r: s.r[k] * DEG, w: s.wf[k] * DEG, e: (s.r[k] - s.wf[k]) * DEG, p: s.p[k], i: s.i[k], d: s.d[k], u: s.u[k], tk: s.t[k] };
+  return { r: s.r[k] * DEG, w: s.wf[k] * DEG, e: (s.r[k] - s.wf[k]) * DEG, p: s.p[k], i: s.i[k], d: s.d[k], u: s.u[k],
+    ff: s.u[k] - s.p[k] - s.i[k] - s.d[k], tk: s.t[k] };
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -151,7 +152,7 @@ function renderBode() {
   const name = S.source === "model" && S.plantKey === "wisp" ? "Wisp Follow estimate" : "SITL quad, fitted";
   let bn = `Open loop: PID, motors, airframe and gyro filter (${name}: b ${Math.round(pl.b)}, delay ${(pl.td * 1000).toFixed(1)} ms, gyro ${pl.gyro_hz} Hz).`;
   const ho = S.data?.holdout?.steps?.[S.view.rec?.name];
-  if (S.source === "replay" && ho && !ho.diverges) bn += ` A fit on the default step alone puts the delay at ${(S.data.holdout.plant.td * 1000).toFixed(1)} ms and these margins at ${fmt(ho.margins.pm_deg, 0)}° and ${fmt(ho.margins.gm_db, 1)} dB: samples at 86 Hz pin the delay down only loosely.`;
+  if (S.source === "replay" && ho && !ho.diverges) bn += ` A fit on the default step alone puts the delay at ${(S.data.holdout.plant.td * 1000).toFixed(1)} ms and these margins at ${fmt(ho.margins.pm_deg, 0)}° and ${fmt(ho.margins.gm_db, 1)} dB: samples at 100 a second pin the delay down only loosely.`;
   $("#bode-note").textContent = bn;
 }
 
@@ -171,7 +172,7 @@ function renderFinding() {
   let t;
   if (m.pmDeg === null) t = "The loop gain never reaches 1, so these gains are too low to track a step.";
   else if (m.pmDeg < 0 || (m.gmDb !== null && m.gmDb < 0))
-    t = `<b>Unstable at these gains.</b> At ${fmt(m.f180Hz, 0)} Hz the loop's phase reaches −180° while its gain is still above 1, so any wobble there grows${S.source !== "model" ? "; SITL shows it as an oscillation near 20 Hz at double gains" : ""}.`;
+    t = `<b>Unstable at these gains.</b> At ${fmt(m.f180Hz, 0)} Hz the loop's phase reaches −180° while its gain is still above 1, so any wobble there grows${S.view.rec?.name === "double" ? "; SITL shows it as an oscillation near 20 Hz" : ""}.`;
   else if (m.pmDeg < 15 || (m.gmDb !== null && m.gmDb < 3))
     t = `<b>Barely stable:</b> ${fmt(m.pmDeg, 0)}° phase margin and ${fmt(m.gmDb, 1)} dB gain margin. It rings for a long time, and a little more delay or a heavier battery would tip it into oscillation.`;
   else if (m.pmDeg < 45 || (m.gmDb !== null && m.gmDb < 6))
@@ -227,13 +228,13 @@ function renderRail() {
       ["Delay", `${fmt(pl.td * 1000, 1)}<small>ms</small>`], ["Motor lag", `${fmt(pl.tau * 1000, 1)}<small>ms</small>`]]);
     ekfBars(null);
     note.innerHTML = S.plantKey === "wisp"
-      ? "<b>Wisp Follow, estimated.</b> No vehicle; numbers from the Phase 0 parts, not from flight."
-      : `<b>SITL quad, fitted</b> from the recorded default and half-gain steps (r² ${S.data ? S.data.plant.r2.toFixed(4) : "–"}).`;
+      ? "<b>Wisp Follow, placeholder.</b> UNCONFIRMED numbers carried over from the Phase 0 concept model, not derived from the parts or measured; Phase 3 replaces them with a fit to real logs."
+      : `<b>SITL quad, fitted</b> (ESTIMATE) from the recorded default and half-gain steps (r² ${S.data ? S.data.plant.r2.toFixed(4) : "–"}).`;
   } else if (S.source === "replay") {
     $("#veh-h").textContent = "Vehicle, recorded";
     const L = S.data?.latency || {};
     note.innerHTML = S.data
-      ? `<b>Recorded</b> from ArduCopter 4.7.2 SITL through the Wisp bridge. Vehicle round trip ${fmt(L.vehicle_rtt_ms, 1)} ms, app round trip ${fmt(L.app_rtt_ms, 1)} ms.`
+      ? `<b>Recorded</b> from ArduCopter 4.7.2 SITL (software in the loop) through the Wisp bridge. Vehicle round trip ${fmt(L.vehicle_rtt_ms, 1)} ms, app round trip ${fmt(L.app_rtt_ms, 1)} ms.`
       : "Loading the recording…";
     renderRecordedState();
   } else {
@@ -255,9 +256,9 @@ function renderLiveState() {
     ekfBars(null);
     return;
   }
-  const vr = s?.latency?.vehicle_rtt_ms, ar = L.appRtt;
-  const delay = vr !== null && vr !== undefined && ar !== null ? (vr + ar) / 2 : null;
-  note.innerHTML = `<b>Live</b> on <code>${bridgeURL}</code>. Telemetry about <b>${fmt(delay, 1)} ms</b> old: half the vehicle round trip (${fmt(vr, 1)} ms) plus half the app round trip (${fmt(ar, 1)} ms).`;
+  const vr = s?.latency?.vehicle_rtt_ms, ar = L.appRtt, held = s?.att_age_ms;
+  const age = [vr, ar, held].every((x) => x !== null && x !== undefined) ? held + (vr + ar) / 2 : null;
+  note.innerHTML = `<b>Live</b> on <code>${bridgeURL}</code>. Attitude on screen is about <b>${fmt(age, 0)} ms</b> old: ${fmt(held, 0)} ms waiting in the bridge, plus half the vehicle round trip (${fmt(vr, 1)} ms) and half the app round trip (${fmt(ar, 1)} ms).`;
   if (!s) return;
   const mode = s.mode.toLowerCase().replace(/^./, (c) => c.toUpperCase()).replace("_", " ");
   readouts([["Mode", `${mode}${s.armed ? "" : "<small>disarmed</small>"}`], ["Height", `${fmt(s.alt_rel, 1)}<small>m</small>`],
@@ -422,7 +423,7 @@ function frame(now) {
     renderPlayhead();
   } else if (S.source === "live" && !S.view?.rec && S.live.ring.length) {
     const r = S.live.ring[S.live.ring.length - 1];
-    const v = { r: r[1], w: r[2], e: r[1] - r[2], p: r[4], i: r[5], d: r[6], u: r[3] + r[4] + r[5] + r[6], tk: 0 };
+    const v = { r: r[1], w: r[2], e: r[1] - r[2], p: r[4], i: r[5], d: r[6], u: r[3] + r[4] + r[5] + r[6], ff: r[3], tk: 0 };
     setDiagram($("#diagram-host"), v, plant(), S.gains);
     $("#eq").innerHTML = equationHTML(v, S.gains, "latest sample:");
   }

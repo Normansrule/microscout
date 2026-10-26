@@ -59,6 +59,11 @@ def build(frames, summary, fit_on=None):
                "vehicle_rtt_ms": f["latency"]["vehicle_rtt_ms"]}
               for f in states if ts - PRE <= f["tb"] <= ts + POST]
         sc = score(list(t), list(cols[:, 0]), list(cols[:, 1]), 0.0, s["amp"])
+        # Oscillation measure: RMS of the sample-to-sample change in the measured rate after the rise, at
+        # 100 samples a second. A smooth response keeps it small; a ~20 Hz oscillation makes it large.
+        after = cols[t >= 0.15, 1]
+        if sc is not None and len(after) > 2:
+            sc["jitter_dps"] = round(float(np.sqrt(np.mean(np.diff(after) ** 2))), 2)
         out_steps.append({
             "name": name, "axis": s["axis"], "amp_dps": s["amp"], "dur_s": s["dur"],
             "gains": {k: round(v, 6) for k, v in g.items()}, "score": sc,

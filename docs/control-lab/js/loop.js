@@ -15,8 +15,9 @@ export const RAD = Math.PI / 180;
 // ArduCopter 4.7.2 defaults for the roll and pitch rate PID (ATC_RAT_RLL_*), read from SITL.
 export const ARDU_DEFAULTS = { P: 0.135, I: 0.135, D: 0.0036, FF: 0, FLTD: 20, IMAX: 0.5 };
 
-// Wisp Follow: ESTIMATE from the Phase 0 concept model (b = peak roll torque / inertia, tau = motor time
-// constant), not identified from any flight. A 40 Hz gyro filter is a typical small-quad setting (ESTIMATE).
+// Wisp Follow: UNCONFIRMED placeholders carried over from the Phase 0 concept mockup (b = peak roll torque /
+// inertia, tau = motor time constant). They are not derived from the Phase 0 parts or measured; the 40 Hz gyro
+// filter is an assumption, not a value from ArduPilot's documentation. Phase 3 replaces all four with a fit.
 export const WISP_PLANT = { b: 700, a: 0, tau: 0.03, td: 0.0025, gyro_hz: 40, estimate: true };
 
 /** ArduPilot's LowPassFilter2p: a Butterworth biquad, bilinear transform. */

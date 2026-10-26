@@ -1,0 +1,13 @@
+note: Live on ws://127.0.0.1:8765/ws. Attitude on screen is about 13 ms old: 3 ms waiting in the bridge, plus half the vehicle round trip (5.9 ms) and half the app round trip (13.1 ms).
+t takeoff 6.7
+takeoff: Hovering at 10 m
+step: Step test finished; braked and holding position
+note after step: Target dashed, SITL measured, model at the recorded gains. SITL rose 10-90 % in 95 ms, peaked at 93 °/s.
+send: ATC_RAT_RLL_FLTD = 20
+step2: Step test finished; braked and holding position
+stop: step aborted by stop
+mode after stop: ModeBrakeHeight10.0mBattery12.6VGPS10satsRoll−1.6°Heartbeat0
+t land 75.9
+after land: ModeLandHeight2.8mBattery12.6VGPS10satsRoll0.1°Heartbeat0.2s
+fps: 55.0
+errors: []
