@@ -10,6 +10,13 @@ import { qrot } from "./math.js";
 
 const P = (v) => new THREE.Vector3(v[0], -v[2], v[1]);
 
+// Front camera (OV2640, D-004). ASSUMPTIONS until the canopy is drawn at G4: a lens with 66 degrees diagonal
+// field of view (common on OV2640 modules) on the 4:3 sensor, 15 degrees uptilt, 35 mm ahead of the centre.
+// Diagonal 66 deg -> tan(33) = 0.649; 4:3 -> vertical half-tan 0.649 x 3/5 = 0.390 -> vertical FOV 42.6 deg,
+// horizontal half-tan 0.519 -> 54.9 deg.
+export const FPV = { diagFovDeg: 66, aspect: 4 / 3, uptiltDeg: 15, offset: [0.035, 0, -0.01], streamW: 320, streamH: 240 };
+FPV.vFovDeg = 2 * Math.atan(Math.tan((FPV.diagFovDeg / 2) * Math.PI / 180) * 3 / 5) * 180 / Math.PI;
+
 let _dot = null;
 function dotTexture() {
   if (_dot) return _dot;
@@ -41,6 +48,13 @@ export class LabView {
     this.top.position.set(0, 6, 0); this.top.lookAt(0, 0, 0);          // low enough that the fog leaves it alone
     this.controls.enableDamping = true;
     this.camMode = "chase";
+    this.fpv = new THREE.PerspectiveCamera(FPV.vFovDeg, FPV.aspect, 0.01, 60);
+    // camera in the drone's three.js frame: look along +x (forward), up +y, then tilt up about +z
+    this.fpvMount = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), (FPV.uptiltDeg * Math.PI) / 180)
+      .multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI / 2));
+    this.fpvDrone = null;      // the drone the FPV camera rides on (hidden in that view)
+    this.stream = false;       // true: QVGA like the Wi-Fi stream
+    this.basePR = Math.min(2, window.devicePixelRatio || 1);
     this.hemi = new THREE.HemisphereLight(0xffffff, 0x6b7480, 1.6);
     this.scene.add(this.hemi);
     const sun = new THREE.DirectionalLight(0xffffff, 1.8);
@@ -188,6 +202,13 @@ export class LabView {
     return d;
   }
 
+  removeDrone(d) {
+    this.scene.remove(d.rig, d.trail, d.rays, d.marker, d.stalk);
+    for (const o of [d.trail, d.rays, d.marker, d.stalk]) { o.geometry.dispose(); o.material.dispose(); }
+    d.rig.traverse((o) => { if (o.isMesh && o.material && o.material.transparent) o.material.dispose(); });
+    this.drones = this.drones.filter((x) => x !== d);
+  }
+
   removeDrones() {
     for (const d of this.drones) {
       this.scene.remove(d.rig, d.trail, d.rays, d.marker, d.stalk);
@@ -200,8 +221,9 @@ export class LabView {
     d.rig.position.copy(P(quad.pos));
     d.rig.quaternion.set(quad.q[1], -quad.q[3], quad.q[2], quad.q[0]);
     const p = quad.pos;
-    const wide = this.camMode !== "chase" || this.drones.length > 1;
+    const wide = this.camMode === "fpv" ? d !== this.fpvDrone : this.camMode !== "chase" || this.drones.length > 1;
     d.marker.visible = d.stalk.visible = wide;
+    d.rig.visible = !(this.camMode === "fpv" && d === this.fpvDrone);
     if (wide) {
       d.marker.geometry.attributes.position.array.set([p[0], -p[2] + 0.09, p[1]]);
       d.marker.geometry.attributes.position.needsUpdate = true;
@@ -325,8 +347,39 @@ export class LabView {
     }
   }
 
-  render(follow = null, dt = 0.016) {
+  /** The 4:3 picture inside the canvas that the FPV view uses, in CSS pixels {x, y, w, h}. */
+  fpvRect() {
+    const W = this.canvas.clientWidth, H = this.canvas.clientHeight;
+    const w = Math.min(W, H * FPV.aspect), h = w / FPV.aspect;
+    return { x: (W - w) / 2, y: (H - h) / 2, w, h };
+  }
+
+  /**
+   * @param follow quad the chase camera follows
+   * @param fpvPose {pos, q} the FPV camera uses (may lag the drone to show video latency)
+   */
+  render(follow = null, dt = 0.016, fpvPose = null) {
+    const fpvOn = this.camMode === "fpv" && (fpvPose || follow);
+    const pr = fpvOn && this.stream ? FPV.streamW / Math.max(1, this.fpvRect().w) : this.basePR;
+    if (Math.abs(this.renderer.getPixelRatio() - pr) > 1e-3) this.renderer.setPixelRatio(pr);
+    this.canvas.classList.toggle("stream", !!(fpvOn && this.stream));
     this.resize();
+    if (fpvOn) {
+      const pose = fpvPose || follow;
+      const rq = new THREE.Quaternion(pose.q[1], -pose.q[3], pose.q[2], pose.q[0]);
+      const off = new THREE.Vector3(FPV.offset[0], -FPV.offset[2], FPV.offset[1]).applyQuaternion(rq);
+      this.fpv.position.copy(P(pose.pos)).add(off);
+      this.fpv.quaternion.copy(rq).multiply(this.fpvMount);
+      const W = this.canvas.clientWidth, H = this.canvas.clientHeight, r = this.fpvRect();
+      this.renderer.setScissorTest(true);
+      this.renderer.setScissor(0, 0, W, H); this.renderer.setViewport(0, 0, W, H);
+      this.renderer.setClearColor(0x000000, 1); this.renderer.clear();
+      this.renderer.setScissor(r.x, H - r.y - r.h, r.w, r.h); this.renderer.setViewport(r.x, H - r.y - r.h, r.w, r.h);
+      this.renderer.render(this.scene, this.fpv);
+      this.renderer.setScissorTest(false);
+      this.renderer.setViewport(0, 0, W, H);
+      return;
+    }
     if (follow && this.camMode === "chase") {
       const p = P(follow.pos);
       const R = qrot(follow.q);
@@ -356,6 +409,7 @@ export class LabView {
   setCamera(mode) {
     this.camMode = mode;
     this.controls.enabled = mode === "orbit";
+    for (const d of this.drones) d.rig.visible = !(mode === "fpv" && d === this.fpvDrone);
     if (mode === "orbit" && this.course) {
       const [L, , H] = this.course.room;
       this.camera.position.set(-L * 0.55, H * 1.6, L * 0.45);

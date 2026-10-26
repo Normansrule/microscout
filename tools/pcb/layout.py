@@ -479,9 +479,10 @@ class Layout:
         self.log.append(f"imported {nt} track segments and {nv} vias from {ses.name}")
 
     # -------------------------------------------------------------- finish
-    def stitch(self, net, region, pitch=1.0, d=None, drill=None, clearance=0.2, max_vias=200):
+    def stitch(self, net, region, pitch=1.0, d=None, drill=None, clearance=0.2, max_vias=200, step=None):
         """Fill a region (board-relative shapely polygon) with through vias of `net` wherever they clear
-        every other net's pads, tracks and vias by `clearance`. Returns the number of vias added."""
+        every other net's pads, tracks and vias by `clearance`. Vias are at least `pitch` apart; candidate spots are
+        scanned on a `step` grid (default: the pitch). Returns the number of vias added."""
         from shapely.geometry import Point, LineString
         from shapely.ops import unary_union
         d = d or JLC["via_d"]; drill = drill or JLC["via_drill"]
@@ -489,7 +490,14 @@ class Layout:
         obst = []
         for fp in self.board.GetFootprints():
             for pad in fp.Pads():
-                if pad.GetNetname() == net:
+                if pad.GetNetname() == net and not step:
+                    continue
+                if step:          # exact pad outline; own-net pads too (no via in a pad)
+                    from shapely.geometry import Polygon
+                    o = pad.GetEffectivePolygon().Outline(0)
+                    g = Polygon([(pcbnew.ToMM(o.CPoint(k).x) - ox, pcbnew.ToMM(o.CPoint(k).y) - oy)
+                                 for k in range(o.PointCount())]).buffer(0)
+                    obst.append(g.buffer(0.05 - clearance) if pad.GetNetname() == net else g)
                     continue
                 bb = pad.GetBoundingBox()
                 obst.append(Point(pcbnew.ToMM(pad.GetPosition().x) - ox, pcbnew.ToMM(pad.GetPosition().y) - oy)
@@ -514,10 +522,10 @@ class Layout:
             x = x0
             while x <= x1 and n < max_vias:
                 p = Point(x, y)
-                if ok.contains(p) and (bad is None or not bad.contains(p)) and all(p.distance(q) >= d + 0.2 for q in placed):
+                if ok.contains(p) and (bad is None or not bad.contains(p)) and all(p.distance(q) >= max(d + 0.2, pitch) - 1e-6 for q in placed):
                     self.via(net, x, y, d, drill); placed.append(p); n += 1
-                x += pitch
-            y += pitch
+                x += step or pitch
+            y += step or pitch
         self.log.append(f"stitched {n} {net} vias")
         return n
 

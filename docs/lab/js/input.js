@@ -64,6 +64,7 @@ export class PilotInput {
       if (edge(1)) this.handlers.press?.("l");
       if (edge(2)) this.handlers.press?.("x-flip");
       if (edge(3)) this.handlers.press?.("m");
+      if (edge(4) || edge(5)) this.handlers.press?.("c");     // shoulder buttons: next camera (chase, orbit, top, FPV)
       this.prevButtons = b;
     }
     if (this.touch.active) { yaw += this.touch.lx; roll += this.touch.rx; pitch += this.touch.ry; thrAxis = (thrAxis ?? 0) + this.touch.ly; }

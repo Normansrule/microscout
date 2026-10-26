@@ -28,11 +28,14 @@ export function lineChart(canvas, series, opts = {}) {
     c.fillText(opts.empty || "No data yet", pad.l, H / 2);
     return;
   }
-  let y0 = Math.min(...all), y1 = Math.max(...all);
+  let y0 = Infinity, y1 = -Infinity;            // loops, not spreads: long recordings overflow the argument stack
+  for (const v of all) { if (v < y0) y0 = v; if (v > y1) y1 = v; }
   if (y1 - y0 < 1e-6) { y0 -= 1; y1 += 1; }
   const yt = ticks(y0, y1); const st = yt.length > 1 ? yt[1] - yt[0] : 1;
   y0 = Math.min(y0, Math.floor(y0 / st) * st); y1 = Math.max(y1, Math.ceil(y1 / st) * st);
-  const x0 = Math.min(...xs), x1 = Math.max(x0 + 1, ...xs);
+  let x0 = Infinity, x1 = -Infinity;
+  for (const v of xs) { if (v < x0) x0 = v; if (v > x1) x1 = v; }
+  x1 = Math.max(x0 + 1, x1);
   const X = (x) => pad.l + ((x - x0) / (x1 - x0)) * (W - pad.l - pad.r);
   const Y = (y) => H - pad.b - ((y - y0) / (y1 - y0)) * (H - pad.t - pad.b);
   c.strokeStyle = css("--line", "#cdd3d9"); c.lineWidth = 1;

@@ -16,10 +16,24 @@ G = 9.81
 RHO = 1.225
 
 
+# Per-cell open-circuit voltage of a LiHV cell against state of charge (ESTIMATE: shape of typical published LiHV
+# discharge curves at a low rate; replace with the real pack's curve at G6). Steep below 10 %, as real cells are.
+OCV_SOC = (0.0, 0.03, 0.07, 0.15, 0.30, 0.50, 0.70, 0.85, 1.0)
+OCV_V = (3.00, 3.30, 3.50, 3.65, 3.75, 3.85, 3.98, 4.12, 4.35)
+# The on-board charger (BQ25887, D-033) stops at 4.2 V per cell, below the LiHV pack's 4.35 V: a "full" pack is
+# at this state of charge (about 0.90).
+CHARGED_SOC = float(np.interp(4.2, OCV_V, OCV_SOC))
+
+
+def power_exponent(p_hover_w, t_hover_n, p_full_w, t_full_n):
+    """n in P = P_hover (T / T_hover)^n through both budget anchors: n = ln(P_full / P_hover) / ln(T_full / T_hover)."""
+    return math.log(p_full_w / p_hover_w) / math.log(t_full_n / t_hover_n)
+
+
 class Battery:
     def __init__(self, mah, cells, r_int):
         self.cap_c = mah * 3.6          # coulombs
-        self.used_c = 0.0
+        self.used_c = self.cap_c * (1.0 - CHARGED_SOC)     # charged by the on-board charger (D-033)
         self.cells = cells
         self.r_int = r_int
         self.current = 0.0
@@ -30,8 +44,7 @@ class Battery:
         return max(0.0, 1.0 - self.used_c / self.cap_c)
 
     def ocv(self):
-        # crude per-cell open-circuit curve (ASSUMPTION): 3.5 V empty .. 4.2 V full
-        return self.cells * (3.5 + 0.7 * self.soc)
+        return self.cells * float(np.interp(self.soc, OCV_SOC, OCV_V))
 
     def step(self, power_w, dt):
         v = self.ocv()
@@ -100,10 +113,12 @@ class QuadPhysics:
         dq = qmul(self.q, np.array([0.0, *self.w])) * 0.5 * dt
         self.q = qnorm(self.q + dq)
         self._contacts()
-        # battery: motor power ~ T^1.5 anchored at the hover efficiency (ESTIMATE)
+        # battery: motor power P = P_hover (T / T_hover)^n, through the hover efficiency and the vendor full-throttle
+        # power (budgets 3c and 3d; ESTIMATE)
         t_hover = p.mass_kg * G / 4
         p_hover_each = (t_hover / G * 1000) / p.hover_eff_g_per_w
-        pw = float(np.sum(p_hover_each * (np.maximum(T, 0) / t_hover) ** 1.5)) + p.electronics_w
+        n = power_exponent(p_hover_each, t_hover, p.full_power_w, p.t_max_per_motor_n)
+        pw = float(np.sum(p_hover_each * (np.maximum(T, 0) / t_hover) ** n)) + p.electronics_w
         self.bat.step(pw, dt)
         self.t += dt
 

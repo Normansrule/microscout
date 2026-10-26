@@ -77,13 +77,56 @@ def to_xy(ch, u, p):
     return u * dx + p * px, u * dy + p * py
 
 
-# channel template in (u, p): high-side FETs inner row, low-side FETs outer row, motor pads at the notch,
-# gate driver under the FETs and the MCU nearer the centre (bottom side).
-CH = [
-    ("J01", 18.7, -5.6, "T"), ("J02", 18.7, -1.6, "T"), ("J03", 18.4, 6.4, "T"),
-    ("Q01", 10.0, -5.0, "T"), ("Q03", 10.0, -0.7, "T"), ("Q05", 10.0, 3.6, "T"),
-    ("Q02", 14.6, -6.3, "T"), ("Q04", 14.6, -1.9, "T"), ("Q06", 14.6, 7.6, "T"),
-]
+# Power cells (D-063 rev 2). One cell per motor phase, in its own frame (x along the cell, y toward the gates):
+#   [GND strip | low-side FET | motor pad | high-side FET | VBAT strip]
+# The low-side drain, the motor pad and the high-side sources face each other, so the whole phase node is one
+# solid copper block drawn before routing (PH_POLY). Both gates (pin 4) point to +y, away from the power copper.
+CELL_PARTS = [("LS", 0.0, 0.0, 0), ("J", 2.86, 0.0, 0), ("HS", 5.72, 0.0, 0)]   # (role, x, y, rot) in the cell frame
+PH_POLY = [(-0.35, -1.9), (4.78, -1.9), (4.78, 0.58), (3.55, 0.58), (3.55, 1.2), (-0.35, 1.2)]
+GND_POLY = [(-3.4, -1.9), (-0.94, -1.9), (-0.94, 0.58), (-3.4, 0.58)]
+VBAT_POLY = [(5.3, -1.9), (8.3, -1.9), (8.3, 1.9), (5.3, 1.9)]
+# where the strips' stitching vias go (clear of the FET pads; no via in a pad): kept free of parts on the bottom
+GND_VIAS = [(-3.4, -1.9), (-1.95, -1.9), (-1.95, 0.58), (-3.4, 0.58)]
+VBAT_VIAS = [(7.15, -1.9), (8.3, -1.9), (8.3, 1.9), (7.15, 1.9)]
+TAP = (1.9, -0.5)          # phase tap via, between the low-side drain pad and the motor pad
+# Cell poses (origin x, y, KiCad rotation) per channel, phases A, B, C. Channels 3 and 4 are 180-degree copies.
+CELLS = {
+    2: [(11.0, 2.4, 0), (10.4, 7.4, 0), (2.5, 13.9, 90)],
+    1: [(-15.9, 2.4, 0), (-15.3, 7.4, 0), (-2.5, 9.0, 270)],
+}
+
+
+def cell_xy(pose, x, y):
+    ox, oy, r = pose
+    t = math.radians(r)
+    return ox + x * math.cos(t) + y * math.sin(t), oy - x * math.sin(t) + y * math.cos(t)
+
+
+def cell_refs(ch, i):
+    return {"HS": f"Q{ch}0{2 * i + 1}", "LS": f"Q{ch}0{2 * i + 2}", "J": f"J{ch}0{i + 1}"}
+
+
+def all_cells():
+    """(channel, phase index, pose) for all four channels; 3 and 4 are the 180-degree copies of 2 and 1."""
+    out = []
+    for ch, poses in CELLS.items():
+        for i, (ox, oy, r) in enumerate(poses):
+            out.append((ch, i, (ox, oy, r)))
+            out.append((TWIN[ch], i, (-ox, -oy, (r + 180) % 360)))
+    return out
+
+
+def place_cells(P, ch):
+    """Exact poses (the parts of one cell sit closer than the placer's spacing); L.overlaps() checks the result."""
+    for i, pose in enumerate(CELLS[ch]):
+        refs = cell_refs(ch, i)
+        for role, x, y, rot in CELL_PARTS:
+            px, py = cell_xy(pose, x, y)
+            r = (pose[2] + rot) % 360
+            P.fix(refs[role], px, py, r, back=False, check=False)
+            P.fix(twin_ref(refs[role]), -px, -py, (r + 180) % 360, back=False, check=False)
+
+
 # MCU (U01) and gate driver (U02) sit side by side on the bottom in the same orientation, the driver's input corner
 # (pins 1-3 and 22-24) facing the MCU's PWM pins (13-15 and 18-20) so the six PWM lines need no crossings.
 DRIVER_OFFSET = (5.2, 2.4)          # driver centre in the MCU's own footprint frame (mm)
@@ -97,13 +140,6 @@ def to_board(back, rot, lx, ly):
     return lx * math.cos(t) + ly * math.sin(t), -lx * math.sin(t) + ly * math.cos(t)
 
 
-def fet_rot(ch):
-    """Orientation (KiCad degrees) that points a PowerPAK's drain pad (local +x) back toward the board centre, so the
-    high-side sources and the low-side drain (the phase node) face each other between the two FET rows."""
-    (dx, dy), _ = FRAMES[ch]
-    return (round(math.degrees(math.atan2(dy, -dx)) / 90.0 - 0.01) * 90) % 360
-
-
 PWM = [("13", "3"), ("14", "2"), ("15", "1"), ("18", "24"), ("19", "23"), ("20", "22")]   # MCU pin -> driver pin
 
 
@@ -113,18 +149,30 @@ def pads_local(L, ref):
     return {p.GetNumber(): (pcbnew.ToMM(p.GetPosition().x) - L.org[0], pcbnew.ToMM(p.GetPosition().y) - L.org[1]) for p in fp.Pads()}
 
 
-def place_mcu_driver(L, P, ch):
+def place_mcu_driver(L, P, ch, avoid=()):
     """MCU (U01) and gate driver (U02) on the bottom, posed so the six PWM lines between them do not cross (each
     crossing needs two vias, and the space under the power FETs has no room for vias)."""
     from shapely.geometry import LineString
     mref, dref = f"U{ch}01", f"U{ch}02"
     ml, dl = pads_local(L, mref), pads_local(L, dref)
-    mx0, my0 = to_xy(ch, 7.5, 0.0)
+    # the driver should sit near the six FET gates of its channel
+    gates = []
+    for i in range(3):
+        for role in ("HS", "LS"):
+            for pad in L.fps[cell_refs(ch, i)[role]].Pads():
+                if pad.GetNumber() == "4":
+                    gates.append((pcbnew.ToMM(pad.GetPosition().x) - L.org[0], pcbnew.ToMM(pad.GetPosition().y) - L.org[1]))
+    gx, gy = sum(g[0] for g in gates) / 6, sum(g[1] for g in gates) / 6
+    sx = 1 if ch in (2, 4) else -1                    # quadrant of this channel (x sign); all four are y > 0 or y < 0
+    sy = 1 if ch in (1, 2) else -1
+    from shapely.ops import unary_union
+    from shapely.affinity import translate
+    av = translate(unary_union(list(avoid)), *L.org) if avoid else None
     best = None
+    grid = [(sx * x, sy * y) for x in range(1, 19) for y in range(1, 19)]
     for mr in (0, 90, 180, 270):
-        for mdx in (-2.0, -1.0, 0.0, 1.0, 2.0):
-            for mdy in (-2.0, -1.0, 0.0, 1.0, 2.0):
-                mx, my = mx0 + mdx, my0 + mdy
+        for mx, my in grid:
+                mdx = mdy = 0.0
                 ms = P.shape(mref, mx, my, mr, True)
                 if not P.legal(ms, True) or not P.legal(P.shape(twin_ref(mref), -mx, -my, (mr + 180) % 360, True), True):
                     continue
@@ -132,7 +180,7 @@ def place_mcu_driver(L, P, ch):
                 for dr in (0, 90, 180, 270):
                     for k in range(24):
                         a = 2 * math.pi * k / 24
-                        for r in (5.0, 5.5, 6.0, 6.5):
+                        for r in (4.5, 5.0, 5.5, 6.0, 6.5, 7.0):
                             dx, dy = mx + r * math.cos(a), my + r * math.sin(a)
                             ds = P.shape(dref, dx, dy, dr, True)
                             if ds.buffer(P.gap).intersects(ms) or not P.legal(ds, True):
@@ -145,17 +193,18 @@ def place_mcu_driver(L, P, ch):
                             cross = sum(1 for i in range(6) for j in range(i + 1, 6) if segs[i].crosses(segs[j]))
                             # lines must not run across either chip body
                             body = sum(1 for sg in segs if sg.crosses(ms.buffer(-0.6)) or sg.crosses(ds.buffer(-0.6)))
-                            (fx, fy), _ = FRAMES[ch]
-                            outward = (dx - mx) * fx + (dy - my) * fy
-                            score = 100 * (cross + body) + sum(sg.length for sg in segs) - 0.5 * outward + 0.3 * (abs(mdx) + abs(mdy))
+                            hit = 0.0 if av is None else (ms.intersection(av).area + ds.intersection(av).area)
+                            score = (100 * (cross + body) + sum(sg.length for sg in segs) + 1.5 * math.hypot(dx - gx, dy - gy)
+                                     + 20 * hit)
                             if best is None or score < best[0]:
-                                best = (score, mx, my, mr, dx, dy, dr, cross, body)
+                                best = (score, mx, my, mr, dx, dy, dr, cross, body, hit)
     if best is None:
         raise ValueError(f"no legal MCU/driver pose for channel {ch}")
-    _, mx, my, mr, dx, dy, dr, cross, body = best
+    _, mx, my, mr, dx, dy, dr, cross, body, _hit = best
     P.near(mref, mx, my, back=True, rots=(mr,), rmax=1, twin=(twin_ref(mref), rot180))
     P.near(dref, dx, dy, back=True, rots=(dr,), rmax=1, twin=(twin_ref(dref), rot180))
-    L.log.append(f"channel {ch}: MCU/driver PWM lines with {cross} crossings, {body} across a chip body")
+    L.log.append(f"channel {ch}: MCU/driver PWM lines with {cross} crossings, {body} across a chip body, "
+                 f"{best[9]:.2f} mm2 over via areas")
 
 
 BOARD_NAME, LAYERS = "esc", 4
@@ -177,20 +226,22 @@ def build():
     P.near("J1", 0.0, 0.0, back=True, rots=(0, 180, 90, 270))          # link cable leaves from the bottom centre
     P.near("U1", 0.0, 5.0, back=True)
     P.near("L1", 0.0, -5.0, back=True)
-    # channels 2 and 1 are placed from the template; channels 3 and 4 are their 180-degree copies
-    # right angles only: Freerouting connects poorly to pads turned by 45 degrees (it routed ~20 fewer connections per channel)
-    any45 = (0, 90, 180, 270)
+    # channels 2 and 1: power cells, then MCU + driver; channels 3 and 4 are their 180-degree copies
     for ch in (2, 1):
-        for suffix, u, p, side in CH:
-            ref = f"{suffix[0]}{ch}{suffix[1:]}"
-            hx, hy = to_xy(ch, u, p)
-            if ref.startswith("Q"):
-                r0 = fet_rot(ch)
-                rots = (r0, (r0 + 180) % 360) + tuple(r for r in any45 if r not in (r0, (r0 + 180) % 360))
-            else:
-                rots = any45
-            P.near(ref, hx, hy, back=(side == "B"), rots=rots, twin=(twin_ref(ref), rot180))
-        place_mcu_driver(L, P, ch)
+        place_cells(P, ch)
+    # keep other parts off the cells' copper on the top (the vias on the bottom are placed later, around the parts)
+    for ch, i, pose in all_cells():
+        for pts in (PH_POLY, GND_POLY, VBAT_POLY):
+            P.block(cell_poly(pose, pts).buffer(0.2), sides=(False,))
+    # room for the cells' vias on the bottom: the MCU/driver search avoids the strips' via areas and the phase taps
+    # where it can (a penalty), then all other parts are kept off them
+    via_areas = []
+    for ch, i, pose in all_cells():
+        via_areas += [cell_poly(pose, GND_VIAS), cell_poly(pose, VBAT_VIAS), Point(*cell_xy(pose, *TAP)).buffer(0.5)]
+    for ch in (2, 1):
+        place_mcu_driver(L, P, ch, avoid=via_areas)
+    for g in via_areas:
+        P.block(g, sides=(True,))
     failed = []
     for ch in (2, 1):
         rest = [r for r in L.fps if chan(r) == ch and r not in P.placed_refs()]
@@ -222,37 +273,52 @@ def build():
     return L, P, failed
 
 
+def cell_poly(pose, pts):
+    from shapely.geometry import Polygon
+    return Polygon([cell_xy(pose, x, y) for x, y in pts])
+
+
 def planes(L):
-    full = L.local
-    L.zone("GND", pcbnew.In1_Cu, full, clearance=0.2, solid=True)
-    # VBAT plane on L3 only under the power stages, so the rest of L3 stays free for logic routing
+    """Copper drawn before routing: per power cell a phase block, a GND strip and a VBAT strip on L1 (with stitching
+    vias to the L2 GND plane and the L3 VBAT plane, and one phase tap via); no-tracks areas over them on L1 and L3."""
     from shapely.ops import unary_union
-    from shapely.affinity import translate
-    fets = []
-    for ref, fp in L.fps.items():
-        if ref.startswith("Q") or ref in ("C1", "J2", "J3"):
-            bb = fp.GetBoundingBox(False, False)
-            ox, oy = L.org
-            fets.append(box(pcbnew.ToMM(bb.GetLeft()) - ox, pcbnew.ToMM(bb.GetTop()) - oy, pcbnew.ToMM(bb.GetRight()) - ox,
-                            pcbnew.ToMM(bb.GetBottom()) - oy).buffer(1.2, join_style=2))
-    power = unary_union(fets).intersection(full.buffer(-0.3))
-    for part in getattr(power, "geoms", [power]):
+    full = L.local
+    inside = full.buffer(-0.3)
+    L.zone("GND", pcbnew.In1_Cu, full, clearance=0.2, solid=True)
+    vbat_in2, keep = [], []
+    for ch, i, pose in all_cells():
+        ph = f"/Motor {ch}/M{ch}_PH_{'ABC'[i]}"
+        for net, pts in ((ph, PH_POLY), ("GND", GND_POLY), ("VBAT", VBAT_POLY)):
+            g = cell_poly(pose, pts).intersection(inside)
+            L.zone(net, pcbnew.F_Cu, g, clearance=0.2, priority=5, solid=True, name=f"cell {net}")
+            keep.append(g)
+        # one tap via from the phase block to the bottom, at the first spot clear of the bottom parts
+        # (at TAP if the bottom is clear there, else anywhere in the phase block clear of every pad)
+        if not (L.stitch(ph, Point(*cell_xy(pose, *TAP)).buffer(0.6), pitch=0.25, max_vias=1, step=0.05)
+                or L.stitch(ph, cell_poly(pose, PH_POLY).buffer(-0.05), pitch=0.25, max_vias=1, step=0.05)):
+            raise SystemExit(f"no room for the {ph} tap via")
+        L.stitch("GND", cell_poly(pose, GND_POLY).buffer(-0.1), pitch=0.75, step=0.05)
+        L.stitch("VBAT", cell_poly(pose, VBAT_POLY).buffer(-0.1), pitch=0.75, step=0.05)
+        vbat_in2.append(cell_poly(pose, [(-3.4, -1.9), (8.3, -1.9), (8.3, 1.9), (-3.4, 1.9)]).buffer(0.6, join_style=2))
+    # L3 VBAT plane: under every cell and the centre (battery pads, bulk capacitor), closed into one piece
+    centre = box(-7.6, -3.6, 7.6, 3.6)
+    v = unary_union(vbat_in2 + [centre]).buffer(1.6, join_style=2).buffer(-1.6, join_style=2).intersection(inside)
+    for part in getattr(v, "geoms", [v]):
         if part.area > 4:
-            L.zone("VBAT", pcbnew.In2_Cu, part.simplify(0.05), clearance=0.2, solid=True, priority=2)
-    # fat copper for each motor phase on both outer layers, around the parts that carry it
-    for name in L.nets:
-        if "_PH_" in name:
-            # pour over the power pads (FETs + motor pad), added after routing on top of the routed connection
-            ppts = []
-            for ref, pin in L.nets[name]:
-                if not ref.startswith(("Q", "J")):
-                    continue
-                for pad in L.fps[ref].Pads():
-                    if pad.GetNumber() == pin:
-                        ppts.append((pcbnew.ToMM(pad.GetPosition().x) - L.org[0], pcbnew.ToMM(pad.GetPosition().y) - L.org[1]))
-            region = MultiPoint(ppts).convex_hull.buffer(0.7, join_style=2).intersection(full.buffer(-0.3))
-            if region.geom_type == "Polygon" and region.area > 1:
-                L.zone(name, pcbnew.F_Cu, region, clearance=0.2, priority=3, solid=True, late=True)
+            L.zone("VBAT", pcbnew.In2_Cu, part.simplify(0.05), clearance=0.2, solid=True, priority=2, name="cell VBAT plane")
+    # battery pads and bulk capacitor: short copper to their stitching vias
+    for ref, net in (("J2", "VBAT"), ("J3", "GND")):
+        bb = L.fps[ref].GetBoundingBox(False, False)
+        ox, oy = L.org
+        g = box(pcbnew.ToMM(bb.GetLeft()) - ox, pcbnew.ToMM(bb.GetTop()) - oy, pcbnew.ToMM(bb.GetRight()) - ox,
+                pcbnew.ToMM(bb.GetBottom()) - oy).buffer(0.8, join_style=2)
+        L.zone(net, pcbnew.F_Cu, g.intersection(inside), clearance=0.2, priority=5, solid=True, name=f"centre {net}")
+        L.stitch(net, g.difference(g.buffer(-0.8, join_style=2)).buffer(-0.05), pitch=0.9)
+    # no tracks of any net across the power copper on L1 and L3 (the cells' own vias are already placed)
+    ls = pcbnew.LSET(); ls.AddLayer(pcbnew.F_Cu); ls.AddLayer(pcbnew.In2_Cu)
+    for g in keep:
+        if g.area > 0.5:
+            L.keepout(ls, g, tracks=True, vias=False, pours=False, name="power cell: no tracks")
     L.zone("VBAT", pcbnew.F_Cu, full, clearance=0.25, priority=1, solid=True, late=True)
     L.zone("GND", pcbnew.B_Cu, full, clearance=0.25, priority=1, solid=True, late=True)
     L.zone("GND", pcbnew.In2_Cu, full, clearance=0.25, priority=0, solid=True, late=True)   # fills what the logic leaves on L3
@@ -276,13 +342,15 @@ def centre_images(L, P):
 
 
 PLANE_ZONE = lambda z: (z.GetNetname() == "GND" and z.IsOnLayer(pcbnew.In1_Cu)) or (z.GetNetname() == "VBAT" and z.IsOnLayer(pcbnew.In2_Cu))
+# power copper on L1 that no other net may cross (Freerouting may drop vias through it; they are removed and re-routed)
+ISLAND = lambda z: z.GetZoneName().startswith(("cell ", "centre ")) and "plane" not in z.GetZoneName()
 
 
 if __name__ == "__main__" and "--finish-only" in sys.argv:
     from report import refinish
     L = Layout(BOARD_NAME, NETLIST, OUT_PCB, layers=LAYERS, thickness=1.0)
     L.rules(CLASSES, default=DEFAULT)
-    refinish(L, PLANE_ZONE)
+    refinish(L, PLANE_ZONE, island=ISLAND)
     sys.exit(0)
 
 if __name__ == "__main__":
@@ -310,5 +378,4 @@ if __name__ == "__main__":
         L.autoroute(passes=passes, timeout=3600, attempts=2)
         L.routed_nets = sorted({t.GetNetname() for t in L.board.GetTracks() if t.GetNetname()})
     L.clear_plane_layers([pcbnew.In1_Cu])     # L2 stays a solid GND plane (Freerouting may have used it)
-    finish(L, route=False, plane_zone=lambda z: (z.GetNetname() == "GND" and z.IsOnLayer(pcbnew.In1_Cu))
-           or (z.GetNetname() == "VBAT" and z.IsOnLayer(pcbnew.In2_Cu)))
+    finish(L, route=False, plane_zone=PLANE_ZONE, island=ISLAND)

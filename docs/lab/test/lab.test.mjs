@@ -143,3 +143,60 @@ test("course editor: specs are clamped, the take-off spot stays clear, and MPC f
   while (q.t < 30 && !m.done) { const prev = [...q.pos]; q.step(ctl.update(0.002), 0.002); m.update(prev, q.pos); }
   assert.ok(m.done && m.gatesPassed === 1 && q.maxImpact < 0.05, `done ${m.done}, gates ${m.gatesPassed}, impact ${q.maxImpact}`);
 });
+
+// ------------------------------------------------------------------ electrical limits, recorder (G3 additions)
+import { impact } from "../js/physics.js";
+import { Recording, COLUMNS } from "../js/recorder.js";
+
+function fullThrottle(env, T) {
+  const c = buildCourse("hangar", 1);
+  const q = new Quad(c, undefined, env);
+  q.reset([c.start[0], c.start[1], -1.5]);
+  let peak = 0;
+  while (q.t < T) { q.step([1, 1, 1, 1], 0.002); if (q.t > 0.2) peak = Math.max(peak, q.bat.current); }
+  return { q, peak };
+}
+
+test("firmware current limit holds the battery at its setting; without it full throttle draws more", () => {
+  // On a freshly charged pack the model draws about 30 A at full throttle (sag lowers the thrust it can make),
+  // so a 25 A setting is used to exercise the limiter.
+  const lim = fullThrottle({ currentLimit: 25 }, 0.6), free = fullThrottle({ currentLimit: 0 }, 0.6);
+  assert.ok(lim.peak <= 25.5, `limited peak ${lim.peak} A`);
+  assert.ok(lim.q.limiting && lim.q.limitTime > 0.3, "limit never engaged");
+  assert.ok(free.peak > 28, `unlimited peak only ${free.peak} A`);
+});
+
+test("hardware cut-off: trips on a flat pack under load, not on a full one", () => {
+  const flat = fullThrottle({ batterySoc: 0.02, currentLimit: 0 }, 1.5);
+  assert.ok(flat.q.cutoff, `no cut-off, filtered ${flat.q.vFilt} V`);
+  assert.ok(flat.q.alerts.some((a) => a.kind === "cutoff"));
+  assert.ok(flat.q.cmd.every((c) => c === 0), "motors still commanded after the cut-off");
+  const full = fullThrottle({ currentLimit: 0 }, 1.5);
+  assert.ok(!full.q.cutoff, "a full pack tripped the cut-off");
+  const off = fullThrottle({ batterySoc: 0.02, currentLimit: 0, hwCutoff: false }, 1.5);
+  assert.ok(!off.q.cutoff, "cut-off tripped while disabled");
+});
+
+test("impact estimate: E = m v^2 / 2 and a = v^2 / (2 d)", () => {
+  const r = impact(0.0862, 3, 0.005);
+  assert.ok(Math.abs(r.energy_j - 0.3879) < 1e-3, `${r.energy_j} J`);
+  assert.ok(Math.abs(r.g - 91.74) < 0.1, `${r.g} g`);
+});
+
+test("recorder: 50 Hz rows, CSV columns, interpolated poses", () => {
+  const c = buildCourse("hangar", 1);
+  const q = new Quad(c);
+  q.reset([c.start[0], c.start[1], -1.0]);
+  q.thrust = [1, 1, 1, 1].map(() => (q.mass * 9.81) / 4);
+  const r = new Recording("test");
+  const u = (q.mass * 9.81) / 4 / q.tMax();
+  while (q.t < 2) { q.step([u, u, u, u], 0.002); r.sample(q); }
+  assert.ok(Math.abs(r.rows.length - 100) <= 1, `${r.rows.length} rows in 2 s`);
+  const lines = r.toCSV().trim().split("\n");
+  assert.equal(lines[2], COLUMNS.join(","));
+  assert.equal(lines[3].split(",").length, COLUMNS.length);
+  const p = r.poseAt(1.0);
+  assert.ok(p && Math.abs(p.pos[0] - c.start[0]) < 0.05 && Math.abs(Math.hypot(...p.q) - 1) < 1e-9);
+  const st = r.stats();
+  assert.ok(st.maxCurrent > 2 && st.maxCurrent < 10, `hover current ${st.maxCurrent} A`);
+});

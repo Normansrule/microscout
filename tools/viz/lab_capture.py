@@ -191,7 +191,35 @@ async def still_editor(browser, port):
     await ctx.close()
 
 
-CLIPS = {"race": clip_race, "forest": clip_forest, "pilot": clip_pilot, "train": clip_train}
+async def clip_fpv(browser, port):
+    """The pilot's own view: FPV camera with the on-screen display, flying the gate slalom in sport mode."""
+    ctx, page = await open_lab(browser, port, "?embed&course=gates", (960, 720))
+    await page.evaluate("() => { document.querySelector('.stamp').style.display = 'none'; lab.setMode('beginner'); lab.setCam('fpv'); lab.input.handlers.press('t'); }")
+    rec = Rec(page, "lab-fpv", selector=".stage")
+    fps = 12
+    script = [(1.6, []), (0.6, ["d"]), (0.3, []), (2.4, ["w"]), (0.5, ["w", "a"]), (1.6, ["w"]), (0.6, [])]
+    i = 0
+    for dur, keys in script:
+        for k in keys: await page.keyboard.down(k)
+        for _ in range(max(1, round(dur * fps))):
+            await rec.tick(1 / fps / 4, 4); await rec.shot("lab-fpv.png" if i == 52 else None); i += 1
+        for k in keys: await page.keyboard.up(k)
+    rec.gif(560, fps=fps, colors=96, dither="none")
+    await ctx.close()
+
+
+async def still_recorder(browser, port, scheme="light"):
+    """The Recorder tab after an acro punch into the current limit."""
+    ctx, page = await open_lab(browser, port, "?course=hangar", (1360, 820), scheme)
+    await page.evaluate("() => { lab.setMode('acro'); lab.input.handlers.press('t'); for (let i = 0; i < 30; i++) lab.tick(1/30); }")
+    await page.evaluate("() => { lab.input.keys.add(' '); for (let i = 0; i < 30; i++) lab.tick(1/30); lab.input.keys.clear(); }")
+    await page.evaluate("() => { for (let i = 0; i < 60; i++) lab.tick(1/30); lab.selectTab('rec'); lab.setCam('chase'); for (let i = 0; i < 20; i++) lab.tick(1/30); document.querySelector('.rail').scrollTop = 330; }")
+    await page.screenshot(path=str(OUT / f"lab-recorder-{scheme}.png"))
+    print(f"  docs/figures/lab/lab-recorder-{scheme}.png")
+    await ctx.close()
+
+
+CLIPS = {"race": clip_race, "forest": clip_forest, "pilot": clip_pilot, "train": clip_train, "fpv": clip_fpv}
 
 
 async def main(names):
@@ -204,6 +232,8 @@ async def main(names):
             print(n)
             if n == "editor":
                 await still_editor(b, port)
+            elif n == "recorder":
+                await still_recorder(b, port, "light"); await still_recorder(b, port, "dark")
             elif n == "ui":
                 await still_ui(b, port, "light"); await still_ui(b, port, "dark")
             else:
@@ -212,4 +242,4 @@ async def main(names):
 
 
 if __name__ == "__main__":
-    asyncio.run(main(sys.argv[1:] or [*CLIPS, "ui", "editor"]))
+    asyncio.run(main(sys.argv[1:] or [*CLIPS, "ui", "editor", "recorder"]))

@@ -11,6 +11,8 @@ import { LabView, cssVar } from "./render.js";
 import { PilotInput } from "./input.js";
 import { lineChart } from "./charts.js";
 import { toEuler, qrot } from "./math.js";
+import { Recording } from "./recorder.js";
+import { drawOSD } from "./osd.js";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -24,12 +26,14 @@ const MODES = {
 
 const state = {
   tab: "fly", courseName: "gates", seed: 1, course: null, sims: [], speed: 1, rays: true, mode: "beginner",
-  env: { wind: 0, dir: 90, gust: 0, motor: 100, payload: 0, noise: 0, battery: 100 },
+  env: { wind: 0, dir: 90, gust: 0, motor: 100, payload: 0, noise: 0, battery: 100, pack: 550, limit: 30, cutoff: true },
   ctrlKind: "pid", ctrlOpts: { pid: { speed: 2, kp: 1 }, lqr: { qp: 4, qv: 1, r: 0.3 }, mpc: { samples: 64, horizon: 16, vmax: 2.5 }, smpc: { samples: 64, horizon: 16, vmax: 1.3 }, learned: { source: "bundled" } },
   spec: loadSpec(), tool: "pillar", editing: false,
   bundled: {}, trained: null, results: [], radioDropUntil: -1, lastHud: 0, logged: new Set(),
   train: { worker: null, running: false, hist: [], cfg: null, best: null, previewParams: null, previewT: 0 },
+  rec: null, flights: [], ghost: null, liveTab: "fly", fpvHist: [], recShown: null, recDrawn: 0,
 };
+const VIDEO_LAG_S = 0.12;       // ESTIMATE: camera to screen delay of an MJPEG stream over Wi-Fi (R-07, UNCONFIRMED)
 
 // ------------------------------------------------------------------ course editor storage
 function encodeSpec(sp) {
@@ -61,7 +65,8 @@ const input = new PilotInput($("#touch"));
 // ------------------------------------------------------------------ helpers
 function envObj(seed) {
   const e = state.env, a = (e.dir * Math.PI) / 180;
-  return { wind: [-e.wind * Math.cos(a), -e.wind * Math.sin(a), 0], gust: e.gust, motorHealth: [1, 1, e.motor / 100, 1], payload_g: e.payload, tofNoise: e.noise, batterySoc: e.battery / 100, seed };
+  return { wind: [-e.wind * Math.cos(a), -e.wind * Math.sin(a), 0], gust: e.gust, motorHealth: [1, 1, e.motor / 100, 1], payload_g: e.payload, tofNoise: e.noise, batterySoc: e.battery / 100, seed,
+    pack: e.pack, currentLimit: e.limit, hwCutoff: e.cutoff };
 }
 function log(msg, cls = "") {
   const ol = $("#log");
@@ -108,7 +113,35 @@ function makeSim(kind, color, opts = {}) {
   return { kind, quad, mission, ctrl, drone, color, status: "flying", name: opts.name || ctrl.name, primary: !!opts.primary, evIdx: 0, msgIdx: 0, preview: !!opts.preview };
 }
 
-function clearSims() { view.removeDrones(); view.clearPlan(); view.clearHits(); state.sims = []; }
+function clearSims() {
+  archiveFlight();
+  view.removeDrones(); view.clearPlan(); view.clearHits(); state.sims = []; state.fpvHist = [];
+  if (state.ghost) state.ghost.drone = null;
+}
+
+// ------------------------------------------------------------------ flight recorder and ghost
+function archiveFlight() {
+  const r = state.rec;
+  state.rec = null;
+  if (r) delete r.sim;                          // the archived flight keeps its rows, not the simulator
+  if (r && r.duration > 1) {
+    r.label = `${r.name}, ${r.duration.toFixed(1)} s`;
+    state.flights.unshift(r);
+    state.flights = state.flights.slice(0, 6);
+  }
+  if (state.tab === "rec") recorderPanel(true);
+}
+function addGhost() {
+  const g = state.ghost;
+  if (!g || g.drone) return;
+  g.drone = view.addDrone(cssVar("--muted", "#56616d"), { tint: 0.35 });
+}
+function moveGhost() {
+  const g = state.ghost, prim = state.sims.find((x) => x.primary);
+  if (!g || !g.drone || !prim || !g.rec.rows.length) return;
+  const pose = g.rec.poseAt(Math.min(prim.quad.t, g.rec.rows[g.rec.rows.length - 1][0]));
+  if (pose) view.updateDrone(g.drone, pose);
+}
 
 function setCourse(name, seed = state.seed) {
   state.courseName = name; state.seed = seed;
@@ -128,15 +161,17 @@ function resetTab() {
   clearSims();
   view.clearGhosts();
   state.logged.clear();
-  if (state.tab === "fly" || state.tab === "sit") {
+  const tab = state.tab === "rec" ? state.liveTab : state.tab;     // the Recorder tab keeps the last live tab's flight
+  if (tab === "fly" || tab === "sit") {
     state.sims.push(makeSim("pilot", COLORS().pilot, { primary: true, name: "You (pilot)" }));
-    view.setCamera(view.camMode === "top" ? "top" : "chase");
-  } else if (state.tab === "auto") {
+    setCam(["top", "fpv"].includes(view.camMode) ? view.camMode : "chase");
+  } else if (tab === "auto") {
     state.sims.push(makeSim(state.ctrlKind, COLORS()[state.ctrlKind], { primary: true }));
-  } else if (state.tab === "train") {
-    if (view.camMode === "chase") view.setCamera("orbit");      // the ghosts of a whole population read best from above
+  } else if (tab === "train") {
+    if (view.camMode === "chase" || view.camMode === "fpv") setCam("orbit");      // the ghosts of a whole population read best from above
     startPreview(state.train.previewParams);
   }
+  if (tab !== "train") addGhost();
   updateCamButtons();
 }
 
@@ -149,6 +184,13 @@ function stepSims(simDt) {
       const q = s.quad, prev = [...q.pos];
       const u = s.ctrl.update(DT);
       q.step(u, DT);
+      if (s.primary && !s.preview) {
+        if (!state.rec || state.rec.sim !== s) {
+          archiveFlight();
+          state.rec = Object.assign(new Recording(s.name), { sim: s, limit: q.env.currentLimit, course: state.courseName, seed: state.seed });
+        }
+        state.rec.sample(q);
+      }
       const bonus = s.mission.update(prev, q.pos);
       if (bonus && s.primary && s.kind !== "pilot") view.setActiveWaypoint(s.mission.i);
       if (s.kind === "pilot") {
@@ -219,6 +261,8 @@ function hud() {
   const prog = state.course.free ? "free flight" : state.course.hold ? `holding ${Math.hypot(q.pos[0] - state.course.waypoints[0][0], q.pos[1] - state.course.waypoints[0][1], q.pos[2] - state.course.waypoints[0][2]).toFixed(2)} m from the mark` : state.course.gates.length && state.courseName === "gates" ? `gate ${Math.min(s.mission.gatesPassed + 1, state.course.gates.length)} of ${state.course.gates.length}` : `waypoint ${Math.min(s.mission.i + 1, wps)} of ${wps}`;
   let status = s.kind === "pilot" ? (s.ctrl.armed ? `${state.mode} mode` : "on the ground - press T to take off") : s.status;
   if (s.kind === "pilot" && q.t < state.radioDropUntil) status = "radio link down";
+  if (q.cutoff) status = "switched off by the under-voltage cut-off";
+  else if (q.limiting) status += " · current-limited";
   void r; void p;
   $("#readout").innerHTML = `<span class="who"><i style="background:${s.color}"></i>${s.name}</span>
     <span><b>${q.height.toFixed(2)}</b><small>height m</small></span>
@@ -236,7 +280,13 @@ function events() {
     const ev = s.quad.events;
     for (; s.evIdx < ev.length; s.evIdx++) {
       const e = ev[s.evIdx];
-      if (e.speed > 0.3) log(`${s.kind === "pilot" ? "Hit" : s.name + " hit"} ${e.kind === "obstacle" ? "an obstacle" : "the " + e.kind} at ${e.speed.toFixed(1)} m/s${e.speed > 3 ? " - beyond the 3 m/s design target" : ""}`, "bad");
+      if (e.speed > 0.3) log(`${s.kind === "pilot" ? "Hit" : s.name + " hit"} ${e.kind === "obstacle" ? "an obstacle" : "the " + e.kind} at ${e.speed.toFixed(1)} m/s: ${e.energy_j.toFixed(2)} J, about ${Math.round(e.g)} g${e.speed > 3 ? " - beyond the 3 m/s design target" : ""}`, "bad");
+    }
+    const al = s.quad.alerts;
+    for (s.alIdx = s.alIdx || 0; s.alIdx < al.length; s.alIdx++) {
+      const a = al[s.alIdx];
+      if (a.kind === "limit") log(`current limit: motor output cut to hold the battery at ${a.v} A`, "");
+      else log(`battery at ${a.v.toFixed(2)} V (filtered): the hardware cut-off switched the drone off`, "bad");
     }
     if (s.kind === "pilot") {
       const m = s.ctrl.msgs;
@@ -263,8 +313,25 @@ function tick(real, now = performance.now()) {
   const mapper = state.sims.find((x) => x.ctrl.map);
   if (mapper && mapper.ctrl.map.n !== view.hitsN) view.setHits(mapper.ctrl.map.points(), COLORS().smpc);
   if (state.tab === "train" && state.train.previewParams && state.sims[0] && state.sims[0].status !== "flying" && now - state.train.previewT > 800) startPreview(state.train.previewParams);
+  moveGhost();
   if (now - state.lastHud > 120) { hud(); events(); state.lastHud = now; }
-  view.render(prim ? prim.quad : null, real);
+  let fpvPose = null;
+  if (prim) {
+    view.fpvDrone = prim.drone;
+    const h = state.fpvHist, q = prim.quad;
+    h.push({ t: q.t, pos: [...q.pos], q: [...q.q] });
+    while (h.length > 2 && h[1].t < q.t - 1) h.shift();
+    fpvPose = view.stream ? h.find((x) => x.t >= q.t - VIDEO_LAG_S) || h[h.length - 1] : null;
+  }
+  view.render(prim ? prim.quad : null, real, fpvPose);
+  if (view.camMode === "fpv") drawOSD($("#osd"), view.fpvRect(), prim ? { ...osdInfo(prim), att: (fpvPose || prim.quad).q } : null);
+  if (state.tab === "rec" && now - state.recDrawn > 500) recorderPanel(false);
+}
+
+function osdInfo(s) {
+  const q = s.quad, pilotSim = s.kind === "pilot";
+  return { quad: q, mode: pilotSim ? state.mode : s.name, armed: pilotSim ? s.ctrl.armed : s.status === "flying",
+    throttle: q.cmd.reduce((a, b) => a + b, 0) / 4, radioDown: pilotSim && q.t < state.radioDropUntil };
 }
 
 // ------------------------------------------------------------------ fly tab
@@ -282,7 +349,7 @@ function doFlip() {
 }
 input.handlers.press = (k) => {
   const s = pilot();
-  if (k === "c") { const order = ["chase", "orbit", "top"]; setCam(order[(order.indexOf(view.camMode) + 1) % 3]); return; }
+  if (k === "c") { const order = ["chase", "orbit", "top", "fpv"]; setCam(order[(order.indexOf(view.camMode) + 1) % 4]); return; }
   if (!s) return;
   if (k === "t") s.ctrl.armed ? null : s.ctrl.arm();
   else if (k === "l") s.ctrl.land();
@@ -326,12 +393,13 @@ function ctrlParams() {
   const ps = $("#polSrc");
   if (ps) { ps.value = state.ctrlOpts.learned.source === "trained" && state.trained ? "trained" : "bundled"; ps.addEventListener("change", () => { state.ctrlOpts.learned.source = ps.value; resetTab(); }); }
 }
-function flyAuto() { clearSims(); view.setActiveWaypoint(0); state.sims.push(makeSim(state.ctrlKind, COLORS()[state.ctrlKind], { primary: true })); }
+function flyAuto() { clearSims(); view.setActiveWaypoint(0); state.sims.push(makeSim(state.ctrlKind, COLORS()[state.ctrlKind], { primary: true })); addGhost(); }
 function race() {
   clearSims(); view.setActiveWaypoint(0);
   const c = COLORS();
   const kinds = ["pid", "lqr", "mpc", "smpc", "learned"];
   kinds.forEach((k) => state.sims.push(makeSim(k, c[k], { primary: k === "learned", name: CONTROLLERS[k].label })));
+  addGhost();
   setCam("orbit");
   log("race: every autopilot flies the same course at once", "");
 }
@@ -400,28 +468,37 @@ const SIT = [["windR", "windO", "wind", (v) => `${v} m/s`], ["dirR", "dirO", "di
   ["motorR", "motorO", "motor", (v) => `${v} %`], ["payR", "payO", "payload", (v) => `${v} g`], ["noiseR", "noiseO", "noise", (v) => `${Math.round(v * 100)} cm`], ["batR", "batO", "battery", (v) => `${v} %`]];
 function bindSituations() {
   for (const [r, o, key, fmt] of SIT) $("#" + r).addEventListener("input", (e) => { state.env[key] = +e.target.value; $("#" + o).textContent = fmt(e.target.value); });
+  $("#packSel").addEventListener("change", (e) => { state.env.pack = +e.target.value; });
+  $("#limR").addEventListener("input", (e) => { state.env.limit = +e.target.value; $("#limO").textContent = state.env.limit ? `${state.env.limit} A` : "off"; });
+  $("#cutChk").addEventListener("change", (e) => { state.env.cutoff = e.target.checked; });
   $("#applySit").addEventListener("click", () => { resetTab(); toast("Situation applied"); });
   $("#clearSit").addEventListener("click", () => {
-    Object.assign(state.env, { wind: 0, dir: 90, gust: 0, motor: 100, payload: 0, noise: 0, battery: 100 });
+    Object.assign(state.env, { wind: 0, dir: 90, gust: 0, motor: 100, payload: 0, noise: 0, battery: 100, pack: 550, limit: 30, cutoff: true });
     for (const [r, o, key, fmt] of SIT) { $("#" + r).value = state.env[key]; $("#" + o).textContent = fmt(state.env[key]); }
+    $("#packSel").value = "550"; $("#limR").value = 30; $("#limO").textContent = "30 A"; $("#cutChk").checked = true;
     resetTab();
   });
 }
 
 // ------------------------------------------------------------------ tabs, camera, misc
+const TABS = ["fly", "auto", "train", "sit", "rec"];
 function selectTab(t) {
+  const prev = state.tab;
   state.tab = t;
-  for (const id of ["fly", "auto", "train", "sit"]) {
+  for (const id of TABS) {
     $("#t-" + id).setAttribute("aria-selected", id === t);
     $("#p-" + id).hidden = id !== t;
   }
+  if (t === "rec") { recorderPanel(true); return; }       // the flight in progress keeps going
   document.body.classList.toggle("flying", t === "fly");
   if (t !== "train" && state.train.running) stopTraining();
   if (t === "auto") ctrlParams();
   if (t === "train") drawCurve();
-  resetTab();
+  const back = prev === "rec" && t === state.liveTab;    // back from the recorder to the same flight
+  state.liveTab = t;
+  if (!back) resetTab();
 }
-function setCam(m) { view.setCamera(m); updateCamButtons(); }
+function setCam(m) { view.setCamera(m); document.body.classList.toggle("fpv", m === "fpv"); if (m !== "fpv") drawOSD($("#osd"), view.fpvRect(), null); updateCamButtons(); }
 function updateCamButtons() { $$(".cams [data-cam]").forEach((b) => b.classList.toggle("on", b.dataset.cam === view.camMode)); }
 
 const BUNDLED = ["gates", "forest", "window"];   // courses with a policy trained offline by train.mjs
@@ -455,6 +532,70 @@ async function loadPolicy(file) {
     toast("Policy loaded - fly it on the Autopilot tab");
     $("#useBest").disabled = false;
   } catch (e) { toast(`Could not load the policy: ${e.message}`); }
+}
+
+// ------------------------------------------------------------------ recorder tab
+function shownFlight() {
+  if (state.recShown && state.flights.includes(state.recShown)) return state.recShown;
+  return state.rec || state.flights[0] || null;
+}
+function recorderPanel(rebuild, force = false) {
+  state.recDrawn = performance.now();
+  const sel = $("#flightSel");
+  const opts = [`<option value="-1">${state.rec ? `This flight (live): ${state.rec.name}` : "Latest flight"}</option>`]
+    .concat(state.flights.map((f, i) => `<option value="${i}">${f.label}</option>`)).join("");
+  if (rebuild || sel.dataset.n !== String(state.flights.length) + !!state.rec) { sel.innerHTML = opts; sel.value = String(state.flights.indexOf(state.recShown)); sel.dataset.n = String(state.flights.length) + !!state.rec; }
+  const r = shownFlight();
+  if (!r || (!force && !rebuild && r !== state.rec)) { if (!r) $("#recSum").innerHTML = '<div class="wide"><dt>Nothing recorded yet</dt><dd>Take off on the Fly tab or fly an autopilot, then come back here.</dd></div>'; if (r) return; }
+  const st = r && r.stats();
+  const c = COLORS();
+  if (st) {
+    const w = st.worst;
+    const item = (k, v, cls = "") => `<div><dt>${k}</dt><dd class="${cls}">${v}</dd></div>`;
+    $("#recSum").innerHTML = item("Flight time", `${st.duration.toFixed(1)} s`) + item("Distance", `${st.distance.toFixed(1)} m`)
+      + item("Top speed", `${st.maxSpeed.toFixed(1)} m/s`) + item("Highest", `${st.maxHeight.toFixed(2)} m`)
+      + item("Peak battery current", `${st.maxCurrent.toFixed(1)} A`, st.maxCurrent > 30.5 ? "bad" : "") + item("Lowest cell voltage", `${st.minCellV.toFixed(2)} V`, st.minCellV < 3.4 ? "bad" : "")
+      + item("Charge used", `${st.usedMah.toFixed(0)} mAh`) + item("Current-limited", `${st.limited.toFixed(1)} s`)
+      + `<div class="wide"><dt>Worst hit</dt><dd class="${w && w.speed > 0.3 ? "bad" : ""}">${w && w.speed > 0.3 ? `${w.speed.toFixed(1)} m/s into ${w.kind === "obstacle" ? "an obstacle" : "the " + w.kind}: ${w.energy_j.toFixed(2)} J, about ${Math.round(w.g)} g (assumes 5 mm of give)${w.speed > 3 ? "; beyond the 3 m/s design target" : ""}` : "none above 0.3 m/s"}</dd></div>`
+      + (st.powerCut ? `<div class="wide"><dt>Power</dt><dd class="bad">cut off at ${st.powerCut.t.toFixed(1)} s by the under-voltage cut-off</dd></div>` : "");
+  }
+  // charts get at most ~1500 points per series: a long flight has 50 rows a second
+  const step = r ? Math.max(1, Math.ceil(r.rows.length / 1500)) : 1;
+  const rows = r ? r.rows.filter((_, i) => i % step === 0) : [];
+  const t = rows.map((row) => row[0]);
+  const ci = (name) => ["t_s", "x_m", "y_m", "height_m", "vx_ms", "vy_ms", "vz_ms", "roll_deg", "pitch_deg", "yaw_deg", "m1_cmd", "m2_cmd", "m3_cmd", "m4_cmd", "thrust_n", "battery_v", "battery_a", "used_mah"].indexOf(name);
+  const pts = (name, k = 1) => rows.map((row) => [row[0], row[ci(name)] * k]);
+  const spd = rows.map((row) => [row[0], Math.hypot(row[4], row[5], row[6])]);
+  const flat = (y) => (t.length ? [[t[0], y], [t[t.length - 1], y]] : []);
+  const opt = { xlabel: "s", empty: "No flight yet" };
+  lineChart($("#chHeight"), [{ points: pts("height_m"), color: c.pilot }, { points: spd, color: c.mpc, width: 1.4 }], opt);
+  lineChart($("#chCurrent"), [{ points: pts("battery_a"), color: cssVar("--accent", "#f28c28"), width: 1.4 },
+    ...(r && r.limit ? [{ points: flat(r.limit), color: cssVar("--bad", "#c4362f"), width: 1, dash: [4, 3] }] : [])], opt);
+  lineChart($("#chVolt"), [{ points: pts("battery_v", 0.5), color: c.pid, width: 1.4 },
+    { points: flat(3.4), color: cssVar("--warn", "#a86a00"), width: 1, dash: [4, 3] }, { points: flat(5.77 / 2), color: cssVar("--bad", "#c4362f"), width: 1, dash: [4, 3] }], opt);
+  lineChart($("#chMotors"), ["m1_cmd", "m2_cmd", "m3_cmd", "m4_cmd"].map((k, i) => ({ points: pts(k, 100), color: [c.pid, c.lqr, c.mpc, c.learned][i], width: 1 })), opt);
+  $("#ghostBtn").textContent = state.ghost ? "Remove the ghost" : "Race this flight as a ghost";
+  $("#ghostBtn").disabled = !state.ghost && !r;
+  $("#csvBtn").disabled = !r;
+}
+function downloadCSV() {
+  const r = shownFlight(); if (!r) return;
+  const blob = new Blob([r.toCSV()], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = `flight-${r.course || state.courseName}-${Math.round(r.duration)}s.csv`; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+function toggleGhost() {
+  if (state.ghost) {
+    if (state.ghost.drone) view.removeDrone(state.ghost.drone);
+    state.ghost = null; toast("Ghost removed");
+  } else {
+    const r = shownFlight(); if (!r) return;
+    if (r.course && (r.course !== state.courseName || r.seed !== state.seed)) return toast("That flight was on another course or layout");
+    state.ghost = { rec: r, drone: null };
+    toast("Ghost set: it flies from your next reset");
+  }
+  recorderPanel(true);
 }
 
 // ------------------------------------------------------------------ course editor
@@ -510,9 +651,9 @@ function init() {
     $("#" + r).addEventListener("input", (e) => ($("#" + o).textContent = f(e.target.value)));
   $$(".tabs button").forEach((b) => b.addEventListener("click", () => selectTab(b.id.slice(2))));
   $(".tabs").addEventListener("keydown", (e) => {                     // arrow keys move between tabs
-    const ids = ["fly", "auto", "train", "sit"], i = ids.indexOf(state.tab);
+    const ids = TABS, i = ids.indexOf(state.tab);
     const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (!d) return;
-    const n = ids[(i + d + 4) % 4]; selectTab(n); $("#t-" + n).focus(); e.preventDefault();
+    const n = ids[(i + d + ids.length) % ids.length]; selectTab(n); $("#t-" + n).focus(); e.preventDefault();
   });
   $$("#modeSeg button").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
   setMode("beginner");
@@ -533,6 +674,10 @@ function init() {
   $("#raysBtn").addEventListener("click", (e) => { state.rays = !state.rays; e.target.classList.toggle("on", state.rays); e.target.setAttribute("aria-pressed", state.rays); view.drones.forEach((d) => (d.rays.visible = state.rays && d === state.sims.find((s) => s.primary)?.drone)); if (!state.rays) view.clearPlan(); });
   $("#speedBtn").addEventListener("click", (e) => { state.speed = { 1: 2, 2: 0.5, 0.5: 1 }[state.speed]; e.target.textContent = `${state.speed}×`; });
   bindSituations();
+  $("#streamBtn").addEventListener("click", (e) => { view.stream = !view.stream; e.target.setAttribute("aria-pressed", view.stream); e.target.textContent = view.stream ? "Streamed video" : "Ideal video"; });
+  $("#flightSel").addEventListener("change", (e) => { state.recShown = state.flights[+e.target.value] || null; recorderPanel(false, true); });
+  $("#csvBtn").addEventListener("click", downloadCSV);
+  $("#ghostBtn").addEventListener("click", toggleGhost);
   $("#edToggle").addEventListener("click", () => setEditing(!state.editing));
   $$("#toolSeg button").forEach((b) => b.addEventListener("click", () => setTool(b.dataset.tool)));
   $("#edStarter").addEventListener("click", () => applySpec(DEFAULT_SPEC, "starter layout restored"));
@@ -566,6 +711,6 @@ function init() {
   await Promise.all([view.loadModel("../models/microscout_concept.glb"), loadBundled()]);
   $("#loading").remove();
   init();
-  window.lab = { tick, state, view, input, pilot, doFlip, setMode, race, flyAuto, selectTab, setCourse, startTraining, stopTraining, setCam };   // for tests and the README renders
+  window.lab = { tick, state, view, input, pilot, doFlip, setMode, race, flyAuto, selectTab, setCourse, startTraining, stopTraining, setCam, recorderPanel };   // for tests and the README renders
   requestAnimationFrame(frame);
 })();

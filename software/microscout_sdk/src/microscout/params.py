@@ -29,6 +29,7 @@ class DroneParams:
     battery_cells: int = 2
     battery_r_int_ohm: float = 0.045   # pack internal resistance (ASSUMPTION)
     hover_eff_g_per_w: float = 3.0     # middle of the 2.5-3.5 g/W bracket (ESTIMATE)
+    full_power_w: float = 68.1         # one motor at full throttle: 9.20 A at 7.4 V (S15 vendor table; budgets 3d)
     electronics_w: float = 2.98        # 0.402 A x 7.4 V from budgets.py (ESTIMATE)
     # motor layout (Betaflight Quad-X order: 1 rear-right, 2 front-right, 3 rear-left, 4 front-left)
     # spin: +1 = clockwise seen from above. Placeholders until the G2 schematic.

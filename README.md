@@ -47,7 +47,9 @@
 
 The **[Flight Lab](https://normansrule.github.io/microscout/lab/)** runs MicroScout's simulator in a web page, with nothing to install:
 
-- **Fly it yourself** with the keyboard, a gamepad or touch sticks, in beginner, sport or acro mode, with one-button flips.
+- **Fly it yourself** with the keyboard, a gamepad or touch sticks, in beginner, sport or acro mode, with one-button flips, from behind or through the front camera (FPV, first-person view) with an on-screen display.
+- **Feel the design's power limits:** battery sag, the 30 A firmware current limit and the 5.77 V hardware cut-off from the G2 schematic.
+- **Record every flight:** charts of height, speed, current and cell voltage, a CSV download, and a ghost replay to race against.
 - **Race five autopilots** through obstacle courses: PID, LQR (Linear-Quadratic Regulator), MPC (Model Predictive Control) given the map, MPC using only its own sensors, and a learned policy.
 - **Build your own course** in a top-down editor, then share it as a link.
 - **Train it with reinforcement learning** using CEM, evolution strategies, ARS or REINFORCE, and watch every attempt as it learns.
@@ -57,6 +59,10 @@ The **[Flight Lab](https://normansrule.github.io/microscout/lab/)** runs MicroSc
   <tr>
     <td width="50%"><img src="docs/figures/lab/lab-pilot.gif" alt="Free flight in beginner mode: the drone takes off, slides sideways, flies through the first gate with its distance-sensor rays fanning out ahead, does a back flip and carries on."><br><sub><b>Free pilot:</b> take off, thread a gate, back flip. The red and grey lines are the 12 simulated ToF rays.</sub></td>
     <td width="50%"><img src="docs/figures/lab/lab-forest-mpc.gif" alt="The MPC autopilot weaving between pillars; faint purple lines show the random future paths it samples every 40 ms."><br><sub><b>MPC in the pillar forest:</b> the faint purple lines are the 64 futures it samples every 40 ms.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/figures/lab/lab-fpv.gif" alt="First-person view from the simulated front camera, flying towards the gates, with an on-screen display: battery voltage and current top left, flight time and mode top right, height and speed at the bottom, and an artificial horizon in the middle."><br><sub><b>FPV with an on-screen display:</b> camera lens and tilt are assumptions until the canopy is drawn.</sub></td>
+    <td width="50%"><img src="docs/figures/lab/lab-recorder-light.png" alt="The Recorder tab after a full-throttle climb into the ceiling: summary numbers, a height and speed chart, and a battery current chart that rises towards the dashed 30 A firmware limit."><br><sub><b>Flight recorder:</b> a full-throttle climb in acro, the battery current against the 30 A firmware limit, and the hit graded against the 3 m/s design target.</sub></td>
   </tr>
 </table>
 

@@ -102,8 +102,8 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .editor .row { margin: 0 0 8px; }
 .editor .seg button { padding: 6px 4px; font-size: 13.5px; }
 body.editing #view { cursor: crosshair; }
-.tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin: 4px 0 14px; border: 1px solid var(--line); border-radius: var(--radius-s); overflow: hidden; }
-.tabs button { border: 0; border-radius: 0; border-right: 1px solid var(--line); padding: 8px 4px; font-weight: 600; font-variation-settings: "wdth" 104; }
+.tabs { display: grid; grid-template-columns: repeat(5, auto); gap: 0; margin: 4px 0 14px; border: 1px solid var(--line); border-radius: var(--radius-s); overflow: hidden; }
+.tabs button { border: 0; border-radius: 0; border-right: 1px solid var(--line); padding: 8px 2px; font-weight: 600; font-size: 14px; font-variation-settings: "wdth" 88; }
 .tabs button:last-child { border-right: 0; }
 .tabs button[aria-selected="true"] { background: var(--ink); color: var(--panel); }
 
@@ -173,3 +173,25 @@ body.embed .lab { grid-template-columns: 1fr; grid-template-rows: 1fr; }
   .stage { min-height: 300px; }
 }
 @media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+
+/* FPV view and on-screen display */
+.osd { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; display: none; }
+body.fpv .osd { display: block; }
+body.fpv .readout { display: none; }
+#view.stream { image-rendering: pixelated; }
+#streamBtn { display: none; }
+body.fpv #streamBtn { display: inline-block; }
+#streamBtn[aria-pressed="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+
+/* recorder tab */
+.sum { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 14px; margin: 12px 0 4px; font-variant-numeric: tabular-nums; }
+.sum div { display: flex; flex-direction: column; }
+.sum dt { color: var(--muted); font-size: 12.5px; }
+.sum dd { margin: 0; font-size: 17px; font-weight: 600; font-variation-settings: "wdth" 92; }
+.sum dd.bad { color: var(--bad); }
+.sum .wide { grid-column: 1 / -1; }
+.ch { margin: 14px 0 2px; font-size: 13.5px; font-weight: 650; }
+.chart.small { height: 120px; }
+.legend .sw[style] { background: var(--c); }
+.legend .sw.dash { background: repeating-linear-gradient(90deg, var(--c) 0 4px, transparent 4px 7px); }
+body.fpv .log { bottom: 52px; left: 50%; transform: translateX(-50%); align-items: center; }

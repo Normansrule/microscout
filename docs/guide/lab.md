@@ -6,11 +6,12 @@
 
 The Flight Lab is a browser app for trying MicroScout before any hardware exists. You can:
 
-- fly it yourself;
+- fly it yourself, from behind or through its front camera with an on-screen display;
 - watch five different autopilots attempt the same obstacle course;
 - build your own course and share it as a link;
 - train it with reinforcement learning and watch it improve;
-- add wind, a weak motor or a flat battery to see what breaks.
+- add wind, a weak motor or a flat battery to see what breaks;
+- record every flight, chart it, download it as CSV and race it again as a ghost.
 
 Everything runs on your own machine. There is no server and nothing to install.
 
@@ -26,7 +27,8 @@ Everything runs on your own machine. There is no server and nothing to install.
 | **Fly** | Fly it yourself in beginner, sport or acro mode, with take-off, land, flips and a simulated radio drop | The flight modes and safety rules from [fly.md](fly.md), and how they feel |
 | **Autopilot** | Pick PID, LQR, MPC (with the map or with sensors only) or the learned policy, tune it, then use *Fly the course* or *Race them all* | How different control ideas cope with the same course |
 | **Train** | Pick a learning algorithm, a policy and its settings, then press *Start* | The learning curve, the population's attempts as faint ghost paths, and the current policy re-flying in the view |
-| **Situations** | Add wind, gusts, a weak motor 3, a payload, ToF noise or a low battery | Which controllers degrade gracefully and which do not |
+| **Situations** | Add wind, gusts, a weak motor 3, a payload, ToF noise or a low battery; pick the battery pack; change the current limit or turn off the under-voltage cut-off | Which controllers degrade gracefully and which do not, and what the design's power protections do |
+| **Recorder** | Pick a flight (the live one or one of the last six) | A summary, charts of height, speed, battery current, cell voltage and motor commands, a CSV download, and *Race this flight as a ghost* |
 
 ### Controls (Fly tab)
 
@@ -36,9 +38,9 @@ Everything runs on your own machine. There is no server and nothing to install.
 | <kbd>Space</kbd> <kbd>Shift</kbd> | up, down | <kbd>Q</kbd> <kbd>E</kbd> | turn |
 | <kbd>T</kbd> | take off (to 1.2 m) | <kbd>L</kbd> | land |
 | <kbd>X</kbd> | flip toward the stick (back flip if centred) | <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> | beginner, sport, acro |
-| <kbd>C</kbd> | camera: chase, orbit, top | <kbd>K</kbd> | motors off |
+| <kbd>C</kbd> | camera: chase, orbit, top, FPV | <kbd>K</kbd> | motors off |
 
-A gamepad also works, using the Mode 2 layout: left stick is throttle and yaw, right stick is pitch and roll. The face buttons are take off, land, flip and mode. On a phone, two touch sticks appear once you take off.
+A gamepad also works, using the Mode 2 layout: left stick is throttle and yaw, right stick is pitch and roll. The face buttons are take off, land, flip and mode; either shoulder button changes the camera. On a phone, two touch sticks appear once you take off.
 
 The safety rules are the same as in the SDK simulator:
 
@@ -47,6 +49,54 @@ The safety rules are the same as in the SDK simulator:
 - **Lost radio:** if no stick packets arrive for 0.5 s, it hovers. After a further 3 s, it lands.
 - **Low battery:** it lands by itself.
 - **Walls (beginner only):** it stops about 40 cm short of anything its ToF rays see.
+
+## FPV camera and on-screen display
+
+The **FPV** button (or <kbd>C</kbd>) shows the view from MicroScout's front camera, the OV2640 of D-004, with an on-screen display (OSD) over it.
+
+| On the OSD | Where |
+|---|---|
+| Battery voltage, volts per cell, battery current and charge used (red below 3.5 V per cell, amber while current-limited) | Top left |
+| Flight time, flight mode or *DISARMED*, average throttle | Top right |
+| Height and speed | Bottom corners |
+| Artificial horizon with a 10° pitch ladder, and a crosshair where the camera points | Centre |
+| Warnings: *POWER CUT*, *RX LOSS* (radio), *LOW BATTERY*, *CURRENT LIMIT* | Lower centre |
+
+The picture is 4:3, like the sensor. The camera geometry is an **ASSUMPTION** until the canopy is drawn at G4:
+
+- Lens: 66° diagonal field of view, which is common on OV2640 modules. On a 4:3 sensor, tan(33°) = 0.649, so the vertical half-angle is atan(0.649 × 3/5) = 21.3°: a 42.6° vertical and 54.9° horizontal field of view.
+- Mount: 15° uptilt, 35 mm ahead of the centre.
+
+The horizon and the pitch ladder use the same geometry: points on the horizon (and at ±10° and ±20° elevation) are projected through the camera, u = f (b·r)/(b·c) and v = f (b·d)/(b·c), where b is the direction in the drone's frame, c, r and d are the camera's forward, right and down axes, and f = (picture height / 2) / tan(21.3°). So the line lies on the room's real horizon, at the drone's own height, at any attitude. In *Streamed video* it uses the same delayed attitude as the picture.
+
+**Ideal video / Streamed video** switches between a clean picture and the picture as the Wi-Fi stream would show it: 320 × 240 pixels, drawn from where the drone was 120 ms earlier. Both numbers are **ESTIMATES** for an MJPEG stream from the ESP32-S3 (R-07). The real resolution, frame rate and delay are measured at G6.
+
+## Power: the design's own limits
+
+The battery and motors follow the G1 budgets, and two protections come from the G2 schematic (`review/G2/protection.md`).
+
+| Model part | Formula | Numbers (all ESTIMATES) |
+|---|---|---|
+| Cell open-circuit voltage | Table against state of charge, steep below 10 % | 4.35 V at the LiHV rating to 3.00 V empty. *Battery at start 100 %* means 4.2 V per cell, where the on-board charger stops (D-033): about 90 % of the rated charge. |
+| Battery terminal voltage | V = OCV − I R | R = 45 mΩ for the pack |
+| Motor power | P = P_hover × (T / T_hover)^n, with n = ln(P_full / P_hover) / ln(T_max / T_hover) | P_hover = 21.6 g / 3.0 g/W = 7.2 W; P_full = 68.1 W at T_max = 85 g, so n = ln(68.1 / 7.2) / ln(85 / 21.6) = 1.64 |
+| Full-throttle current | I = (4 P_full + P_electronics) / V | (4 × 68.1 + 3.0) / 7.3 V = 37.7 A in budget 3d. In the simulator, thrust also falls with V², so the sag under load (I × 45 mΩ) caps a full-throttle climb on a freshly charged pack at about 30 A |
+| Firmware current limit (DR-06) | If commanded thrust would draw more than I_lim, every motor is scaled by k = ((I_lim V − P_elec) / Σ P(T))^(1/n), with V the terminal voltage at the limit, OCV − I_lim R | I_lim = 30 A, because the XT30 is rated 30 A peak |
+| Hardware cut-off (U23 TLV6700, D-053) | V_f follows V through a first-order filter, dV_f/dt = (V − V_f) / τ; the drone switches off when V_f < V_trip | V_trip = 5.77 V (2.89 V per cell), τ = 0.48 s |
+| Low-battery landing (firmware) | Lands after 2 s below 3.4 V per cell under load | As in `fly.md` |
+| Impact readout | E = m v² / 2; mean deceleration a = v² / (2 d) | d = 5 mm of give in the frame and guards (ASSUMPTION) |
+
+The 450 mAh pack (26 g) is the lighter alternative from OQ-2. Because the modelled sag already holds full throttle near 30 A, the limit shows best at a lower setting: at 20 A, the current trace on the Recorder tab flattens at the dashed line.
+
+The motor-power formula is anchored at two budget points. Through hover, it uses the middle of the 2.5–3.5 g/W bracket, so hover current and flight time carry that uncertainty. At full throttle, it uses the vendor's table for an open propeller, and the 85 g thrust already assumes 30 % lost to the ducts. Neither point has been measured.
+
+## Flight recorder
+
+Every flight in the view is recorded at 50 Hz of simulation time, up to 15 minutes. That means your own flight on the Fly or Situations tab, or the main autopilot on the Autopilot tab. Opening the Recorder tab does not stop the flight in progress.
+
+- **Summary:** flight time, distance, top speed, highest point, peak battery current, lowest cell voltage under load, charge used, time spent current-limited, the worst hit and any power cut.
+- **CSV:** the columns are time; position, with height positive up; velocity; roll, pitch and yaw; the four motor commands; total thrust; battery voltage, current and charge used; each motor's current; and the current-limit and power-cut flags.
+- **Ghost:** *Race this flight as a ghost* replays the chosen flight as a faded drone next to you, from the next reset, until you remove it.
 
 ## The autopilots
 
@@ -178,7 +228,9 @@ Choose **Your course (editor)** in the course list, then press **Edit layout**. 
 | `docs/lab/js/control.js` | Inner loops; the PID, LQR, MPPI and learned controllers; the pilot controller with flips and safety rules |
 | `docs/lab/js/rl.js` | Episode runner, reward, and the CEM, ES, ARS and REINFORCE trainers. `worker.js` runs them off the main thread. |
 | `docs/lab/js/world.js` | The courses (including the editor's `custom` course), ToF ray casting and collision geometry |
-| `docs/lab/js/render.js` | three.js view: the concept model from `docs/models/`, trails, rays, ghosts, MPC samples, the sensor-only MPC's hit points, and an orthographic top view used by the editor |
+| `docs/lab/js/render.js` | three.js view: the concept model from `docs/models/`, trails, rays, ghosts, MPC samples, the sensor-only MPC's hit points, an orthographic top view used by the editor, and the FPV camera |
+| `docs/lab/js/osd.js` | The on-screen display drawn over the FPV picture |
+| `docs/lab/js/recorder.js` | Flight recorder: 50 Hz samples, summary, CSV, and interpolated poses for the ghost |
 | `docs/lab/test/lab.test.mjs` | Regression tests, run in CI with `node --test docs/lab/test/lab.test.mjs` |
 | `tools/viz/lab_capture.py`, `tools/viz/lab_charts.py` | The README GIFs and charts |
 
@@ -195,13 +247,15 @@ cd microscout/docs && python3 -m http.server 8000
 |---|---|
 | `?course=forest` | Chooses the course: `gates`, `forest`, `window`, `hover`, `hangar` or `custom` |
 | `#course=...` | A layout from the editor (made by *Copy link*) |
-| `&tab=train` | Opens a tab: `fly`, `auto`, `train` or `sit` |
+| `&tab=train` | Opens a tab: `fly`, `auto`, `train`, `sit` or `rec` |
 | `&demo=race` | Starts a race |
-| `&cam=top` | Sets the camera |
+| `&cam=top` | Sets the camera: `chase`, `orbit`, `top` or `fpv` |
 | `&embed` | Shows only the 3D view |
 
 ### Known limits
 
 - The real flight controller will run its loops on an ESP32-S3 with sensor noise, estimation error and latency. The lab steps the physics at 500 Hz and gives every controller the true state; only the ToF rays can be made noisy.
 - Ground effect, propeller wash between ducts, and battery sag under temperature are not modelled.
+- The current limit acts instantly on the commanded thrust. Real firmware reads the INA226 and reacts a few milliseconds later, so the real current can overshoot briefly.
+- The FPV camera's lens, mount angle, resolution and delay are assumptions, and the picture has no motion blur, rolling shutter or radio break-up.
 - The map-based MPC is given the obstacle map. The sensor-only MPC is the fair comparison, but its ToF model is ideal apart from optional noise: no multipath, no surface reflectivity, and no 8 × 8 zones on the front sensor.
