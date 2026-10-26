@@ -1,0 +1,11 @@
+# STATUS: DRAFT - UNVERIFIED - requires human review at the Phase 0 gate
+part,qty,mass_each_g,mass_g,basis,price_each_usd,supplier,stock_2026_10_26,note
+"Crazyflie 2.1+ airframe: board, frame, 4 coreless motors, props (no battery)",1,21.9,21.9,DERIVED,,Bitcraze / RobotShop US,"RobotShop: in stock, 9 units",29 g takeoff minus the 7.1 g battery; motor and frame split not published
+250 mAh 1S LiPo (stock battery),1,7.1,7.1,CLAIM,,Bitcraze,no label,in the kit
+Flow deck v2 (optical flow + ToF height),1,1.6,1.6,CLAIM,,Bitcraze,no label,in the STEM ranging bundle
+"Multi-ranger deck (5 ToF: front, back, left, right, up)",1,2.3,2.3,CLAIM,,Bitcraze,no label,in the STEM ranging bundle
+Crazyradio 2.0 (ground),1,0.0,0.0,CLAIM,,Bitcraze,no label,"ground side, not flown"
+STEM ranging bundle 2.1+ (the four lines above),1,0.0,0.0,CLAIM,410.0,Bitcraze store,no label,"contents inferred from the list price, UNCONFIRMED"
+"AI deck 1.1 (GAP8 + camera), optional",1,4.4,4.4,CLAIM,240.0,Bitcraze,"OUT OF STOCK (RobotShop US $308.02, 2 left)",onboard tracking toolchain unavailable since the chip maker's 2025 liquidation
+Long pin headers (two decks on top),1,0.5,0.5,ESTIMATE,2.0,Bitcraze,no label,
+Spare 250 mAh batteries,2,0.0,0.0,CLAIM,6.5,Bitcraze,no label,not flown at once

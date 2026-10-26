@@ -1,0 +1,70 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: MIT -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Wisp, Tower: Control Lab</title>
+<link rel="stylesheet" href="tower.css">
+</head>
+<body>
+<div class="lab">
+  <aside class="left" aria-label="Loop and gains">
+    <p class="brand">Wisp Control Lab <span>Loop 1 of 6</span></p>
+    <h1>Roll rate</h1>
+    <div class="big2">
+      <div><p class="painted" id="pm"></p><p class="cap">Phase margin, aim for 45° or more</p></div>
+      <div><p class="painted" id="gm"></p><p class="cap">Gain margin in dB, aim for 6 or more</p></div>
+    </div>
+    <div class="slider"><label for="kp">Proportional, Kp <output id="kpO"></output></label><input id="kp" type="range" min="0.03" max="0.35" step="0.005"></div>
+    <div class="slider"><label for="ki">Integral, Ki <output id="kiO"></output></label><input id="ki" type="range" min="0" max="0.6" step="0.005"></div>
+    <div class="slider"><label for="kd">Derivative, Kd <output id="kdO"></output></label><input id="kd" type="range" min="0" max="0.012" step="0.0002"></div>
+    <div class="slider"><label for="fd">D-term filter <output id="fdO"></output></label><input id="fd" type="range" min="5" max="80" step="1"></div>
+    <button class="apply">Send gains to SITL</button>
+  </aside>
+  <main class="right">
+    <section class="sign">
+      <p id="when"></p>
+      <p class="eq" id="eq"></p>
+    </section>
+    <section class="charts">
+      <div><h2>A 30 °/s roll command</h2><p id="stepNote"></p><div id="step"></div></div>
+      <div><h2>Gain and phase</h2><p id="bodeNote"></p><div id="bode"></div></div>
+    </section>
+    <footer class="status"><span><b>SITL connected</b>, ArduCopter 4.7 at 400 Hz</span><span>Telemetry <b>3 ms</b> behind</span><span>Plant and gains: estimates. Synthetic data.</span></footer>
+  </main>
+</div>
+<script type="module">
+import { GAINS, PLANT, bode, step } from "../shared/model.js";
+import { chart } from "../shared/charts.js";
+const g = { ...GAINS };
+const m = (x, d) => x.toFixed(d).replace("-", "−");
+const ink = "#0c2b3b", rescue = "#c63a12", grid = "#ece3cf", muted = "#2c4c5d", sky = "#5c9fc0";
+function render() {
+  const s = step(g, PLANT, 30), b = bode(g, PLANT);
+  const k = s.out.find((o) => o.t >= 0.03);
+  document.getElementById("when").textContent = `What the controller sends to the motors ${Math.round(k.t * 1000)} ms into the roll:`;
+  document.getElementById("eq").innerHTML = `u = ${g.Kp.toFixed(3)} × ${m(k.e, 3)} <span>+</span> ${g.Ki.toFixed(3)} × ${m(k.integ, 4)} <span>+</span> ${g.Kd.toFixed(4)} × ${m(k.d, 1)} <span>=</span> <b>${m(g.Kp * k.e + g.Ki * k.integ + g.Kd * k.d, 3)}</b>`;
+  document.getElementById("step").innerHTML = chart({
+    w: 560, h: 470, pad: { l: 56, r: 12, t: 10, b: 26 }, x: [0, 0.4], y: [0, 45], yTicks: [0, 15, 30, 45], yFmt: (t) => `${t} °/s`, xTicks: [0, 0.1, 0.2, 0.3], xFmt: (t) => `${Math.round(t * 1000)} ms`, grid,
+    series: [{ pts: [[0, 30], [0.4, 30]], color: sky, width: 2, dash: "6 5" }, { pts: s.out.map((o) => [o.t, o.rate]), color: rescue, width: 3.4 }],
+    marks: [{ x: s.rise, y: 27, color: ink, label: `90 % in ${Math.round(s.rise * 1000)} ms`, dy: 26 }],
+  });
+  document.getElementById("stepNote").textContent = `Overshoots ${(s.overshoot * 100).toFixed(1)} %, steady within 5 % by ${Math.round(s.settle * 1000)} ms. A model run, not a flight.`;
+  const o = { w: 500, h: 235, x: [1, 2000], xLog: true, grid };
+  document.getElementById("bode").innerHTML = chart({ ...o, pad: { l: 56, r: 12, t: 10, b: 8 }, y: [-40, 60], yTicks: [-40, 0, 40], yFmt: (t) => `${m(t, 0)} dB`, series: [{ pts: b.pts.map((p) => [p.w, p.mag]), color: rescue, width: 3 }], marks: [{ x: b.wc, y: 0, color: ink, label: `0 dB at ${b.wc.toFixed(0)} rad/s` }] })
+    + chart({ ...o, pad: { l: 56, r: 12, t: 10, b: 26 }, y: [-270, -45], yTicks: [-180, -90], yFmt: (t) => `${m(t, 0)}°`, xTicks: [1, 10, 100, 1000], xFmt: (t) => (t === 1000 ? "1000 rad/s" : t), series: [{ pts: b.pts.map((p) => [p.w, p.ph]), color: muted, width: 3 }], marks: [{ x: b.wc, y: -180 + b.pm, color: ink, label: `${b.pm.toFixed(0)}° to spare`, dy: 22 }] });
+  document.getElementById("bodeNote").textContent = `Plant ${PLANT.b} / (s (${PLANT.tau} s + 1)) with a ${PLANT.Td * 1000} ms delay: estimates until system identification.`;
+  document.getElementById("pm").textContent = `${b.pm.toFixed(0)}°`;
+  document.getElementById("gm").textContent = b.gm ? b.gm.toFixed(1) : "–";
+  for (const [id, key, d] of [["kp", "Kp", 3], ["ki", "Ki", 3], ["kd", "Kd", 4]]) document.getElementById(id + "O").textContent = g[key].toFixed(d);
+  document.getElementById("fdO").textContent = `${g.fd} Hz`;
+}
+for (const [id, key] of [["kp", "Kp"], ["ki", "Ki"], ["kd", "Kd"], ["fd", "fd"]]) {
+  const el = document.getElementById(id); el.value = g[key];
+  el.addEventListener("input", () => { g[key] = +el.value; render(); });
+}
+render();
+</script>
+</body>
+</html>

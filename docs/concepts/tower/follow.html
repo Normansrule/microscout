@@ -1,0 +1,70 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: MIT -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wisp, Tower: follow-me</title>
+<link rel="stylesheet" href="tower.css">
+</head>
+<body class="phone-page">
+<main class="phone" aria-label="Follow-me screen mockup (synthetic data)">
+  <section class="field">
+    <p class="say">Following you <span>link 84 ms</span></p>
+    <div class="numbers" aria-label="4.0 metres behind, 2.5 metres up">
+      <span class="painted">4.0</span>
+      <span class="unit">m behind<b>2.5</b>m up</span>
+    </div>
+    <svg class="elev" viewBox="0 0 390 150" role="img" aria-label="Side view: Wisp 2.5 m up and 4 m behind you">
+      <!-- side elevation, 26 px per metre: ground, you, Wisp, and the dimension lines between -->
+      <rect y="122" width="390" height="28" fill="#f1e6cc"/>
+      <path d="M0 122 H390" stroke="#0c2b3b" stroke-width="2"/>
+      <!-- you -->
+      <circle cx="262" cy="76" r="7" fill="#0c2b3b"/>
+      <path d="M262 84 L262 104 M262 104 L254 122 M262 104 L270 122 M262 90 L252 100 M262 90 L272 98" stroke="#0c2b3b" stroke-width="5" stroke-linecap="round" fill="none"/>
+      <!-- Wisp -->
+      <rect x="140" y="50" width="38" height="8" rx="4" fill="#c63a12"/>
+      <path d="M136 48 h16 M166 48 h16" stroke="#c63a12" stroke-width="4" stroke-linecap="round"/>
+      <path d="M178 58 L254 82" stroke="#c63a12" stroke-width="2" stroke-dasharray="4 4"/>
+      <!-- dimensions -->
+      <path d="M159 64 V120 M153 64 h12 M153 120 h12" stroke="#2c4c5d" stroke-width="1.6"/>
+      <text x="126" y="98" font-family="Barlow Condensed" font-weight="800" font-size="20" fill="#0c2b3b">2.5</text>
+      <path d="M159 140 H262 M159 134 v12 M262 134 v12" stroke="#2c4c5d" stroke-width="1.6"/>
+      <text x="196" y="138" font-family="Barlow Condensed" font-weight="800" font-size="20" fill="#0c2b3b" paint-order="stroke" stroke="#f1e6cc" stroke-width="6">4.0</text>
+      <text x="292" y="80" font-family="Barlow" font-weight="700" font-size="15" fill="#0c2b3b">You</text>
+      <text x="92" y="44" font-family="Barlow" font-weight="700" font-size="15" fill="#0c2b3b">Wisp</text>
+    </svg>
+  </section>
+
+  <figure class="map" style="margin:0" aria-label="Top view of the trail">
+    <svg id="map" viewBox="0 0 390 150" role="img" aria-label="Top view: your path, Wisp's path and the palm on the right"></svg>
+  </figure>
+
+  <section class="body">
+    <div class="flags" role="radiogroup" aria-label="Mode">
+      <button role="radio" aria-checked="true">Follow</button><button role="radio" aria-checked="false">Orbit</button><button role="radio" aria-checked="false">Lead</button><button role="radio" aria-checked="false">Side</button><button role="radio" aria-checked="false">Dolly</button>
+    </div>
+    <p class="caution"><b>Palm 2.6 m to the right.</b> Wisp keeps 1.5 m clear and will slow down.</p>
+    <p class="line"><span>Tracking your phone's GPS, <b>92 %</b> sure. Camera ready.</span></p>
+    <p class="line"><span>Battery <b>61 %</b>, 6 min</span><span>Recording <b>3:42</b></span><span>Authorized to <b>100 ft</b></span></p>
+    <button class="stop">Stop and hover</button>
+    <div class="pair"><button>Land here</button><button>Come back to me</button></div>
+  </section>
+</main>
+<script type="module">
+import { S, view, pathD, coast, arrow } from "../shared/map.js";
+const v = view(390, 150, [-4, 0], 6.5);
+const H = S.target.heading, D = S.drone.pos;
+const out = [];
+const c = coast(v);
+out.push(`<path d="${c.sea}" fill="#a3d3e8"/>`);
+out.push(`<path d="${pathD(v, S.walker.concat(S.trailAhead))}" stroke="#fffdf8" stroke-width="12" fill="none" stroke-linecap="round"/>`);
+for (const o of S.obstacles) out.push(`<circle cx="${v.X(o.pos)}" cy="${v.Y(o.pos)}" r="${Math.max(3, o.r * v.scale)}" fill="#2c4c5d"/>`);
+out.push(`<path d="${pathD(v, S.drone.trail)}" stroke="#c63a12" stroke-width="3.5" fill="none"/>`);
+out.push(`<circle cx="${v.X([0, 0])}" cy="${v.Y([0, 0])}" r="7" fill="#0c2b3b"/>`);
+out.push(`<path d="${arrow(v, D, H, 12)}" fill="#c63a12"/>`);
+out.push(`<rect x="12" y="122" width="${10 * v.scale}" height="5" fill="#0c2b3b"/><text x="${18 + 10 * v.scale}" y="128" font-family="Barlow" font-size="12" font-weight="500" fill="#0c2b3b">10 m</text>`);
+document.getElementById("map").innerHTML = out.join("");
+</script>
+</body>
+</html>

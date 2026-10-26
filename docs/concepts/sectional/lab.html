@@ -1,0 +1,144 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: MIT -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Wisp, Sectional: Control Lab</title>
+<link rel="stylesheet" href="sectional.css">
+</head>
+<body>
+<div class="lab">
+  <nav class="side" aria-label="Control Lab">
+    <div class="mark"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M4 20 C9 9, 15 23, 24 7" fill="none" stroke="var(--wisp)" stroke-width="3.2" stroke-linecap="round"/><circle cx="24" cy="7" r="3" fill="var(--wisp)"/></svg>Wisp</div>
+    <div>
+      <h2>Control Lab, inner to outer</h2>
+      <ul class="loops">
+        <li><a href="#" aria-current="page">Roll rate <span>PID</span></a></li>
+        <li><a href="#">Roll angle <span>P</span></a></li>
+        <li><a href="#">Velocity <span>PID</span></a></li>
+        <li><a href="#">Position <span>P</span></a></li>
+        <li><a href="#">Follow offset <span>Feed-forward</span></a></li>
+        <li><a href="#">State estimate <span>EKF</span></a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Advanced tracks</h2>
+      <ul class="loops">
+        <li><a href="#">LQR <span>Riccati</span></a></li>
+        <li><a href="#">MPC <span>Horizon 1 s</span></a></li>
+        <li><a href="#">System ID <span>Logs</span></a></li>
+      </ul>
+    </div>
+    <p class="sitl"><b>SITL connected</b>, ArduCopter 4.7 at 400 Hz.<br>Telemetry <b>3 ms</b> behind. Synthetic data.</p>
+  </nav>
+
+  <main class="main">
+    <div class="title-row">
+      <div>
+        <h1>Roll rate loop</h1>
+        <p id="finding"></p>
+      </div>
+      <button class="apply">Send gains to SITL</button>
+    </div>
+
+    <section class="diagram" aria-label="Block diagram with live values">
+      <svg id="diag" viewBox="0 0 1150 150" role="img" aria-label="Rate loop block diagram"></svg>
+      <p class="eq" id="eq"></p>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <h3>Step response, 30 °/s</h3>
+        <p class="note" id="stepNote"></p>
+        <div id="step"></div>
+      </section>
+      <section class="card">
+        <h3>Open-loop gain and phase</h3>
+        <p class="note" id="bodeNote"></p>
+        <div id="bode"></div>
+      </section>
+      <section class="card gains" aria-label="Gains">
+        <h3>Gains</h3>
+        <div class="gain"><label for="kp">Proportional, Kp <output id="kpO"></output></label><input id="kp" type="range" min="0.03" max="0.35" step="0.005"></div>
+        <div class="gain"><label for="ki">Integral, Ki <output id="kiO"></output></label><input id="ki" type="range" min="0" max="0.6" step="0.005"></div>
+        <div class="gain"><label for="kd">Derivative, Kd <output id="kdO"></output></label><input id="kd" type="range" min="0" max="0.012" step="0.0002"></div>
+        <div class="gain"><label for="fd">D-term filter <output id="fdO"></output></label><input id="fd" type="range" min="5" max="80" step="1"></div>
+        <div class="margins">
+          <div><p class="big" id="pm"></p><p class="cap">Phase margin</p></div>
+          <div><p class="big" id="gm"></p><p class="cap">Gain margin</p></div>
+          <div><p class="big" id="wc"></p><p class="cap">Crossover</p></div>
+          <div><p class="big" id="os"></p><p class="cap">Overshoot</p></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+import { GAINS, PLANT, bode, step } from "../shared/model.js";
+import { chart } from "../shared/charts.js";
+const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const g = { ...GAINS };
+const fmt = (v, d = 3) => v.toFixed(d);
+
+function diagram(sample) {
+  const ink = css("--ink"), wisp = css("--wisp"), paper = css("--paper"), muted = css("--muted"), air = css("--air");
+  const box = (x, w, t1, t2) => `<rect x="${x}" y="42" width="${w}" height="56" rx="6" fill="${paper}"/><text x="${x + w / 2}" y="66" text-anchor="middle" font-weight="800" font-size="15" fill="${ink}">${t1}</text><text x="${x + w / 2}" y="86" text-anchor="middle" font-size="13" fill="${muted}">${t2}</text>`;
+  const wire = (x1, x2, label) => `<path d="M${x1} 70 H${x2 - 8}" stroke="${ink}" stroke-width="2"/><path d="M${x2 - 9} 64 L${x2} 70 L${x2 - 9} 76 Z" fill="${ink}"/>${label ? `<text x="${(x1 + x2) / 2}" y="58" text-anchor="middle" font-size="13" font-weight="800" fill="${wisp}">${label}</text>` : ""}`;
+  return [
+    `<text x="10" y="74" font-size="13" fill="${muted}">setpoint</text>`, wire(70, 166, "30 °/s"),
+    `<circle cx="180" cy="70" r="14" fill="${paper}" stroke="${ink}" stroke-width="2"/><text x="180" y="75" text-anchor="middle" font-size="16" fill="${ink}">Σ</text>`,
+    wire(194, 300, `e = ${(sample.e * 180 / Math.PI).toFixed(1)} °/s`),
+    box(300, 190, "PID controller", "Kp + Ki/s + Kd s"),
+    wire(490, 590, `u = ${sample.u.toFixed(3).replace('-', '−')}`),
+    box(590, 180, "Motors", "1 / (0.03 s + 1)"),
+    wire(770, 860, ""),
+    box(860, 180, "Airframe", `${PLANT.b} / s`),
+    wire(1040, 1140, `${sample.rate.toFixed(1)} °/s`),
+    `<path d="M1100 70 V128 H180 V92" fill="none" stroke="${air}" stroke-width="2"/><path d="M174 93 L180 84 L186 93 Z" fill="${air}"/>`,
+    `<text x="640" y="144" text-anchor="middle" font-size="13" fill="${air}">gyro, filtered and delayed ${PLANT.Td * 1000} ms</text>`,
+  ].join("");
+}
+
+function render() {
+  const s = step(g, PLANT, 30), b = bode(g, PLANT);
+  const k = s.out.find((o) => o.t >= 0.03) || s.out[0];
+  document.getElementById("diag").innerHTML = diagram(k);
+  const P = g.Kp * k.e, I = g.Ki * k.integ, D = g.Kd * k.d;
+  document.getElementById("eq").innerHTML = `u = Kp e + Ki ∫e dt + Kd de/dt <span class="term">at t = ${(k.t * 1000).toFixed(0)} ms:</span> ${fmt(g.Kp)} × ${k.e.toFixed(3)} + ${fmt(g.Ki)} × ${k.integ.toFixed(4)} + ${g.Kd.toFixed(4)} × ${k.d.toFixed(1).replace('-', '−')} = <b>${(P + I + D).toFixed(3).replace('-', '−')}</b>`;
+  const ink = css("--ink"), wisp = css("--wisp"), grid = css("--line"), air = css("--air");
+  document.getElementById("step").innerHTML = chart({
+    w: 470, h: 430, pad: { l: 52, r: 12, t: 10, b: 24 }, x: [0, 0.4], y: [0, 45], yTicks: [0, 15, 30, 45], xTicks: [0, 0.1, 0.2, 0.3], xFmt: (t) => `${t * 1000} ms`, grid, aria: "Step response",
+    series: [{ pts: [[0, 30], [0.4, 30]], color: air, width: 1.5, dash: "4 4" }, { pts: s.out.map((o) => [o.t, o.rate]), color: wisp, width: 2.6 }],
+    marks: s.rise ? [{ x: s.rise, y: 27, color: ink, label: `90 % at ${(s.rise * 1000).toFixed(0)} ms`, r: 3.5, dy: 18 }] : [],
+  });
+  const ph = b.pts.map((p) => [p.w, p.ph]), mg = b.pts.map((p) => [p.w, p.mag]);
+  document.getElementById("bode").innerHTML = chart({
+    w: 470, h: 215, x: [1, 2000], xLog: true, y: [-40, 60], yTicks: [-40, 0, 40], grid, aria: "Gain", pad: { l: 52, r: 12, t: 8, b: 8 },
+    series: [{ pts: mg, color: wisp, width: 2.4 }], marks: b.wc ? [{ x: b.wc, y: 0, color: ink, label: `crosses 0 dB at ${b.wc.toFixed(0)} rad/s`, r: 3.5 }] : [],
+    yFmt: (t) => `${String(t).replace("-", "−")} dB`,
+  }) + chart({
+    w: 470, h: 215, pad: { l: 52, r: 12, t: 8, b: 24 }, x: [1, 2000], xLog: true, y: [-270, -45], yTicks: [-180, -90], xTicks: [1, 10, 100, 1000], xFmt: (t) => (t === 1000 ? "1000 rad/s" : `${t}`), grid, aria: "Phase",
+    series: [{ pts: ph, color: air, width: 2.4 }], marks: b.wc ? [{ x: b.wc, y: -180 + b.pm, color: ink, label: `${b.pm.toFixed(0)}° above −180°`, r: 3.5, dy: 18 }] : [],
+    yFmt: (t) => `${String(t).replace("-", "−")}°`,
+  });
+  document.getElementById("pm").textContent = b.pm ? `${b.pm.toFixed(0)}°` : "–";
+  document.getElementById("gm").textContent = b.gm ? `${b.gm.toFixed(1)} dB` : "–";
+  document.getElementById("wc").textContent = b.wc ? `${b.wc.toFixed(0)} rad/s` : "–";
+  document.getElementById("os").textContent = `${(s.overshoot * 100).toFixed(1)} %`;
+  document.getElementById("stepNote").textContent = `Settles within 5 % by ${s.settle ? (s.settle * 1000).toFixed(0) + " ms" : "–"}. Model only, no flight log yet.`;
+  document.getElementById("bodeNote").textContent = `Plant b / (s (τs + 1)) with b = ${PLANT.b}, τ = ${PLANT.tau} s: estimates until system identification.`;
+  document.getElementById("finding").textContent = Math.round(b.pm) >= 45
+    ? `Phase margin ${b.pm.toFixed(0)}°: enough to fly. Raising Kp past ${(g.Kp * 1.25).toFixed(3)} trades it for a faster rise.`
+    : `Phase margin ${b.pm ? b.pm.toFixed(0) : "–"}° is under the 45° target: expect ringing and more motor heat.`;
+  for (const [id, key, d] of [["kp", "Kp", 3], ["ki", "Ki", 3], ["kd", "Kd", 4], ["fd", "fd", 0]]) document.getElementById(id + "O").textContent = key === "fd" ? `${g.fd} Hz` : g[key].toFixed(d);
+}
+for (const [id, key] of [["kp", "Kp"], ["ki", "Ki"], ["kd", "Kd"], ["fd", "fd"]]) {
+  const el = document.getElementById(id); el.value = g[key];
+  el.addEventListener("input", () => { g[key] = +el.value; render(); });
+}
+render();
+</script>
+</body>
+</html>

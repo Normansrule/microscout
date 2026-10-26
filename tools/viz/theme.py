@@ -49,7 +49,7 @@ plt.rcParams.update({
 
 
 def load_budgets():
-    path = REPO / "review" / "G1" / "calc" / "budgets.py"
+    path = REPO / "archive" / "microscout" / "review" / "G1" / "calc" / "budgets.py"
     spec = importlib.util.spec_from_file_location("budgets", path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)

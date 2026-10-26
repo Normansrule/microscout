@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 800" font-family="Overpass, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13">
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- STATUS: DRAFT - UNVERIFIED - requires human review at the Phase 0 gate -->
+<title>Wisp software architecture (Phase 0 proposal)</title>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#16222a"/></marker>
+  <marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9f166c"/></marker>
+  <style>
+    .grp{fill:#eceee2}.box{fill:#fafbf6;stroke:#9aa596;stroke-width:1.2}.key{fill:#fafbf6;stroke:#9f166c;stroke-width:2}
+    .h{font-weight:800;font-size:16px;fill:#16222a}.t{font-weight:700;fill:#16222a}.s{fill:#47555e;font-size:12px}
+    .w{stroke:#16222a;stroke-width:1.6;fill:none}.wm{stroke:#9f166c;stroke-width:2;fill:none}.l{font-size:12px;fill:#16222a}.lm{font-size:12px;fill:#9f166c;font-weight:700}
+  </style>
+</defs>
+<rect width="1240" height="800" fill="#ffffff"/>
+<text x="24" y="34" class="h" font-size="20">Wisp: one software stack, two airframes (Phase 0 proposal)</text>
+<text x="24" y="54" class="s">Magenta: the follow-me path, from your phone's GPS (first) or the onboard camera (second) to the motors. DRAFT, nothing built.</text>
+
+<!-- ground -->
+<rect x="20" y="74" width="330" height="470" rx="8" class="grp"/>
+<text x="36" y="100" class="h">On the ground</text>
+<rect x="36" y="114" width="298" height="128" rx="6" class="key"/>
+<text x="48" y="136" class="t">Wisp app on the phone (web app / PWA)</text>
+<text x="48" y="156" class="s">Follow-me screen, stop button, checklist</text>
+<text x="48" y="174" class="s">Phone GPS → target position, 5-10 Hz</text>
+<text x="48" y="192" class="s">Telemetry, latency, battery, airspace note</text>
+<text x="48" y="210" class="s">Sends GLOBAL_POSITION_INT / FOLLOW_TARGET</text>
+<text x="48" y="228" class="s">over MAVLink, sysid = FOLL_SYSID</text>
+<rect x="36" y="256" width="298" height="112" rx="6" class="box"/>
+<text x="48" y="278" class="t">Wisp app on a laptop (Tauri desktop)</text>
+<text x="48" y="298" class="s">3D flight view, Control Lab with live equations</text>
+<text x="48" y="316" class="s">Log replay, parameter sets, SITL launcher</text>
+<text x="48" y="334" class="s">Same TypeScript core as the phone app</text>
+<text x="48" y="352" class="s">wisp-bridge: MAVLink and cflib to WebSocket</text>
+<rect x="36" y="382" width="298" height="74" rx="6" class="box"/>
+<text x="48" y="404" class="t">RC handset + ELRS module with backpack</text>
+<text x="48" y="424" class="s">Sticks and a hardware kill switch</text>
+<text x="48" y="442" class="s">Backpack: Wi-Fi access point, MAVLink UDP 14550</text>
+<rect x="36" y="470" width="298" height="60" rx="6" class="box"/>
+<text x="48" y="492" class="t">Crazyradio 2.0 (Wisp Nano)</text>
+<text x="48" y="512" class="s">cflib in wisp-bridge</text>
+
+<!-- links -->
+<path d="M334 178 H362 V410 H334" class="wm" marker-end="url(#m)"/>
+<text x="374" y="230" class="lm" transform="rotate(90 374 230)">Wi-Fi to the backpack</text>
+<path d="M352 440 H470" class="wm" marker-end="url(#m)"/>
+<text x="386" y="430" class="lm">ELRS 2.4 GHz</text>
+<text x="386" y="458" class="s">MAVLink + RC</text>
+
+
+<!-- Wisp Follow -->
+<rect x="470" y="74" width="750" height="470" rx="8" class="grp"/>
+<text x="486" y="100" class="h">Wisp Follow (under 249.48 g)</text>
+<rect x="486" y="114" width="360" height="256" rx="6" class="key"/>
+<text x="498" y="136" class="t">Flight controller: ArduCopter 4.7.2 on an H7</text>
+<text x="498" y="158" class="s">EKF3: IMU, barometer, GPS, compass, flow, rangefinders</text>
+<text x="498" y="178" class="s">Cascaded loops: rate PID → attitude P →</text>
+<text x="498" y="196" class="s">velocity PID → position P</text>
+<text x="498" y="214" class="s">Modes: Loiter, Guided, Follow, RTL, Land, Brake</text>
+<text x="498" y="234" class="s">Avoidance: proximity map from the lidars, simple avoidance</text>
+<text x="498" y="252" class="s">(not in Follow mode in 4.7.2: follow goes through Guided)</text>
+<text x="498" y="272" class="s">Geofence: cylinder + ceiling; failsafes: radio, phone link,</text>
+<text x="498" y="290" class="s">battery, EKF, GPS loss; crash check + instant motor stop</text>
+<text x="498" y="310" class="s">Speed limits near people (WP_SPD, LOIT_SPEED_MS)</text>
+<text x="498" y="330" class="s">Logs (dataflash) for system identification</text>
+<text x="498" y="354" class="t" fill="#9f166c">Mixer → 4-in-1 ESC (bidirectional DShot) → motors</text>
+<rect x="866" y="114" width="338" height="250" rx="6" class="key"/>
+<text x="878" y="136" class="t">Companion: Pi Zero 2 W class (Linux)</text>
+<text x="878" y="158" class="s">Camera → person detector (5-12 Hz on the Pi,</text>
+<text x="878" y="176" class="s">20-30 Hz on an NPU board, ESTIMATE)</text>
+<text x="878" y="196" class="s">→ tracker (ByteTrack) + "this is me" re-ID</text>
+<text x="878" y="216" class="s">→ target Kalman filter: position + velocity</text>
+<text x="878" y="236" class="s">→ follow controller: follow, orbit, lead, side,</text>
+<text x="878" y="254" class="s">dolly, jerk-limited, framing, speed limits</text>
+<text x="878" y="274" class="s">→ Guided velocity setpoints (avoidance applies)</text>
+<text x="878" y="296" class="s">Watchdog: target lost or link lost → hover</text>
+<text x="878" y="318" class="s">pymavlink over UART, MAVLink2, 921600 baud</text>
+<path d="M866 240 H846" class="wm" marker-end="url(#m)"/>
+<rect x="486" y="380" width="230" height="146" rx="6" class="box"/>
+<text x="498" y="402" class="t">Sensors</text>
+<text x="498" y="422" class="s">M10 GPS + compass</text>
+<text x="498" y="440" class="s">Optical flow + 8 m ToF (down)</text>
+<text x="498" y="458" class="s">Lidar forward (+ left/right)</text>
+<text x="498" y="476" class="s">2 IMUs, barometer (on the FC)</text>
+<text x="498" y="494" class="s">Tracking camera (to the Pi)</text>
+<path d="M600 380 V372" class="w" marker-end="url(#a)"/>
+<rect x="732" y="380" width="230" height="146" rx="6" class="box"/>
+<text x="744" y="402" class="t">Vlog camera + video link</text>
+<text x="744" y="422" class="s">DJI O4 Air Unit (or a non-DJI</text>
+<text x="744" y="440" class="s">camera, open question)</text>
+<text x="744" y="458" class="s">Records 4K onboard</text>
+<text x="744" y="476" class="s">On-screen display from ArduPilot</text>
+<rect x="978" y="380" width="226" height="146" rx="6" class="box"/>
+<text x="990" y="402" class="t">Wisp Follow Fast</text>
+<text x="990" y="422" class="s">Same flight controller stack,</text>
+<text x="990" y="440" class="s">3.5 in open frame, 6S, no Pi</text>
+<text x="990" y="458" class="s">Separate parameter set with</text>
+<text x="990" y="476" class="s">higher lean and speed limits,</text>
+<text x="990" y="494" class="s">manual modes only</text>
+
+<!-- bottom row: Nano and simulation -->
+<rect x="20" y="560" width="400" height="220" rx="8" class="grp"/>
+<text x="36" y="586" class="h">Wisp Nano (about 33-38 g)</text>
+<rect x="36" y="600" width="368" height="164" rx="6" class="box"/>
+<text x="48" y="622" class="t">Crazyflie 2.1+, Bitcraze firmware</text>
+<text x="48" y="642" class="s">Flow deck: optical flow + ToF hover hold</text>
+<text x="48" y="660" class="s">Multi-ranger: 5 ToF for obstacles</text>
+<text x="48" y="678" class="s">Kalman estimator, PID / Mellinger / INDI controllers</text>
+<text x="48" y="696" class="s">AI deck camera (optional): stream to the laptop,</text>
+<text x="48" y="714" class="s">track there, send setpoints back by radio</text>
+<text x="48" y="738" class="t">Control Lab experiments run here first</text>
+
+<rect x="440" y="560" width="780" height="220" rx="8" class="grp"/>
+<text x="456" y="586" class="h">Simulation, before anything flies</text>
+<rect x="456" y="600" width="370" height="164" rx="6" class="key"/>
+<text x="468" y="622" class="t">ArduPilot SITL (ArduCopter 4.7.2)</text>
+<text x="468" y="642" class="s">Built-in physics, or Gazebo Harmonic with a</text>
+<text x="468" y="660" class="s">camera for vision-follow tests (JSON backend)</text>
+<text x="468" y="680" class="s">Fake phone: scripted walker sends its GPS</text>
+<text x="468" y="698" class="s">follow_demo.py: run in the container, 60 s walk,</text>
+<text x="468" y="716" class="s">mean error 0.15 m (simulation only)</text>
+<text x="468" y="740" class="s">Every safety feature gets a SITL test case</text>
+<rect x="842" y="600" width="362" height="164" rx="6" class="box"/>
+<text x="854" y="622" class="t">Crazyflie simulation</text>
+<text x="854" y="642" class="s">Crazyswarm2 sim (Ubuntu 24.04, ROS 2 Jazzy)</text>
+<text x="854" y="660" class="s">Firmware Python bindings for controller work</text>
+<text x="854" y="684" class="t">Flight Lab (from MicroScout)</text>
+<text x="854" y="704" class="s">Browser simulator, PID / LQR / MPC, RL,</text>
+<text x="854" y="722" class="s">becomes the Control Lab's offline mode</text>
+<path d="M300 530 V598" class="w" marker-end="url(#a)"/>
+<text x="308" y="552" class="l">Crazyradio</text>
+</svg>

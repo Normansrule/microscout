@@ -1,0 +1,111 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- STATUS: DRAFT - UNVERIFIED - requires human review at the Phase 0 gate -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wisp visual concepts</title>
+<meta name="description" content="Three visual concepts for the Wisp follow-me drone's app and website, each with a follow-me screen and a Control Lab mockup. Phase 0 proposal, synthetic data.">
+<style>
+  :root { --bg: #f4f4f1; --ink: #1b1d1f; --muted: #50555a; --line: #dcdcd6; --card: #ffffff; color-scheme: light; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #141516; --ink: #ececea; --muted: #a9adb0; --line: #2b2d2f; --card: #1c1d1f; color-scheme: dark; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color: inherit; text-underline-offset: 3px; }
+  :focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+  header, section, footer { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+  header { padding-top: 56px; padding-bottom: 24px; }
+  h1 { font-size: clamp(40px, 6vw, 72px); line-height: 1; letter-spacing: -0.035em; margin: 0 0 18px; font-weight: 800; }
+  header p { max-width: 68ch; margin: 0 0 10px; color: var(--muted); }
+  header p b { color: var(--ink); }
+  section { padding-top: 64px; padding-bottom: 24px; }
+  h2 { font-size: clamp(30px, 4vw, 46px); line-height: 1.05; letter-spacing: -0.025em; margin: 0 0 6px; }
+  .thesis { font-size: 20px; max-width: 64ch; margin: 0 0 18px; }
+  .row { display: grid; grid-template-columns: 300px 1fr; gap: 28px; align-items: start; }
+  .row img { display: block; width: 100%; height: auto; border-radius: 4px; }
+  .phone img { border-radius: 14px; }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px 28px; margin: 22px 0 0; }
+  .facts div { padding: 12px 0; border-top: 1px solid var(--line); }
+  .facts dt { font-weight: 700; margin-bottom: 4px; }
+  .facts dd { margin: 0; color: var(--muted); }
+  .sw { display: flex; gap: 6px; margin: 6px 0 2px; }
+  .sw i { width: 34px; height: 34px; border-radius: 4px; box-shadow: inset 0 0 0 1px rgba(127,127,127,.35); }
+  .open { margin: 14px 0 0; }
+  .open a { margin-right: 18px; font-weight: 600; }
+  .pick { background: var(--card); padding: 22px 24px; border-radius: 6px; max-width: 76ch; }
+  footer { padding-top: 48px; padding-bottom: 64px; color: var(--muted); font-size: 15px; }
+  @media (max-width: 760px) { .row { grid-template-columns: 1fr; } .row .phone { max-width: 320px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Three ways Wisp could look</h1>
+  <p>Each concept is a whole visual world for the ground-control app and the website, shown on the two screens that matter most: the <b>follow-me screen</b> on a phone in the sun, and the <b>Control Lab</b> on a laptop. All three show the same synthetic moment: Wisp 4 m behind and 2.5 m above you on a cliff-top trail, a palm 2.6 m to its right.</p>
+  <p>Phase 0 proposal for review. Synthetic data; nothing here has flown. The Control Lab mockups are live: move the gains and the equation, step response and margins update from the same loop model.</p>
+</header>
+
+<section aria-labelledby="c1">
+  <h2 id="c1">Sectional</h2>
+  <p class="thesis">The aviation chart. In Los Angeles most of the sky is controlled airspace, so the map a pilot already trusts becomes the interface: chart tints for land and sea, airspace blue for every limit and sensor, chart magenta only for Wisp and its path.</p>
+  <div class="row">
+    <a class="phone" href="sectional/follow.html"><img src="img/sectional-follow.png" alt="Sectional follow-me screen: a chart-style map with Wisp's magenta path, the facility-map ceiling figures, three readouts and a dark stop button" width="780" height="1688"></a>
+    <a href="sectional/lab.html"><img src="img/sectional-lab.png" alt="Sectional Control Lab: block diagram with live values on the wires, the PID equation with today's numbers, step response, Bode plots and gain sliders" width="1440" height="900"></a>
+  </div>
+  <dl class="facts">
+    <div><dt>Colour</dt><dd><span class="sw"><i style="background:#eceee2"></i><i style="background:#cfe2ea"></i><i style="background:#1d5aa3"></i><i style="background:#9f166c"></i><i style="background:#16222a"></i></span>Restrained: chart land, water, airspace blue, Wisp magenta, ink.</dd></div>
+    <div><dt>Type</dt><dd>Overpass, one family. It descends from Highway Gothic, the lettering of US road signs.</dd></div>
+    <div><dt>Signature</dt><dd>The facility-map ceiling printed where you fly, and Wisp's path with a tick every 5 seconds.</dd></div>
+    <div><dt>Website</dt><dd>Opens on a chart of San Pedro Bay; the scroll zooms from the airspace rings to the trail, the drone assembles as a chart symbol and lifts off as the chart tilts into 3D.</dd></div>
+    <div><dt>Risk</dt><dd>Can read as a map app. The magenta must stay Wisp's alone.</dd></div>
+  </dl>
+  <p class="open"><a href="sectional/follow.html">Open the follow-me screen</a><a href="sectional/lab.html">Open the Control Lab</a></p>
+</section>
+
+<section aria-labelledby="c2">
+  <h2 id="c2">Monitor</h2>
+  <p class="thesis">The field monitor on a film set. The follow-me screen is the picture itself, framed the way a camera operator frames it; colour is a calibrated scale, not decoration: false colour for distance to obstacles, peaking yellow for what Wisp tracks, tally red only while recording.</p>
+  <div class="row">
+    <a class="phone" href="monitor/follow.html"><img src="img/monitor-follow.png" alt="Monitor follow-me screen: the live picture of you walking away on the trail with yellow tracking brackets, an orange false-colour strip on the right edge for the palm, and a white stop button" width="780" height="1688"></a>
+    <a href="monitor/lab.html"><img src="img/monitor-lab.png" alt="Monitor Control Lab on true black: a wide step-response trace, gain and phase plots, four vertical faders for the gains, and the equation on a slate strip" width="1440" height="900"></a>
+  </div>
+  <dl class="facts">
+    <div><dt>Colour</dt><dd><span class="sw"><i style="background:#000"></i><i style="background:#f3f3f0"></i><i style="background:#ffd60a"></i><i style="background:#ff5a4e"></i><i style="background:#ffa31a"></i><i style="background:#3ccf6e"></i></span>Committed dark; colour only on data.</dd></div>
+    <div><dt>Type</dt><dd>Saira and Saira Semi Condensed: the squared lettering of camera menus.</dd></div>
+    <div><dt>Signature</dt><dd>Obstacle distance painted on the frame edges; gains on faders like a camera control unit.</dd></div>
+    <div><dt>Website</dt><dd>A shot list: each section is a take with the live picture; the lock-on moment snaps the brackets onto a walking person.</dd></div>
+    <div><dt>Risk</dt><dd>A dark phone screen is hard to read in direct sun, the main place it is used. Needs a high-brightness outdoor variant.</dd></div>
+  </dl>
+  <p class="open"><a href="monitor/follow.html">Open the follow-me screen</a><a href="monitor/lab.html">Open the Control Lab</a></p>
+</section>
+
+<section aria-labelledby="c3">
+  <h2 id="c3">Tower</h2>
+  <p class="thesis">The Los Angeles lifeguard tower. Fields of sun-faded tower blue and sand, numbers painted big enough to read across the beach, rescue orange only for Wisp, and the beach-flag yellow for anything that needs your attention.</p>
+  <div class="row">
+    <a class="phone" href="tower/follow.html"><img src="img/tower-follow.png" alt="Tower follow-me screen: a huge painted 4.0 metres behind and 2.5 up, a side-view drawing of you and Wisp with dimension lines, a small top map, a yellow caution about the palm and a navy stop button" width="780" height="1688"></a>
+    <a href="tower/lab.html"><img src="img/tower-lab.png" alt="Tower Control Lab: a blue field with the phase and gain margins as painted numerals and the gain sliders, the PID equation set as a large sign, and the step and Bode charts" width="1440" height="900"></a>
+  </div>
+  <dl class="facts">
+    <div><dt>Colour</dt><dd><span class="sw"><i style="background:#a3d3e8"></i><i style="background:#f1e6cc"></i><i style="background:#0c2b3b"></i><i style="background:#c63a12"></i><i style="background:#ffd23f"></i></span>Committed: the tower blue carries a third to half of each screen.</dd></div>
+    <div><dt>Type</dt><dd>Barlow and Barlow Condensed, drawn from California's public signage.</dd></div>
+    <div><dt>Signature</dt><dd>A side view of you and Wisp with dimension lines, so height and distance read at a glance.</dd></div>
+    <div><dt>Website</dt><dd>Walks along the beach: towers as chapter markers, the drone dodging a palm, equations painted on boards.</dd></div>
+    <div><dt>Risk</dt><dd>Playful for a control-theory lab, and Los Angeles County beaches ban drones, so it evokes a place Wisp may not fly.</dd></div>
+  </dl>
+  <p class="open"><a href="tower/follow.html">Open the follow-me screen</a><a href="tower/lab.html">Open the Control Lab</a></p>
+</section>
+
+<section aria-labelledby="pick">
+  <h2 id="pick">Recommendation</h2>
+  <div class="pick">
+    <p><b>Sectional</b> for the app. It is the only one built from what the screen must protect: airspace, limits and distances are its native language, it reads in full sun, and its Control Lab is the calmest place to study a loop. Monitor's picture-first screen is worth keeping as the view when camera tracking is active.</p>
+    <p>The website can be bolder than the app: any of the three worlds can carry the scroll story. Your pick, or a mix, decides the design system for Phase 1.</p>
+  </div>
+</section>
+
+<footer>
+  <p>Wisp, Phase 0. Mockups: fixed-size HTML at 390 × 844 (phone) and 1440 × 900 (laptop), synthetic data. Fonts: Overpass, Saira, Barlow (SIL Open Font License). Process notes and the accessibility audit: <a href="https://github.com/Normansrule/wisp/blob/main/review/P0/concepts.md">review/P0/concepts.md</a>.</p>
+</footer>
+</body>
+</html>

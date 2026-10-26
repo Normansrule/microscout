@@ -8,7 +8,7 @@ import pytest
 
 from microscout.params import DroneParams
 
-BUDGETS = pathlib.Path(__file__).resolve().parents[3] / "review" / "G1" / "calc" / "budgets.py"
+BUDGETS = pathlib.Path(__file__).resolve().parents[3] / "archive" / "microscout" / "review" / "G1" / "calc" / "budgets.py"
 
 
 @pytest.fixture(scope="module")

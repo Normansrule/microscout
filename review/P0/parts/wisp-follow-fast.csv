@@ -1,0 +1,15 @@
+# STATUS: DRAFT - UNVERIFIED - requires human review at the Phase 0 gate
+part,qty,mass_each_g,mass_g,basis,price_each_usd,supplier,stock_2026_10_26,note
+GEPRC Smart 35 frame (3.5 inch open),1,47.9,47.9,CLAIM,,FPVFaster AU (AU$89.99),SOLD OUT,"BetaFPV X-Knight 35 (43.2 g, $25.99) also sold out"
+T-Motor Pacer P1604 2850KV motor,4,11.6,46.4,CLAIM,22.0,rcdrone.top / GetFPV,sold out / unclear,618.8 g thrust each on 6S with GF3520-3 (maker table)
+Gemfan 3520-3 prop,4,2.25,9.0,ESTIMATE,,,not checked,mass UNCONFIRMED
+"GNB 6S 550 mAh 90C LiPo, XT30",1,85.0,85.0,CLAIM,14.99,RaceDayQuads,PRE-ORDER,49.5 A continuous vs about 63 A at full throttle: sag
+DJI O4 Air Unit with lens mount,1,9.2,9.2,CLAIM,,DJI dealers,US stock UNCONFIRMED,on a 9-10 V regulator
+Flight controller + 4-in-1 ESC for a 20x20 or 26.5 mm stack,1,12.0,12.0,ESTIMATE,,,,"the 25.5 mm AIO does not fit this frame's 26.5/20 mm mounts; e.g. NxtPX4v2 (6.5 g, $71.99) + a 20x20 ESC"
+GM10 Nano V3 GPS + compass,1,2.6,2.6,CLAIM,20.99,Flywoo,contradictory page,
+MTF-01 optical flow + ToF,1,4.5,4.5,CLAIM,32.99,Pyrodrone,in stock,
+"TFS20-L lidar, forward",1,2.0,2.0,CLAIM,53.84,RobotShop,not shown,
+RP1 V2 ELRS receiver,1,2.2,2.2,CLAIM,18.99,RadioMaster,listed available,
+9 V regulator for the O4,1,1.0,1.0,ESTIMATE,4.0,,,
+"Wire, connectors, screws, strap, pigtail",1,8.0,8.0,ESTIMATE,,,,
+"Removable prop guards, 3.5 inch",4,6.3,25.2,ESTIMATE,,,,GEPRC 3 inch guard is 6.3 g each (CLAIM); 3.5 inch mass UNCONFIRMED

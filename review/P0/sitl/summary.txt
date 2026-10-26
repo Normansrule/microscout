@@ -1,0 +1,1 @@
+after 20 s: mean 3.85 m behind (want 4.0), side 0.02 m at most, height 3.00 m (want 3.0), speed 1.38 m/s (walker 1.4); position error mean 0.15 m, max 0.21 m

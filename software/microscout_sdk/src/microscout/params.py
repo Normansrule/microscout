@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Vehicle parameters used by the simulator.
 
-Every number mirrors review/G1/calc/budgets.py (rev B). They are ESTIMATES until
+Every number mirrors archive/microscout/review/G1/calc/budgets.py (rev B). They are ESTIMATES until
 system identification from real flight logs (Gate G7); tests/test_params.py checks
 that the two files agree. Frame: NED world (x forward at take-off, y right, z down)
 and FRD body (x forward, y right, z down).

@@ -1,0 +1,89 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: MIT -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Wisp, Monitor: Control Lab</title>
+<link rel="stylesheet" href="monitor.css">
+</head>
+<body>
+<div class="lab">
+  <header class="top">
+    <span class="brand"><i aria-hidden="true"></i>Wisp Control Lab</span>
+    <nav class="loops" aria-label="Loops">
+      <a href="#" aria-current="page">Roll rate</a><a href="#">Roll angle</a><a href="#">Velocity</a><a href="#">Position</a><a href="#">Follow</a><a href="#">Estimator</a><a href="#">LQR</a><a href="#">MPC</a><a href="#">System ID</a>
+    </nav>
+    <span class="sitl"><b>SITL</b> ArduCopter 4.7, 400 Hz, telemetry <b>3 ms</b> behind. Synthetic data.</span>
+  </header>
+
+  <section class="scope">
+    <div class="trace">
+      <h2>Roll rate, step of 30 °/s</h2>
+      <p id="stepNote"></p>
+      <div id="step"></div>
+    </div>
+    <div class="bodes">
+      <div class="trace"><h2>Gain</h2><p id="gainNote"></p><div id="gain"></div></div>
+      <div class="trace"><h2>Phase</h2><p id="phaseNote"></p><div id="phase"></div></div>
+    </div>
+  </section>
+
+  <aside class="faders" aria-label="Gains">
+    <div class="bank">
+      <div class="fader"><output id="kpO"></output><input id="kp" type="range" min="0.03" max="0.35" step="0.005" aria-label="Proportional gain Kp"><label for="kp">Kp</label></div>
+      <div class="fader"><output id="kiO"></output><input id="ki" type="range" min="0" max="0.6" step="0.005" aria-label="Integral gain Ki"><label for="ki">Ki</label></div>
+      <div class="fader"><output id="kdO"></output><input id="kd" type="range" min="0" max="0.012" step="0.0002" aria-label="Derivative gain Kd"><label for="kd">Kd</label></div>
+      <div class="fader"><output id="fdO"></output><input id="fd" type="range" min="5" max="80" step="1" aria-label="D-term filter in hertz"><label for="fd">D filter</label></div>
+    </div>
+    <div class="readout">
+      <div><p class="fig" id="pm"></p><p class="lbl">Phase margin</p></div>
+      <div><p class="fig" id="gm"></p><p class="lbl">Gain margin</p></div>
+      <div><p class="fig" id="wc"></p><p class="lbl">Crossover</p></div>
+      <div><p class="fig" id="os"></p><p class="lbl">Overshoot</p></div>
+    </div>
+    <button class="apply">Send gains to SITL</button>
+  </aside>
+
+  <footer class="slate" aria-label="The controller output, with today's numbers">
+    <span class="t" id="tc"></span>
+    <span class="eq" id="eq"></span>
+  </footer>
+</div>
+
+<script type="module">
+import { GAINS, PLANT, bode, step } from "../shared/model.js";
+import { chart } from "../shared/charts.js";
+const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const g = { ...GAINS };
+const m = (x, d) => x.toFixed(d).replace("-", "−");
+function render() {
+  const s = step(g, PLANT, 30), b = bode(g, PLANT);
+  const ink = css("--ink"), peak = css("--peak"), grid = "#262626", dim = css("--dim"), near = css("--fc-near");
+  document.getElementById("step").innerHTML = chart({
+    w: 1000, h: 300, pad: { l: 52, r: 12, t: 8, b: 24 }, x: [0, 0.4], y: [0, 45], yTicks: [0, 15, 30, 45], xTicks: [0, 0.1, 0.2, 0.3], xFmt: (t) => `${Math.round(t * 1000)} ms`, grid, aria: "Step response",
+    series: [{ pts: [[0, 30], [0.4, 30]], color: dim, width: 1.5, dash: "5 5" }, { pts: s.out.map((o) => [o.t, o.rate]), color: ink, width: 2.4 }, { pts: s.out.map((o) => [o.t, 30 + 40 * o.u]), color: peak, width: 1.4 }],
+    marks: [{ x: s.rise, y: 27, color: peak, label: `90 % at ${Math.round(s.rise * 1000)} ms`, dy: 22 }],
+    yFmt: (t) => `${t} °/s`,
+  });
+  document.getElementById("stepNote").textContent = `White: roll rate. Yellow: controller output u, scaled. Overshoot ${(s.overshoot * 100).toFixed(1)} %, settled to 5 % by ${Math.round(s.settle * 1000)} ms. Model, not a flight log.`;
+  const opt = { w: 480, h: 190, pad: { l: 52, r: 12, t: 8, b: 24 }, x: [1, 2000], xLog: true, grid, xTicks: [1, 10, 100, 1000], xFmt: (t) => (t === 1000 ? "1000 rad/s" : t) };
+  document.getElementById("gain").innerHTML = chart({ ...opt, y: [-40, 60], yTicks: [-40, 0, 40], yFmt: (t) => `${m(t, 0)} dB`, series: [{ pts: b.pts.map((p) => [p.w, p.mag]), color: ink, width: 2.2 }], marks: [{ x: b.wc, y: 0, color: peak, label: `0 dB at ${b.wc.toFixed(0)} rad/s` }] });
+  document.getElementById("phase").innerHTML = chart({ ...opt, y: [-270, -45], yTicks: [-180, -90], yFmt: (t) => `${m(t, 0)}°`, series: [{ pts: [[1, -180], [2000, -180]], color: near, width: 1, dash: "4 4" }, { pts: b.pts.map((p) => [p.w, p.ph]), color: ink, width: 2.2 }], marks: [{ x: b.wc, y: -180 + b.pm, color: peak, label: `${b.pm.toFixed(0)}° margin`, dy: 20 }] });
+  document.getElementById("gainNote").textContent = `Open loop L = C(s) P(s), with P = ${PLANT.b} / (s (${PLANT.tau} s + 1)), an estimate.`;
+  document.getElementById("phaseNote").textContent = b.gm ? `Crosses −180° at ${b.w180.toFixed(0)} rad/s, ${b.gm.toFixed(1)} dB of gain to spare.` : "Never crosses −180° in this range.";
+  for (const [id, v] of [["pm", `${b.pm.toFixed(0)}°`], ["gm", b.gm ? `${b.gm.toFixed(1)} dB` : "–"], ["wc", `${b.wc.toFixed(0)} rad/s`], ["os", `${(s.overshoot * 100).toFixed(1)} %`]]) document.getElementById(id).textContent = v;
+  const k = s.out.find((o) => o.t >= 0.03);
+  document.getElementById("tc").textContent = `t = ${Math.round(k.t * 1000)} ms`;
+  document.getElementById("eq").innerHTML = `u = Kp e + Ki ∫e + Kd ė <span>=</span> ${g.Kp.toFixed(3)} × ${m(k.e, 3)} + ${g.Ki.toFixed(3)} × ${m(k.integ, 4)} + ${g.Kd.toFixed(4)} × ${m(k.d, 1)} <span>=</span> <b>${m(g.Kp * k.e + g.Ki * k.integ + g.Kd * k.d, 3)}</b>`;
+  for (const [id, key, d] of [["kp", "Kp", 3], ["ki", "Ki", 3], ["kd", "Kd", 4]]) document.getElementById(id + "O").textContent = g[key].toFixed(d);
+  document.getElementById("fdO").textContent = `${g.fd} Hz`;
+}
+for (const [id, key] of [["kp", "Kp"], ["ki", "Ki"], ["kd", "Kd"], ["fd", "fd"]]) {
+  const el = document.getElementById(id); el.value = g[key];
+  el.addEventListener("input", () => { g[key] = +el.value; render(); });
+}
+render();
+</script>
+</body>
+</html>

@@ -1,12 +1,12 @@
-# STATUS: DRAFT - UNVERIFIED - requires human review at Gate G2
-# Runs the simulator tests, the budget/pin consistency checks, the schematic checks and the Flight Lab tests on every push.
-# Checks consistency only - not correctness of the design (D-043, D-051).
+# Wisp checks: simulator tests and Flight Lab tests on every push.
+# They check consistency only, not that anything flies. The archived MicroScout schematic job was removed
+# with the move to Wisp (its last run is on tag microscout-g3-draft).
 name: checks
 on:
   push:
   pull_request:
 jobs:
-  sdk-and-budgets:
+  sdk:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,24 +17,10 @@ jobs:
         run: pip install -e "software/microscout_sdk[dev]"
       - name: Simulator tests
         run: cd software/microscout_sdk && pytest -q
-      - name: Budgets regenerate without changes
+      - name: Archived MicroScout budgets still regenerate without changes
         run: |
-          python3 review/G1/calc/budgets.py
-          git diff --exit-code review/G1/budgets.md
-      - name: Pin table check
-        run: python3 review/G1/calc/check_pins.py
-  schematics:
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install KiCad 7 (Ubuntu 24.04 archive)
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends kicad kicad-symbols kicad-footprints
-      - name: Regenerate schematics, ERC + netlist comparison (fails on any error)
-        run: python3 tools/sch/build_all.py
-      - name: Costed BOM regenerates without changes
-        run: |
-          python3 tools/sch/costed_bom.py
-          git diff --exit-code bom/drone-bom-g2.csv
+          python3 archive/microscout/review/G1/calc/budgets.py
+          git diff --exit-code archive/microscout/review/G1/budgets.md
   flight-lab:
     runs-on: ubuntu-latest
     steps:

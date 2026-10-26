@@ -1,0 +1,75 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: MIT -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wisp, Monitor: follow-me</title>
+<link rel="stylesheet" href="monitor.css">
+</head>
+<body class="phone-page">
+<main class="phone" aria-label="Follow-me screen mockup (synthetic picture and data)">
+  <figure class="feed" style="margin:0">
+    <svg viewBox="0 0 390 486" role="img" aria-labelledby="feedT">
+      <title id="feedT">Live picture from Wisp: you walking away along a cliff-top trail, boxed as the tracked subject; a palm tree close on the right</title>
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fb3c2"/><stop offset="1" stop-color="#e6cfa6"/></linearGradient>
+        <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#557f93"/><stop offset="1" stop-color="#2f566b"/></linearGradient>
+        <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7c7650"/><stop offset="1" stop-color="#4c4a31"/></linearGradient>
+        <linearGradient id="path" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cdbb92"/><stop offset="1" stop-color="#a9926a"/></linearGradient>
+      </defs>
+      <rect width="390" height="140" fill="url(#sky)"/>
+      <rect y="132" width="390" height="54" fill="url(#sea)"/>
+      <path d="M0 136 C40 128 70 126 104 133 L104 140 L0 140 Z" fill="#6a7268" opacity=".85"/>
+      <path d="M0 186 C80 170 160 176 230 168 C290 162 340 170 390 160 L390 486 L0 486 Z" fill="url(#ground)"/>
+      <path d="M150 486 C175 380 205 260 226 176 L236 176 C246 260 300 380 372 486 Z" fill="url(#path)"/>
+      <path d="M0 230 C60 222 120 230 168 226" stroke="#5d5a3a" stroke-width="10" fill="none" opacity=".5"/>
+      <!-- the palm close on the right -->
+      <path d="M352 486 C350 380 356 300 372 210" stroke="#3a2f22" stroke-width="16" fill="none"/>
+      <path d="M372 212 C340 196 316 200 296 214 M372 212 C346 220 330 240 322 262 M372 212 C392 190 410 186 430 190 M372 212 C380 236 384 256 382 282 M372 212 C356 180 360 160 372 146" stroke="#2c3a24" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <!-- you, walking away -->
+      <ellipse cx="214" cy="372" rx="30" ry="7" fill="#2c2a1d" opacity=".45"/>
+      <path d="M203 300 L196 368 L206 369 L213 312 Z" fill="#1d2633"/>
+      <path d="M220 300 L228 366 L218 368 L210 312 Z" fill="#232e3d"/>
+      <path d="M194 246 C194 232 230 232 232 246 L236 304 L190 304 Z" fill="#3f6f6a"/>
+      <rect x="199" y="248" width="26" height="34" rx="6" fill="#2d4d49"/>
+      <circle cx="213" cy="226" r="13" fill="#2a211b"/>
+      <!-- picture guides: third intersections -->
+      <g stroke="#fff" stroke-opacity=".55" stroke-width="1.2">
+        <path d="M124 162 h12 M130 156 v12 M254 162 h12 M260 156 v12 M124 324 h12 M130 318 v12 M254 324 h12 M260 318 v12"/>
+      </g>
+      <!-- tracked subject: corner brackets in peaking yellow -->
+      <g stroke="#ffd60a" stroke-width="3" fill="none" stroke-linecap="square">
+        <path d="M180 214 v-12 h14 M246 202 h14 v12 M260 362 v12 h-14 M194 374 h-14 v-12"/>
+      </g>
+      <!-- distance to obstacles in false colour on the frame edges -->
+      <rect x="382" y="150" width="8" height="190" fill="#ffa31a"/>
+      <rect x="140" y="0" width="110" height="6" fill="#3ccf6e"/>
+    </svg>
+    <span class="tag rec" style="top:16px"><i aria-hidden="true"></i>3:42 2.7K 60</span>
+    <span class="tag lat" style="top:16px">Link <b>84 ms</b></span>
+    <span class="tag lock" style="left:176px; top:382px">You, locked 92 %</span>
+    <span class="tag" style="right:16px; top:240px; color:#ffa31a">Palm 2.6 m</span>
+    <span class="tag" style="left:150px; top:14px; color:#3ccf6e">3.2 m clear ahead</span>
+  </figure>
+
+  <section class="panel">
+    <p class="state">Following <span>4.0 m behind, 2.5 m up</span></p>
+    <div class="row3">
+      <div><p class="fig">61<small>%</small></p><p class="lbl">Battery, 6 min</p></div>
+      <div><p class="fig">1.4<small>m/s</small></p><p class="lbl">Your pace</p></div>
+      <div><p class="fig">16</p><p class="lbl">GPS satellites</p></div>
+    </div>
+    <div class="modes" role="radiogroup" aria-label="Mode">
+      <button role="radio" aria-checked="true">Follow</button><button role="radio" aria-checked="false">Orbit</button><button role="radio" aria-checked="false">Lead</button><button role="radio" aria-checked="false">Side</button><button role="radio" aria-checked="false">Dolly</button>
+    </div>
+    <div class="adjust">
+      <div><button aria-label="Closer">−</button><output>4.0 m <span>back</span></output><button aria-label="Farther">+</button></div>
+      <div><button aria-label="Lower">−</button><output>2.5 m <span>up</span></output><button aria-label="Higher">+</button></div>
+    </div>
+    <button class="stop">Stop and hover</button>
+    <div class="minor"><button>Land here</button><span>Synthetic picture and data</span><button>Come back</button></div>
+  </section>
+</main>
+</body>
+</html>

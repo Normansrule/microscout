@@ -1,0 +1,19 @@
+# STATUS: DRAFT - UNVERIFIED - requires human review at the Phase 0 gate
+part,qty,mass_each_g,mass_g,basis,price_each_usd,supplier,stock_2026_10_26,note
+"GEPRC CineLog30 V3 frame (ducts, canopy, lens mount)",1,78.0,78.0,CLAIM,71.99,Pyrodrone,SOLD OUT,only sub-250-capable ducted frame found; 3.5 inch ducted frames are 114-214 g
+GEPRC SPEEDX2 1404 3850KV motor,4,10.5,42.0,ESTIMATE,,GetFPV,unclear,10.5 g is the 3000/4600KV figure; 3850KV mass UNCONFIRMED
+HQProp DT76mm x3 V2 ducted prop,4,1.75,7.0,ESTIMATE,,GetFPV / RDQ,not checked,mass UNCONFIRMED; weigh a set
+"GNB 4S 550 mAh 90C LiPo, XT30",1,57.0,57.0,CLAIM,18.99,Pyrodrone,in stock,+/-2 g; buy 3 packs
+DJI O4 Air Unit with lens mount (video link + 4K60 recorder),1,9.2,9.2,CLAIM,,DJI dealers,US stock UNCONFIRMED,"DJI equipment is on the FCC Covered List; existing models stay legal to sell, availability uncertain"
+MicoAir H743 v2 AIO 35A (flight controller + 4-in-1 ESC),1,10.0,10.0,CLAIM,87.99,Pyrodrone,in stock,ArduPilot target for this AIO UNCONFIRMED (MicoAir743v2 hwdef describes the 30x30 board)
+Flywoo GOKU GM10 Nano V3 GPS (M10) + QMC5883L compass,1,2.6,2.6,CLAIM,20.99,Flywoo,contradictory page,RDQ $25.49
+MicoAir MTF-01 optical flow + 8 m ToF (downward),1,4.5,4.5,CLAIM,32.99,Pyrodrone,in stock,"FLOW_TYPE=5, RNGFND1_TYPE=10"
+"Benewake TFS20-L lidar, forward (I2C, 15 m)",1,2.0,2.0,CLAIM,53.84,RobotShop,not shown,RNGFND2_TYPE=46 is in ArduCopter 4.7.2 source
+RadioMaster RP1 V2 ExpressLRS receiver (MAVLink mode),1,2.2,2.2,CLAIM,18.99,RadioMaster,listed available,includes antenna
+"Raspberry Pi Zero 2 W (companion, vision)",1,10.0,10.0,CLAIM,19.05,Adafruit,OUT OF STOCK (SparkFun too),"alternative with an NPU: Radxa ZERO 3W, mass UNCONFIRMED"
+Raspberry Pi Camera Module 3 Wide (tracking camera),1,4.0,4.0,CLAIM,35.0,Raspberry Pi resellers,in stock (EU reseller),4 g per Raspberry Pi docs; ribbon cable extra
+"Camera ribbon cable, short",1,1.0,1.0,ESTIMATE,3.0,,,
+"5 V regulator for the Pi, 9 V for the O4",2,1.0,2.0,ESTIMATE,4.0,,,the AIO's own regulators may cover one; UNCONFIRMED
+"Wire, connectors, solder, heat-shrink",1,5.0,5.0,ESTIMATE,,,,
+"Screws, battery strap, XT30 pigtail, antenna holder",1,5.0,5.0,ESTIMATE,,,,
+"Benewake TFS20-L lidar, left and right",2,2.0,4.0,CLAIM,53.84,RobotShop,not shown,"only if the I2C address can be changed and kept, UNCONFIRMED"

@@ -1,0 +1,101 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: MIT -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wisp, Sectional: follow-me</title>
+<link rel="stylesheet" href="sectional.css">
+</head>
+<body class="phone-page">
+<main class="phone" aria-label="Follow-me screen mockup (synthetic data)">
+  <header class="status">
+    <div class="status-line">
+      <h1>Following you</h1>
+      <p class="latency" aria-label="Telemetry latency 84 milliseconds"><b>84</b> ms</p>
+    </div>
+    <p class="sub" id="sub"></p>
+  </header>
+
+  <figure class="map" aria-label="Map: you, Wisp and its path">
+    <svg id="map" viewBox="0 0 390 392" role="img" aria-labelledby="mapTitle"><title id="mapTitle">Top-down map of the trail with Wisp following four metres behind you</title></svg>
+    <figcaption class="air">Authorized to <span class="air-num">100</span> ft here</figcaption>
+  </figure>
+
+  <section class="readouts" aria-label="Flight readouts">
+    <div><p class="big"><span id="bat">61</span><small>%</small></p><p class="cap">Battery, 6 min left</p></div>
+    <div><p class="big">2.5<small>m</small></p><p class="cap">Above the trail</p></div>
+    <div><p class="big near">2.6<small>m</small></p><p class="cap">Closest, right side</p></div>
+  </section>
+
+  <section class="controls" aria-label="Follow controls">
+    <div class="modes" role="radiogroup" aria-label="Mode">
+      <button role="radio" aria-checked="true">Follow</button><button role="radio" aria-checked="false">Orbit</button><button role="radio" aria-checked="false">Lead</button><button role="radio" aria-checked="false">Side</button><button role="radio" aria-checked="false">Dolly</button>
+    </div>
+    <div class="steppers">
+      <div class="stepper"><span>Distance</span><button aria-label="Closer">−</button><output>4.0 m</output><button aria-label="Farther">+</button></div>
+      <div class="stepper"><span>Height</span><button aria-label="Lower">−</button><output>2.5 m</output><button aria-label="Higher">+</button></div>
+    </div>
+    <button class="stop">Stop and hover</button>
+    <div class="secondary"><button>Land here</button><button>Come back to me</button></div>
+  </section>
+
+  <footer class="foot">
+    <span class="rec"><i aria-hidden="true"></i>Recording 3:42</span>
+    <span>GPS 16 satellites</span>
+    <span>Synthetic data</span>
+  </footer>
+</main>
+
+<script type="module">
+import { S, view, pathD, coast, ticks, cone, arrow } from "../shared/map.js";
+const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const v = view(390, 392, [-3.5, 1.5], 9.5);
+const c = coast(v);
+const D = S.drone.pos, H = S.target.heading;
+const svg = [];
+// sea and land, the chart's two tints
+svg.push(`<rect width="390" height="392" fill="${css("--land")}"/>`);
+svg.push(`<path d="${c.sea}" fill="${css("--water")}"/>`);
+svg.push(`<path d="${c.line}" fill="none" stroke="${css("--shore")}" stroke-width="1.6"/>`);
+// facility-map boundary offshore, with the ceiling figures on each side, as a UAS facility map prints them
+const A = S.airspace;
+svg.push(`<path d="${pathD(v, A.neighbour.edge)}" stroke="${css("--air")}" stroke-width="2.2" stroke-opacity=".7"/>`);
+svg.push(`<text x="18" y="${v.Y([0, A.neighbour.edge[0][1]]) - 12}" class="ceil" fill="${css("--air")}">${A.neighbour.ceiling}</text>`);
+svg.push(`<text x="18" y="${v.Y([0, A.neighbour.edge[0][1]]) + 30}" class="ceil" fill="${css("--air")}">${A.here}</text>`);
+// geofence: Class D style dashed ring
+svg.push(`<circle cx="${v.X([0, 0])}" cy="${v.Y([0, 0])}" r="${S.geofence.radius * v.scale}" fill="none" stroke="${css("--air")}" stroke-width="2" stroke-dasharray="9 6"/>`);
+// the trail itself, as a chart road: a pale band under everything that moves
+svg.push(`<path d="${pathD(v, S.walker.concat(S.trailAhead))}" fill="none" stroke="${css("--paper")}" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>`);
+// obstacles
+for (const o of S.obstacles) {
+  svg.push(`<circle cx="${v.X(o.pos)}" cy="${v.Y(o.pos)}" r="${Math.max(3, o.r * v.scale)}" fill="${css("--ink")}" fill-opacity=".72"/>`);
+  if (o.kind !== "lamp post") svg.push(`<text x="${v.X(o.pos) + Math.max(3, o.r * v.scale) + 4}" y="${v.Y(o.pos) + 4}" class="obs" fill="${css("--muted")}">${o.kind[0].toUpperCase() + o.kind.slice(1)}</text>`);
+}
+// ToF cones from the drone
+const tofs = [[H, S.tof.front], [H + 90, S.tof.right], [H - 90, S.tof.left]];
+for (const [b, r] of tofs) svg.push(`<path d="${cone(v, D, b, r)}" fill="${css("--air")}" fill-opacity="${r < 3 ? .32 : .16}"/>`);
+// your path, then Wisp's path in the signature colour with one tick per 5 s
+svg.push(`<path d="${pathD(v, S.walker)}" fill="none" stroke="${css("--ink")}" stroke-width="2" stroke-opacity=".5" stroke-dasharray="1 5" stroke-linecap="round"/>`);
+svg.push(`<path d="${pathD(v, S.drone.trail)}" fill="none" stroke="${css("--wisp")}" stroke-width="3.2" stroke-linejoin="round"/>`);
+svg.push(`<path d="${ticks(v, S.drone.trail, 5, 6)}" stroke="${css("--wisp")}" stroke-width="2"/>`);
+// follow offset
+svg.push(`<line x1="${v.X(D)}" y1="${v.Y(D)}" x2="${v.X([0, 0])}" y2="${v.Y([0, 0])}" stroke="${css("--wisp")}" stroke-width="1.6" stroke-dasharray="3 3"/>`);
+svg.push(`<text x="${(v.X(D) + v.X([0, 0])) / 2 - 2}" y="${(v.Y(D) + v.Y([0, 0])) / 2 - 22}" class="lbl" fill="${css("--wisp")}">4.0 m</text>`);
+// where you will be in 3 s, from your filtered velocity: Wisp aims its framing there
+svg.push(`<circle cx="${v.X(S.predicted)}" cy="${v.Y(S.predicted)}" r="6" fill="none" stroke="${css("--ink")}" stroke-width="1.6" stroke-dasharray="2 2.5"/>`);
+svg.push(`<text x="${v.X(S.predicted) + 10}" y="${v.Y(S.predicted) + 4}" class="obs" fill="${css("--muted")}">In 3 s</text>`);
+// you
+svg.push(`<circle cx="${v.X([0, 0])}" cy="${v.Y([0, 0])}" r="9" fill="${css("--paper")}" stroke="${css("--ink")}" stroke-width="3"/>`);
+svg.push(`<path d="${arrow(v, [0.7 * Math.sin(H * Math.PI / 180) * 3, 0.7 * Math.cos(H * Math.PI / 180) * 3], H, 7)}" fill="${css("--ink")}"/>`);
+svg.push(`<text x="${v.X([0, 0]) + 4}" y="${v.Y([0, 0]) + 27}" class="lbl" fill="${css("--ink")}">You</text>`);
+// Wisp
+svg.push(`<path d="${arrow(v, D, H, 15)}" fill="${css("--wisp")}" stroke="${css("--paper")}" stroke-width="2"/>`);
+svg.push(`<text x="${v.X(D) - 46}" y="${v.Y(D) + 26}" class="lbl" fill="${css("--wisp")}">Wisp</text>`);
+// scale bar
+svg.push(`<g transform="translate(18 370)"><rect width="${10 * v.scale}" height="4" fill="${css("--ink")}"/><text x="${10 * v.scale + 8}" y="6" class="scale" fill="${css("--ink")}">10 m</text></g>`);
+document.getElementById("map").insertAdjacentHTML("beforeend", svg.join(""));
+document.getElementById("sub").textContent = `${S.follow.distance.toFixed(1)} m behind and ${S.follow.height.toFixed(1)} m up, tracking your phone's GPS (${Math.round(S.target.confidence * 100)} % confident).`;
+</script>
+</body>
+</html>

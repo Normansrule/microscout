@@ -1,0 +1,77 @@
+/* SPDX-License-Identifier: MIT */
+/* Wisp concept 3, "Tower": the LA County lifeguard tower. Committed fields of sun-faded tower blue and sand,
+   painted numerals you can read from across the beach, rescue orange only for Wisp and its path, and the
+   beach-flag yellow for cautions. Built for a phone in full sun. */
+@font-face { font-family: "Barlow"; src: url("../fonts/barlow-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Barlow"; src: url("../fonts/barlow-latin-500-normal.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Barlow"; src: url("../fonts/barlow-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Barlow Condensed"; src: url("../fonts/barlow-condensed-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "Barlow Condensed"; src: url("../fonts/barlow-condensed-latin-800-normal.woff2") format("woff2"); font-weight: 800; font-display: swap; }
+
+:root {
+  --tower: #a3d3e8; --tower-2: #8cc4dd; --sand: #f1e6cc; --sand-2: #e6d7b3; --paper: #fffdf8;
+  --ink: #0c2b3b; --muted: #2c4c5d; --rescue: #c63a12; --flag: #ffd23f;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--sand-2); color: var(--ink); font: 400 15px/1.45 "Barlow", system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+::selection { background: var(--ink); color: var(--tower); }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+button { font: inherit; color: inherit; cursor: pointer; transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1); }
+button:active { transform: scale(0.97); }
+@media (prefers-reduced-motion: reduce) { button, button:active { transition: none; transform: none; } }
+.painted { font-family: "Barlow Condensed"; font-weight: 800; letter-spacing: -0.01em; line-height: 0.86; }
+
+/* ---------- phone ---------- */
+.phone-page { min-height: 100vh; display: grid; place-items: center; padding: 24px 0; }
+.phone { width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column; background: var(--paper); }
+.field { background: var(--tower); padding: 18px 20px 0; }
+.field .say { margin: 0; font-weight: 700; font-size: 17px; display: flex; justify-content: space-between; }
+.field .say span { font-weight: 500; color: var(--muted); }
+.numbers { display: flex; align-items: flex-end; gap: 18px; margin-top: 8px; }
+.numbers .painted { font-size: 112px; }
+.numbers .unit { font: 600 20px/1.1 "Barlow Condensed"; padding-bottom: 8px; }
+.numbers .unit b { display: block; font-size: 44px; font-weight: 800; }
+.elev { display: block; width: 390px; margin: 2px -20px 0; }
+.map { height: 150px; background: var(--sand); }
+.map svg { display: block; width: 390px; height: 150px; }
+.body { padding: 14px 20px 14px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+.flags { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.flags button { height: 40px; border: 0; background: var(--sand); font: 600 17px "Barlow Condensed"; }
+.flags button[aria-checked="true"] { background: var(--ink); color: var(--paper); }
+.caution { margin: 0; background: var(--flag); padding: 8px 12px; font-weight: 500; }
+.caution b { font-weight: 700; }
+.line { display: flex; justify-content: space-between; font-size: 14px; color: var(--muted); }
+.line b { color: var(--ink); }
+.stop { margin-top: auto; height: 62px; border: 0; background: var(--ink); color: var(--paper); font: 800 26px "Barlow Condensed"; letter-spacing: 0.01em; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pair button { height: 42px; border: 0; background: var(--sand); font: 600 17px "Barlow Condensed"; }
+
+/* ---------- Control Lab ---------- */
+.lab { width: 1440px; height: 900px; display: grid; grid-template-columns: 392px 1fr; background: var(--paper); }
+.left { background: var(--tower); padding: 26px 28px; display: flex; flex-direction: column; gap: 18px; }
+.left .brand { display: flex; justify-content: space-between; align-items: baseline; font-weight: 700; font-size: 17px; }
+.left .brand span { font-weight: 500; color: var(--muted); }
+.left h1 { margin: 6px 0 0; font: 800 54px/0.9 "Barlow Condensed"; }
+.big2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; }
+.big2 p { margin: 0; }
+.big2 .painted { font-size: 76px; }
+.big2 .cap { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.slider label { display: flex; justify-content: space-between; font-weight: 500; }
+.slider output { font: 800 22px "Barlow Condensed"; }
+.slider input { width: 100%; accent-color: var(--ink); height: 26px; }
+.left .apply { margin-top: auto; height: 52px; border: 0; background: var(--ink); color: var(--paper); font: 800 22px "Barlow Condensed"; }
+.right { display: grid; grid-template-rows: auto 1fr auto; min-width: 0; }
+.sign { padding: 26px 34px 18px; }
+.sign p { margin: 0; color: var(--muted); font-size: 15px; }
+.sign .eq { font: 800 46px/1.02 "Barlow Condensed"; color: var(--ink); margin-top: 8px; }
+.sign .eq span { color: var(--muted); font-weight: 600; }
+.sign .eq b { color: var(--rescue); }
+.charts { display: grid; grid-template-columns: 1.1fr 1fr; gap: 26px; padding: 4px 34px; min-height: 0; }
+.charts h2 { margin: 0; font: 800 24px "Barlow Condensed"; }
+.charts p { margin: 2px 0 6px; color: var(--muted); font-size: 14px; }
+.charts svg { display: block; width: 100%; }
+.charts svg text { font: 500 12.5px "Barlow"; fill: var(--muted); }
+.charts svg text.mk { font: 700 14px "Barlow"; }
+.status { background: var(--sand); padding: 12px 34px; display: flex; justify-content: space-between; font-size: 14px; color: var(--muted); }
+.status b { color: var(--ink); }
