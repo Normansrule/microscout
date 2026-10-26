@@ -1,6 +1,6 @@
 # Wisp checks: simulator tests and Flight Lab tests on every push.
 # They check consistency only, not that anything flies. The archived MicroScout schematic job was removed
-# with the move to Wisp (its last run is on tag microscout-g3-draft).
+# with the move to Wisp (its last run is on branch archive/microscout-g3-draft).
 name: checks
 on:
   push:

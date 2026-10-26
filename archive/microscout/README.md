@@ -18,8 +18,8 @@ What is here, frozen:
 | `tools-pcb/`, `tools-sch/`, `tools-viz/` | Layout, schematic and figure generators | The ESC power-cell rework in `tools-pcb/esc.py` is unfinished |
 | `docs/` | Decisions log, protocol, setup and publishing notes | G3 |
 
-The scripts expect the original folder layout. To rebuild anything, check out tag `microscout-g3-draft`
-(the last gate deliverable) or the commit before the move. The MicroScout design explorer page is kept at
+The scripts expect the original folder layout. To rebuild anything, check out branch `archive/microscout-g3-draft`
+(commit 45a016a, the last gate deliverable) or commit 9e2e074 (the last one before the move). The MicroScout design explorer page is kept at
 `docs/microscout/`.
 
 STATUS: DRAFT - UNVERIFIED. Nothing here was built or tested.
